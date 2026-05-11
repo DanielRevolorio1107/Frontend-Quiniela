@@ -1,0 +1,49 @@
+<div class="league-page">
+  <div class="league-card">
+    <div class="league-header">
+      <div>
+        <h1>Mis ligas</h1>
+        <p>Aquí puedes ver y administrar las ligas en las que participas.</p>
+      </div>
+
+      <div class="actions">
+        <a routerLink="/ligas/crear" class="btn-primary">Crear liga</a>
+        <a routerLink="/ligas/buscar" class="btn-secondary">Buscar ligas</a>
+      </div>
+    </div>
+
+    <div *ngIf="isLoading" class="info-box">
+      Cargando ligas...
+    </div>
+
+    <div *ngIf="errorMessage" class="message error-box">
+      {{ errorMessage }}
+    </div>
+
+    <div *ngIf="!isLoading && !errorMessage && ligas.length === 0" class="info-box">
+      Aún no tienes ligas registradas.
+    </div>
+
+    <div class="league-grid" *ngIf="!isLoading && ligas.length > 0">
+      <div class="league-item" *ngFor="let liga of ligas">
+        <h2>{{ liga.nombre }}</h2>
+
+        <p class="league-type">
+          Tipo: <strong>{{ getTipoLiga(liga) }}</strong>
+        </p>
+
+        <p *ngIf="liga.precioPorUnirse !== null && liga.precioPorUnirse !== undefined">
+          Precio por unirse: <strong>{{ liga.precioPorUnirse }}</strong>
+        </p>
+
+        <p *ngIf="liga.torneoId">
+          Torneo ID: <strong>{{ liga.torneoId }}</strong>
+        </p>
+
+        <a [routerLink]="['/ligas', liga.id]" class="btn-link">
+          Ver detalle
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

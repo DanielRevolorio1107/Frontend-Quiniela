@@ -1,0 +1,88 @@
+<div class="league-page">
+  <div class="league-card">
+    <div class="top-bar">
+      <a routerLink="/ligas" class="btn-secondary">← Volver a mis ligas</a>
+    </div>
+
+    <div class="league-header">
+      <h1>Buscar ligas</h1>
+      <p>Busca ligas disponibles y solicita unirte.</p>
+    </div>
+
+    <form [formGroup]="searchForm" (ngSubmit)="onSearch()" class="search-form" novalidate>
+      <div class="form-group">
+        <label for="nombre">Nombre de la liga</label>
+        <input
+          id="nombre"
+          type="text"
+          formControlName="nombre"
+          class="league-input"
+          placeholder="Ingresa el nombre de la liga"
+        />
+
+        <small class="error-text" *ngIf="nombre.touched && nombre.hasError('required')">
+          Debes ingresar un nombre para buscar.
+        </small>
+
+        <small class="error-text" *ngIf="nombre.touched && nombre.hasError('minlength')">
+          Ingresa al menos 2 caracteres.
+        </small>
+      </div>
+
+      <button type="submit" class="btn-primary" [disabled]="isLoading">
+        {{ isLoading ? 'Buscando...' : 'Buscar ligas' }}
+      </button>
+    </form>
+
+    <div *ngIf="errorMessage" class="message error-box">
+      {{ errorMessage }}
+    </div>
+
+    <div *ngIf="successMessage" class="message success-box">
+      {{ successMessage }}
+    </div>
+
+    <div *ngIf="!isLoading && resultados.length === 0" class="info-box">
+      No hay resultados todavía. Realiza una búsqueda.
+    </div>
+
+    <div class="league-grid" *ngIf="!isLoading && resultados.length > 0">
+      <div class="league-item" *ngFor="let liga of resultados">
+        <h2>{{ liga.nombre }}</h2>
+
+        <p>
+          Tipo: <strong>{{ getTipoLiga(liga) }}</strong>
+        </p>
+
+        <p *ngIf="liga.precioPorUnirse !== null && liga.precioPorUnirse !== undefined">
+          Precio por unirse: <strong>{{ liga.precioPorUnirse }}</strong>
+        </p>
+
+        <p *ngIf="liga.torneoId">
+          Torneo ID: <strong>{{ liga.torneoId }}</strong>
+        </p>
+
+        <div class="form-group join-group">
+          <label [for]="'equipo-' + liga.id">Nombre de tu equipo</label>
+          <input
+            [id]="'equipo-' + liga.id"
+            type="text"
+            class="league-input"
+            [value]="teamNames[liga.id] || ''"
+            (input)="teamNames[liga.id] = $any($event.target).value"
+            placeholder="Ingresa tu nombre de equipo"
+          />
+        </div>
+
+        <button
+          type="button"
+          class="btn-join"
+          (click)="unirseALiga(liga.id)"
+          [disabled]="joinLoadingLeagueId === liga.id"
+        >
+          {{ joinLoadingLeagueId === liga.id ? 'Enviando...' : 'Solicitar unirme' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
