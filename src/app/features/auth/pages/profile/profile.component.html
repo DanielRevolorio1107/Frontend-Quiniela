@@ -1,0 +1,21 @@
+<div class="profile-page">
+  <div class="profile-card">
+    <h1>Mi perfil</h1>
+
+    <div *ngIf="isLoading">
+      Cargando perfil...
+    </div>
+
+    <div class="error-box" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </div>
+
+    <div *ngIf="user && !isLoading">
+      <p><strong>Correo:</strong> {{ user.email }}</p>
+      <p><strong>Nombre:</strong> {{ user.fullName }}</p>
+      <p><strong>Rol:</strong> {{ user.role?.name }}</p>
+    </div>
+
+    <button class="btn-auth" (click)="logout()">Cerrar sesión</button>
+  </div>
+</div>

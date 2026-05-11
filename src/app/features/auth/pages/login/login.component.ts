@@ -1,22 +1,24 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import { AuthService } from '../../services/auth.services';
 import { LoginRequest } from '../../interfaces/login-request.interface';
+import { SessionService } from '../../../../core/services/session.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.scss'
+  styleUrl: './login.component.css'
 })
 export class LoginComponent {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
-
+  private sessionService = inject(SessionService);
+  private router = inject(Router);
   isLoading = false;
   errorMessage = '';
   successMessage = '';
@@ -56,13 +58,17 @@ export class LoginComponent {
 
     this.authService.login(payload).subscribe({
       next: (response) => {
-        localStorage.setItem('token', response.token);
-        localStorage.setItem('email', response.email);
-        localStorage.setItem('fullName', response.fullname);
-        localStorage.setItem('role', response.role.name);
+        this.sessionService.setSession(
+          response.token,
+          response.email,
+          response.fullname,
+          response.role.name
+        );
 
         this.successMessage = 'Inicio de sesión exitoso.';
         this.isLoading = false;
+
+        this.router.navigate(['/profile']);
 
         console.log('Login correcto:', response);
       },

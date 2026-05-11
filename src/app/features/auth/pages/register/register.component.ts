@@ -12,7 +12,7 @@ import { passwordMatchValidator } from '../../../../shared/validators/password-m
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './register.component.html',
-  styleUrl: './register.component.scss'
+  styleUrl: './register.component.css'
 })
 export class RegisterComponent {
   private fb = inject(FormBuilder);
@@ -28,18 +28,17 @@ export class RegisterComponent {
   constructor() {
 this.registerForm = this.fb.group(
   {
-    username: ['', [Validators.required, Validators.minLength(3)]],
     firstName: ['', [Validators.required, Validators.minLength(2)]],
     lastName: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.email]],
     password: [
-  '',
-  [
-    Validators.required,
-    Validators.minLength(6),
-    Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#_-])[A-Za-z\d@$!%*?&.#_-]+$/)
-  ]
-],
+      '',
+      [
+        Validators.required,
+        Validators.minLength(8),
+        Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#_-])[A-Za-z\d@$!%*?&.#_-]+$/)
+      ]
+    ],
     confirmPassword: ['', [Validators.required]]
   },
   {
@@ -47,9 +46,7 @@ this.registerForm = this.fb.group(
   }
 );
   }
-  get username() {
-  return this.registerForm.get('username')!;
-}
+
   get firstName() {
     return this.registerForm.get('firstName')!;
   }
@@ -82,11 +79,10 @@ this.registerForm = this.fb.group(
     this.isLoading = true;
 
     const payload: RegisterRequest = {
-    username: this.username.value.trim(),
-    firstname: this.firstName.value.trim(),
-    lastname: this.lastName.value.trim(),
-    email: this.email.value.trim(),
-    password: this.password.value
+      firstName: this.firstName.value.trim(),
+      lastName: this.lastName.value.trim(),
+      email: this.email.value.trim(),
+      password: this.password.value
     };
     this.authService.register(payload).subscribe({
       next: (response) => {
