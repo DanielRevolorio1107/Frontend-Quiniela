@@ -10,6 +10,9 @@ import { LeagueCreateComponent } from './features/leagues/pages/league-create/le
 import { LeagueDetailComponent } from './features/leagues/pages/league-detail/league-detail.component';
 import { LeagueSearchComponent } from './features/leagues/pages/league-search/league-search.component';
 import { InvitationResponseComponent } from './features/leagues/pages/invitation-response/invitation-response.component';
+import { MyPredictionsComponent } from './features/predictions/pages/my-predictions/my-predictions.component';
+import { PredictionFormComponent } from './features/predictions/pages/prediction-form/prediction-form.component';
+import { MatchListComponent } from './features/predictions/pages/match-list/match-list.component';
 
 export const routes: Routes = [
     {path: '', redirectTo: 'login', pathMatch: 'full'},
@@ -23,5 +26,8 @@ export const routes: Routes = [
     { path: 'ligas/buscar', component: LeagueSearchComponent, canActivate: [authGuard] },
     { path: 'ligas/:id', component: LeagueDetailComponent, canActivate: [authGuard] },
     { path: 'invitacion/responder', component: InvitationResponseComponent },
-    {path: '**', redirectTo: 'login'},
+    { path: 'partidos', component: MatchListComponent, canActivate: [authGuard] },
+    { path: 'predicciones/nueva/:partidoId', component: PredictionFormComponent, canActivate: [authGuard] },
+    { path: 'predicciones/mias', component: MyPredictionsComponent, canActivate: [authGuard] },
+    { path: '**', redirectTo: 'login'},
 ];
