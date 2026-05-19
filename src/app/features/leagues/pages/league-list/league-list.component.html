@@ -9,6 +9,9 @@
       <div class="actions">
         <a routerLink="/ligas/crear" class="btn-primary">Crear liga</a>
         <a routerLink="/ligas/buscar" class="btn-secondary">Buscar ligas</a>
+        <button type="button" class="btn-secondary" (click)="loadMisLigas()">Actualizar</button>
+        <button type="button" class="btn-secondary" (click)="goToProfile()">Mi perfil</button>
+        <button type="button" class="btn-danger" (click)="logout()">Cerrar sesión</button>
       </div>
     </div>
 

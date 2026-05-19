@@ -65,10 +65,9 @@ export class LoginComponent {
           response.role.name
         );
 
-        this.successMessage = 'Inicio de sesión exitoso.';
         this.isLoading = false;
 
-        this.router.navigate(['/profile']);
+        this.router.navigate(['/ligas']);
 
         console.log('Login correcto:', response);
       },

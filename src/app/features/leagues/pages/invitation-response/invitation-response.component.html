@@ -1,0 +1,57 @@
+<div class="invite-page">
+  <div class="invite-card">
+    <div class="invite-header">
+      <h1>Responder invitación</h1>
+      <p>Decide si deseas unirte a la liga</p>
+    </div>
+
+    <div class="message error-box" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </div>
+
+    <div class="message success-box" *ngIf="successMessage">
+      {{ successMessage }}
+    </div>
+
+    <form [formGroup]="responseForm" novalidate>
+      <div class="form-group">
+        <label for="nombreEquipo">Nombre de tu equipo</label>
+        <input
+          id="nombreEquipo"
+          type="text"
+          formControlName="nombreEquipo"
+          class="invite-input"
+          placeholder="Ingresa el nombre de tu equipo"
+        />
+
+        <small class="error-text" *ngIf="nombreEquipo.touched && nombreEquipo.hasError('minlength')">
+          El nombre del equipo debe tener al menos 2 caracteres.
+        </small>
+      </div>
+
+      <div class="button-group">
+        <button
+          type="button"
+          class="btn-accept"
+          (click)="aceptarInvitacion()"
+          [disabled]="isLoading || !token"
+        >
+          {{ isLoading ? 'Procesando...' : 'Aceptar invitación' }}
+        </button>
+
+        <button
+          type="button"
+          class="btn-reject"
+          (click)="rechazarInvitacion()"
+          [disabled]="isLoading || !token"
+        >
+          Rechazar invitación
+        </button>
+      </div>
+    </form>
+
+    <div class="invite-footer">
+      <a routerLink="/login">Ir al inicio de sesión</a>
+    </div>
+  </div>
+</div>
