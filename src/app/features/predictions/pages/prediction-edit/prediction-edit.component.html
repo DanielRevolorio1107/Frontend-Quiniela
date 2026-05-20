@@ -1,0 +1,55 @@
+<div class="pred-page">
+  <div class="pred-card">
+    <div class="top-bar">
+      <a routerLink="/predicciones/mias" class="btn-secondary">← Volver a mis predicciones</a>
+    </div>
+
+    <div *ngIf="errorMessage" class="message error-box">
+      {{ errorMessage }}
+    </div>
+
+    <div *ngIf="successMessage" class="message success-box">
+      {{ successMessage }}
+    </div>
+
+    <section *ngIf="isLoading" class="info-box">
+      Cargando predicción...
+    </section>
+
+    <section *ngIf="!isLoading && prediccion" class="match-summary">
+      <h1>Editar predicción</h1>
+      <p class="match-title">{{ getPartido() }}</p>
+      <p><strong>Fecha:</strong> {{ getFecha() }}</p>
+    </section>
+
+    <form [formGroup]="editForm" (ngSubmit)="onSubmit()" novalidate>
+      <div class="score-grid">
+        <div class="form-group">
+          <label for="golesLocal">Goles local</label>
+          <input
+            id="golesLocal"
+            type="number"
+            formControlName="golesLocal"
+            class="pred-input"
+            min="0"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="golesVisitante">Goles visitante</label>
+          <input
+            id="golesVisitante"
+            type="number"
+            formControlName="golesVisitante"
+            class="pred-input"
+            min="0"
+          />
+        </div>
+      </div>
+
+      <button type="submit" class="btn-primary" [disabled]="isSubmitting || isLoading">
+        {{ isSubmitting ? 'Guardando...' : 'Actualizar predicción' }}
+      </button>
+    </form>
+  </div>
+</div>

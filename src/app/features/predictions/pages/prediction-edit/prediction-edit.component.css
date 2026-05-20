@@ -68,13 +68,6 @@ label {
   gap: 16px;
 }
 
-.error-text {
-  display: block;
-  margin-top: 6px;
-  color: #dc2626;
-  font-size: 12px;
-}
-
 .message {
   border-radius: 10px;
   padding: 12px 14px;

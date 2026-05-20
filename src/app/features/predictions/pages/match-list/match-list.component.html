@@ -1,6 +1,56 @@
 <div class="pred-page">
   <div class="pred-card">
-    <h1>Partidos</h1>
-    <p>Aquí se mostrarán los partidos disponibles para predecir.</p>
+    <div class="pred-header">
+      <div>
+        <h1>Partidos pendientes</h1>
+        <p>Aquí puedes consultar los partidos disponibles para registrar predicciones.</p>
+      </div>
+
+      <div class="top-actions">
+        <a routerLink="/predicciones/mias" class="btn-secondary">Mis predicciones</a>
+      </div>
+    </div>
+
+    <form [formGroup]="filtroForm" (ngSubmit)="buscarPartidos()" class="filter-form" novalidate>
+      <div class="form-group">
+        <label for="torneoId">Torneo ID</label>
+        <input
+          id="torneoId"
+          type="number"
+          formControlName="torneoId"
+          class="pred-input"
+          min="1"
+        />
+
+        <small class="error-text" *ngIf="torneoId.touched && torneoId.hasError('required')">
+          El torneo es obligatorio.
+        </small>
+      </div>
+
+      <button type="submit" class="btn-primary" [disabled]="isLoading">
+        {{ isLoading ? 'Cargando...' : 'Buscar partidos' }}
+      </button>
+    </form>
+
+    <div *ngIf="errorMessage" class="message error-box">
+      {{ errorMessage }}
+    </div>
+
+    <div *ngIf="!isLoading && partidos.length === 0" class="info-box">
+      No hay partidos cargados todavía. Haz una búsqueda por torneo.
+    </div>
+
+    <div class="match-grid" *ngIf="!isLoading && partidos.length > 0">
+      <div class="match-item" *ngFor="let partido of partidos">
+        <h2>{{ getEquipoLocal(partido) }} vs {{ getEquipoVisitante(partido) }}</h2>
+
+        <p><strong>Fecha:</strong> {{ getFecha(partido) }}</p>
+        <p><strong>Estado:</strong> {{ getEstado(partido) }}</p>
+
+        <a [routerLink]="['/predicciones/nueva', partido.id]" class="btn-link">
+          Predecir partido
+        </a>
+      </div>
+    </div>
   </div>
 </div>
