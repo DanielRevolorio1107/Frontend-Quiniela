@@ -8,7 +8,7 @@ import { LeagueService } from '../../services/league.service';
 @Component({
   selector: 'app-league-search',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './league-search.component.html',
   styleUrl: './league-search.component.css'
 })

@@ -191,3 +191,17 @@ td {
   color: #dc2626;
   font-size: 12px;
 }
+.variation-up {
+  color: #15803d;
+  font-weight: 700;
+}
+
+.variation-down {
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+.variation-neutral {
+  color: #64748b;
+  font-weight: 600;
+}

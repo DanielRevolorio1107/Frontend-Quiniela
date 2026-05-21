@@ -95,4 +95,5 @@ export class LeagueService {
   respondInvitation(data: LeagueInvitationResponseRequest) {
     return this.http.post(`${environment.apiUrl}/invitacionliga/responder`, data);
   }
+
 }

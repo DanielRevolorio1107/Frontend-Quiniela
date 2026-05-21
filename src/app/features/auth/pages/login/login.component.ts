@@ -19,10 +19,10 @@ export class LoginComponent {
   private authService = inject(AuthService);
   private sessionService = inject(SessionService);
   private router = inject(Router);
+
   isLoading = false;
   errorMessage = '';
   successMessage = '';
-
   loginForm!: FormGroup;
 
   constructor() {
@@ -67,9 +67,8 @@ export class LoginComponent {
 
         this.isLoading = false;
 
-        // Redirigir según rol
         if (response.role.name === 'Administrador') {
-          this.router.navigate(['/bracket']);
+          this.router.navigate(['/admin']);
         } else {
           this.router.navigate(['/ligas']);
         }

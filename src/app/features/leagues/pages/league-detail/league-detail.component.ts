@@ -66,8 +66,12 @@ export class LeagueDetailComponent implements OnInit, OnDestroy {
   }
 
   async ngOnDestroy(): Promise<void> {
-    await this.signalrService.leaveLeague(this.ligaId);
-    await this.signalrService.stopConnection();
+    try {
+      await this.signalrService.leaveLeague(this.ligaId);
+      await this.signalrService.stopConnection();
+    } catch {
+      // evita errores al destruir el componente
+    }
   }
 
   get emailInvitado() {
@@ -146,12 +150,35 @@ export class LeagueDetailComponent implements OnInit, OnDestroy {
 
     this.leagueService.getRanking(this.ligaId).subscribe({
       next: (response: any) => {
-        this.ranking = this.extractArray(response);
+        const nuevoRanking = this.extractArray(response);
+        this.ranking = this.applyRankingVariation(nuevoRanking);
         this.isLoadingRanking = false;
       },
       error: () => {
         this.isLoadingRanking = false;
       }
+    });
+  }
+
+  private applyRankingVariation(nuevoRanking: any[]): any[] {
+    const posicionesAnteriores: Record<number, number> = {};
+
+    for (const fila of this.ranking) {
+      posicionesAnteriores[fila.userId] = fila.posicion;
+    }
+
+    return nuevoRanking.map((fila: any) => {
+      const posicionAnterior = posicionesAnteriores[fila.userId];
+      let variacion = 0;
+
+      if (posicionAnterior !== undefined) {
+        variacion = posicionAnterior - fila.posicion;
+      }
+
+      return {
+        ...fila,
+        variacion
+      };
     });
   }
 
@@ -164,12 +191,12 @@ export class LeagueDetailComponent implements OnInit, OnDestroy {
       await this.signalrService.joinLeague(this.ligaId);
 
       this.signalrService.onRankingUpdated((payload: any) => {
-        if (payload?.ligaId === this.ligaId && Array.isArray(payload?.ranking)) {
-          this.ranking = payload.ranking;
+        if (payload?.ligaId === this.ligaId) {
+          this.loadRanking();
         }
       });
-    } catch {
-      // si falla la conexión en tiempo real, el ranking sigue funcionando por carga normal
+    } catch (error) {
+      console.error('Error conectando SignalR:', error);
     }
   }
 
@@ -272,5 +299,16 @@ export class LeagueDetailComponent implements OnInit, OnDestroy {
 
   getTipoLiga(): string {
     return this.liga?.esDeApuestas ? 'Apuestas' : 'Diversión';
+  }
+
+  getVariationLabel(fila: any): string {
+    if (!fila?.variacion) return '—';
+    if (fila.variacion > 0) return `▲ +${fila.variacion}`;
+    return `▼ ${fila.variacion}`;
+  }
+
+  getVariationClass(fila: any): string {
+    if (!fila?.variacion) return 'variation-neutral';
+    return fila.variacion > 0 ? 'variation-up' : 'variation-down';
   }
 }
