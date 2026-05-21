@@ -1,0 +1,105 @@
+<div class="admin-page">
+  <div class="admin-card">
+
+    <div class="top-bar">
+      <h1>Reportes de actividad</h1>
+      <button type="button" class="btn-secondary" (click)="loadResumen()">
+        Actualizar
+      </button>
+    </div>
+
+    <div *ngIf="errorMessage" class="message error-box">{{ errorMessage }}</div>
+    <div *ngIf="isLoadingResumen" class="info-box">Cargando resumen...</div>
+
+    <ng-container *ngIf="!isLoadingResumen && resumen">
+
+      <!-- ===== RESUMEN ===== -->
+      <section class="section">
+        <h2>Resumen general</h2>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-label">Usuarios</span>
+            <span class="stat-value">{{ resumen.totalUsuarios }}</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Ligas totales</span>
+            <span class="stat-value">{{ resumen.totalLigas }}</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Predicciones</span>
+            <span class="stat-value">{{ resumen.totalPredicciones }}</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Sesiones activas</span>
+            <span class="stat-value">{{ resumen.totalSesionesActivas }}</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Ligas de apuesta</span>
+            <span class="stat-value">{{ resumen.totalLigasApuesta }}</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Ligas de diversión</span>
+            <span class="stat-value">{{ resumen.totalLigasDiversion }}</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Partidos jugados</span>
+            <span class="stat-value">{{ resumen.partidosJugados }}</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Partidos pendientes</span>
+            <span class="stat-value">{{ resumen.partidosPendientes }}</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Invitaciones pendientes</span>
+            <span class="stat-value">{{ resumen.invitacionesPendientes }}</span>
+          </div>
+        </div>
+
+        <div class="total-recaudado">
+          <span class="total-label">Total recaudado en ligas de apuesta</span>
+          <span class="total-amount">{{ resumen.totalRecaudado | number:'1.2-2' }}</span>
+        </div>
+      </section>
+
+      <!-- ===== DESCARGAS ===== -->
+      <section class="section">
+        <h2>Exportar datos</h2>
+
+        <div class="download-grid">
+          <div class="download-card">
+            <div class="download-info">
+              <strong>Usuarios</strong>
+              <span>Lista completa con ligas y predicciones de cada usuario</span>
+            </div>
+            <button
+              type="button"
+              class="btn-download"
+              (click)="descargarUsuarios()"
+              [disabled]="isDownloadingUsuarios"
+            >
+              {{ isDownloadingUsuarios ? 'Generando...' : '↓ Descargar CSV' }}
+            </button>
+          </div>
+
+          <div class="download-card">
+            <div class="download-info">
+              <strong>Ligas</strong>
+              <span>Lista completa con tipo, miembros y recaudación de cada liga</span>
+            </div>
+            <button
+              type="button"
+              class="btn-download"
+              (click)="descargarLigas()"
+              [disabled]="isDownloadingLigas"
+            >
+              {{ isDownloadingLigas ? 'Generando...' : '↓ Descargar CSV' }}
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </ng-container>
+
+  </div>
+</div>

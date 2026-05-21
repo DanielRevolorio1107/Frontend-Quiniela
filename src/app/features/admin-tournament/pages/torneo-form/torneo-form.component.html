@@ -1,0 +1,77 @@
+<div class="admin-page">
+  <div class="admin-card">
+    <div class="top-bar">
+      <h1>{{ isEditMode ? 'Editar torneo' : 'Nuevo torneo' }}</h1>
+      <a routerLink="/admin/torneo" class="btn-secondary">← Volver</a>
+    </div>
+
+    <div *ngIf="isLoadingTorneo" class="info-box">Cargando datos del torneo...</div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate *ngIf="!isLoadingTorneo">
+
+      <div class="form-group">
+        <label for="nombre">Nombre del torneo</label>
+        <input id="nombre" type="text" formControlName="nombre" class="form-input"
+               placeholder="Ej: Copa Mundial FIFA 2026" />
+        <small class="error-text" *ngIf="nombre.touched && nombre.hasError('required')">
+          El nombre es obligatorio.
+        </small>
+        <small class="error-text" *ngIf="nombre.touched && nombre.hasError('minlength')">
+          Mínimo 3 caracteres.
+        </small>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="anio">Año</label>
+          <input id="anio" type="number" formControlName="año" class="form-input"
+                 [class.disabled-field]="isEditMode" />
+          <small class="hint-text" *ngIf="isEditMode">El año no se puede modificar.</small>
+          <small class="error-text" *ngIf="anio.touched && anio.hasError('required')">
+            El año es obligatorio.
+          </small>
+          <small class="error-text" *ngIf="anio.touched && (anio.hasError('min') || anio.hasError('max'))">
+            Ingresa un año válido.
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label for="paisSede">País sede</label>
+          <input id="paisSede" type="text" formControlName="paisSede" class="form-input"
+                 placeholder="Ej: Estados Unidos" />
+          <small class="error-text" *ngIf="paisSede.touched && paisSede.hasError('required')">
+            El país es obligatorio.
+          </small>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="fechaInicio">Fecha de inicio</label>
+          <input id="fechaInicio" type="date" formControlName="fechaInicio" class="form-input" />
+          <small class="error-text" *ngIf="fechaInicio.touched && fechaInicio.hasError('required')">
+            La fecha de inicio es obligatoria.
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label for="fechaFin">Fecha de fin</label>
+          <input id="fechaFin" type="date" formControlName="fechaFin" class="form-input" />
+          <small class="error-text" *ngIf="fechaFin.touched && fechaFin.hasError('required')">
+            La fecha de fin es obligatoria.
+          </small>
+        </div>
+      </div>
+
+      <div *ngIf="errorMessage" class="message error-box">{{ errorMessage }}</div>
+      <div *ngIf="successMessage" class="message success-box">{{ successMessage }}</div>
+
+      <div class="form-actions">
+        <a routerLink="/admin/torneo" class="btn-secondary">Cancelar</a>
+        <button type="submit" class="btn-primary" [disabled]="isLoading">
+          {{ isLoading ? 'Guardando...' : (isEditMode ? 'Guardar cambios' : 'Crear torneo') }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
