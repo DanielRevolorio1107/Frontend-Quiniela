@@ -1,0 +1,58 @@
+<div class="pred-page">
+  <div class="pred-card">
+    <div class="pred-header">
+      <div>
+        <h1>Mis predicciones</h1>
+        <p>Aquí puedes consultar tus predicciones registradas por liga.</p>
+      </div>
+
+      <div class="top-actions">
+        <a routerLink="/partidos" class="btn-secondary">Partidos</a>
+      </div>
+    </div>
+
+    <form [formGroup]="filtroForm" (ngSubmit)="buscarPredicciones()" class="filter-form" novalidate>
+      <div class="form-group">
+        <label for="ligaId">Liga</label>
+        <select id="ligaId" formControlName="ligaId" class="pred-input">
+          <option value="">Selecciona una liga</option>
+          <option *ngFor="let liga of ligas" [value]="liga.id">
+            {{ liga.nombre }}
+          </option>
+        </select>
+
+        <small class="error-text" *ngIf="ligaId.touched && ligaId.hasError('required')">
+          Debes seleccionar una liga.
+        </small>
+      </div>
+
+      <button type="submit" class="btn-primary" [disabled]="isLoadingPredicciones || isLoadingLigas">
+        {{ isLoadingPredicciones ? 'Cargando...' : 'Ver mis predicciones' }}
+      </button>
+    </form>
+
+    <div *ngIf="errorMessage" class="message error-box">
+      {{ errorMessage }}
+    </div>
+
+    <div *ngIf="!isLoadingPredicciones && predicciones.length === 0" class="info-box">
+      No hay predicciones cargadas todavía.
+    </div>
+
+    <div class="prediction-grid" *ngIf="!isLoadingPredicciones && predicciones.length > 0">
+      <div class="prediction-item" *ngFor="let prediccion of predicciones">
+        <h2>{{ getPartido(prediccion) }}</h2>
+        <p><strong>Fecha:</strong> {{ getFecha(prediccion) }}</p>
+        <p><strong>Mi marcador:</strong> {{ getMarcador(prediccion) }}</p>
+
+        <p *ngIf="prediccion.puntos !== undefined && prediccion.puntos !== null">
+          <strong>Puntos:</strong> {{ prediccion.puntos }}
+        </p>
+
+        <a [routerLink]="['/predicciones/editar', prediccion.id]" class="btn-secondary btn-edit">
+          Editar predicción
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

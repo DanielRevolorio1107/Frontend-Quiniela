@@ -81,18 +81,18 @@ export class LeagueService {
   }
 
   sendInvitation(ligaId: number, data: LeagueInvitationCreateRequest) {
-  return this.http.post(`${environment.apiUrl}/invitacionliga/liga/${ligaId}`, data);
-}
+    return this.http.post(`${environment.apiUrl}/invitacionliga/liga/${ligaId}`, data);
+  }
 
-getInvitationsByLiga(ligaId: number) {
-  return this.http.get(`${environment.apiUrl}/invitacionliga/liga/${ligaId}`);
-}
+  getInvitationsByLiga(ligaId: number) {
+    return this.http.get(`${environment.apiUrl}/invitacionliga/liga/${ligaId}`);
+  }
 
-cancelInvitation(invitacionId: number) {
-  return this.http.delete(`${environment.apiUrl}/invitacionliga/${invitacionId}`);
-}
+  cancelInvitation(invitacionId: number) {
+    return this.http.delete(`${environment.apiUrl}/invitacionliga/${invitacionId}`);
+  }
 
-respondInvitation(data: LeagueInvitationResponseRequest) {
-  return this.http.post(`${environment.apiUrl}/invitacionliga/responder`, data);
-}
+  respondInvitation(data: LeagueInvitationResponseRequest) {
+    return this.http.post(`${environment.apiUrl}/invitacionliga/responder`, data);
+  }
 }
