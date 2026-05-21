@@ -23,6 +23,8 @@ import { PremiosComponent } from './features/admin-premios/pages/premios.compone
 import { TorneoListComponent } from './features/admin-tournament/pages/torneo-list/torneo-list.component';
 import { TorneoFormComponent } from './features/admin-tournament/pages/torneo-form/torneo-form.component';
 import { TorneoConfigComponent } from './features/admin-tournament/pages/torneo-config/torneo-config.component';
+import { BracketComponent } from './features/bracket/pages/bracket/bracket.component';
+
 
 export const routes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -60,6 +62,10 @@ export const routes: Routes = [
     { path: 'admin/torneo/crear', component: TorneoFormComponent, canActivate: [adminGuard] },
     { path: 'admin/torneo/:id/editar', component: TorneoFormComponent, canActivate: [adminGuard] },
     { path: 'admin/torneo/:id/configurar', component: TorneoConfigComponent, canActivate: [adminGuard] },
+
+
+
+    { path: 'bracket', component: BracketComponent, canActivate: [adminGuard] },
 
     { path: '**', redirectTo: 'login' },
 ];
