@@ -11,7 +11,8 @@
         <a routerLink="/ligas/buscar" class="btn-secondary">Buscar ligas</a>
         <a routerLink="/partidos" class="btn-secondary">Partidos</a>
         <a routerLink="/predicciones/mias" class="btn-secondary">Mis predicciones</a>
-        <a *ngIf="isSystemAdmin" routerLink="/admin/partidos" class="btn-secondary">Admin partidos</a>
+        <a routerLink="/bracket" class="btn-secondary">Bracket</a>
+        <a *ngIf="isSystemAdmin" routerLink="/admin" class="btn-secondary">Admin</a>
         <button type="button" class="btn-secondary" (click)="loadMisLigas()">Actualizar</button>
         <button type="button" class="btn-secondary" (click)="goToProfile()">Mi perfil</button>
         <button type="button" class="btn-danger" (click)="logout()">Cerrar sesión</button>

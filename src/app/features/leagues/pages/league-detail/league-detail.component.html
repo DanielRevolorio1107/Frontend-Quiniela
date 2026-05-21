@@ -138,6 +138,39 @@
     </section>
 
     <section class="section">
+  <h2>Tabla de posiciones</h2>
+
+  <div *ngIf="isLoadingRanking" class="info-box">
+    Cargando ranking...
+  </div>
+
+  <div *ngIf="!isLoadingRanking && ranking.length === 0" class="info-box">
+    No hay posiciones disponibles todavía.
+  </div>
+
+  <div class="table-wrapper" *ngIf="!isLoadingRanking && ranking.length > 0">
+    <table>
+      <thead>
+        <tr>
+          <th>Posición</th>
+          <th>Nombre</th>
+          <th>Equipo</th>
+          <th>Puntos</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let fila of ranking">
+          <td>{{ fila.posicion }}</td>
+          <td>{{ fila.fullName || fila.nombre || 'N/D' }}</td>
+          <td>{{ fila.nombreEquipo || 'N/D' }}</td>
+          <td>{{ fila.puntos }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+    <section class="section">
       <h2>Invitaciones por correo</h2>
 
       <form [formGroup]="invitationForm" (ngSubmit)="enviarInvitacion()" class="invitation-form" novalidate>
