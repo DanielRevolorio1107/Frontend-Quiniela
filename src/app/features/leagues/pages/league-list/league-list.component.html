@@ -9,6 +9,9 @@
       <div class="actions">
         <a routerLink="/ligas/crear" class="btn-primary">Crear liga</a>
         <a routerLink="/ligas/buscar" class="btn-secondary">Buscar ligas</a>
+        <a routerLink="/partidos" class="btn-secondary">Partidos</a>
+        <a routerLink="/predicciones/mias" class="btn-secondary">Mis predicciones</a>
+        <a *ngIf="isSystemAdmin" routerLink="/admin/partidos" class="btn-secondary">Admin partidos</a>
         <button type="button" class="btn-secondary" (click)="loadMisLigas()">Actualizar</button>
         <button type="button" class="btn-secondary" (click)="goToProfile()">Mi perfil</button>
         <button type="button" class="btn-danger" (click)="logout()">Cerrar sesión</button>
@@ -27,7 +30,7 @@
       Aún no tienes ligas registradas.
     </div>
 
-    <div class="league-grid" *ngIf="!isLoading && ligas.length > 0">
+    <div class="league-grid" *ngIf="!isLoading && !errorMessage && ligas.length > 0">
       <div class="league-item" *ngFor="let liga of ligas">
         <h2>{{ liga.nombre }}</h2>
 
@@ -43,9 +46,9 @@
           Torneo ID: <strong>{{ liga.torneoId }}</strong>
         </p>
 
-        <a [routerLink]="['/ligas', liga.id]" class="btn-link">
-          Ver detalle
-        </a>
+        <div class="card-actions">
+          <a [routerLink]="['/ligas', liga.id]" class="btn-link">Ver detalle</a>
+        </div>
       </div>
     </div>
   </div>

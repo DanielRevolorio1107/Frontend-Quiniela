@@ -92,6 +92,20 @@ export class MyPredictionsComponent implements OnInit {
     return [];
   }
 
+  canEdit(prediccion: any): boolean {
+  if (prediccion?.finalizado) {
+    return false;
+  }
+
+  const fecha = prediccion?.fechaHora;
+  if (!fecha) {
+    return false;
+  }
+
+  const limite = new Date(fecha).getTime() - (15 * 60 * 1000);
+  return Date.now() < limite;
+}
+
   getPartido(prediccion: any): string {
     const local =
       prediccion?.partido?.equipoLocal?.nombre ||
@@ -113,22 +127,20 @@ export class MyPredictionsComponent implements OnInit {
   }
 
   getFecha(prediccion: any): string {
-    const fecha =
-      prediccion?.partido?.fechaHora ||
-      prediccion?.fechaHora ||
-      prediccion?.partido?.fecha ||
-      prediccion?.fecha;
+  const fecha = prediccion?.fechaHora;
 
-    if (!fecha) return 'Sin fecha';
-
-    return new Intl.DateTimeFormat('es-GT', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true,
-      timeZone: 'UTC'
-    }).format(new Date(fecha));
+  if (!fecha) {
+    return 'Sin fecha';
   }
+
+  return new Intl.DateTimeFormat('es-GT', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+    timeZone: 'UTC'
+  }).format(new Date(fecha));
+}
 }

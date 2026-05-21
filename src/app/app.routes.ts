@@ -14,6 +14,7 @@ import { MyPredictionsComponent } from './features/predictions/pages/my-predicti
 import { PredictionFormComponent } from './features/predictions/pages/prediction-form/prediction-form.component';
 import { MatchListComponent } from './features/predictions/pages/match-list/match-list.component';
 import { PredictionEditComponent } from './features/predictions/pages/prediction-edit/prediction-edit.component';
+import { AdminMatchResultsComponent } from './features/admin/pages/admin-match-results/admin-match-results.component';
 
 export const routes: Routes = [
     {path: '', redirectTo: 'login', pathMatch: 'full'},
@@ -30,6 +31,7 @@ export const routes: Routes = [
     { path: 'partidos', component: MatchListComponent, canActivate: [authGuard] },
     { path: 'predicciones/nueva/:partidoId', component: PredictionFormComponent, canActivate: [authGuard] },
     { path: 'predicciones/mias', component: MyPredictionsComponent, canActivate: [authGuard] },
+    { path: 'admin/partidos', component: AdminMatchResultsComponent, canActivate: [authGuard] },
     { path: 'predicciones/editar/:id', component: PredictionEditComponent, canActivate: [authGuard] },
     { path: '**', redirectTo: 'login'},
 ];

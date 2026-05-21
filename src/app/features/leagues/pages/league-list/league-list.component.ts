@@ -20,8 +20,10 @@ export class LeagueListComponent implements OnInit {
   ligas: any[] = [];
   isLoading = true;
   errorMessage = '';
+  isSystemAdmin = false;
 
   ngOnInit(): void {
+    this.isSystemAdmin = localStorage.getItem('role') === 'Administrador';
     this.loadMisLigas();
   }
 

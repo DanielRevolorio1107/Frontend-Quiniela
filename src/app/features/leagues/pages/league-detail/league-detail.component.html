@@ -77,7 +77,7 @@
               <td>{{ miembro.fullName || miembro.nombre || 'N/D' }}</td>
               <td>{{ miembro.email || 'N/D' }}</td>
               <td>{{ miembro.estado || 'N/D' }}</td>
-              <td>{{ miembro.rol || miembro.role || 'N/D' }}</td>
+              <td>{{ miembro.esAdmin ? 'Administrador' : 'Miembro' }}</td>
             </tr>
           </tbody>
         </table>
@@ -136,73 +136,74 @@
         </table>
       </div>
     </section>
+
     <section class="section">
-  <h2>Invitaciones por correo</h2>
+      <h2>Invitaciones por correo</h2>
 
-  <form [formGroup]="invitationForm" (ngSubmit)="enviarInvitacion()" class="invitation-form" novalidate>
-    <div class="form-group">
-      <label for="emailInvitado">Correo del invitado</label>
-      <input
-        id="emailInvitado"
-        type="email"
-        formControlName="emailInvitado"
-        class="league-input"
-        placeholder="correo@ejemplo.com"
-      />
+      <form [formGroup]="invitationForm" (ngSubmit)="enviarInvitacion()" class="invitation-form" novalidate>
+        <div class="form-group">
+          <label for="emailInvitado">Correo del invitado</label>
+          <input
+            id="emailInvitado"
+            type="email"
+            formControlName="emailInvitado"
+            class="league-input"
+            placeholder="correo@ejemplo.com"
+          />
 
-      <small class="error-text" *ngIf="emailInvitado.touched && emailInvitado.hasError('required')">
-        El correo es obligatorio.
-      </small>
+          <small class="error-text" *ngIf="emailInvitado.touched && emailInvitado.hasError('required')">
+            El correo es obligatorio.
+          </small>
 
-      <small class="error-text" *ngIf="emailInvitado.touched && emailInvitado.hasError('email')">
-        Ingresa un correo válido.
-      </small>
-    </div>
+          <small class="error-text" *ngIf="emailInvitado.touched && emailInvitado.hasError('email')">
+            Ingresa un correo válido.
+          </small>
+        </div>
 
-    <button type="submit" class="btn-approve" [disabled]="isSendingInvitation">
-      {{ isSendingInvitation ? 'Enviando...' : 'Enviar invitación' }}
-    </button>
-  </form>
+        <button type="submit" class="btn-approve" [disabled]="isSendingInvitation">
+          {{ isSendingInvitation ? 'Enviando...' : 'Enviar invitación' }}
+        </button>
+      </form>
 
-  <div *ngIf="isLoadingInvitaciones" class="info-box">
-    Cargando invitaciones...
-  </div>
+      <div *ngIf="isLoadingInvitaciones" class="info-box">
+        Cargando invitaciones...
+      </div>
 
-  <div *ngIf="!isLoadingInvitaciones && invitaciones.length === 0" class="info-box">
-    No hay invitaciones enviadas.
-  </div>
+      <div *ngIf="!isLoadingInvitaciones && invitaciones.length === 0" class="info-box">
+        No hay invitaciones enviadas.
+      </div>
 
-  <div class="table-wrapper" *ngIf="!isLoadingInvitaciones && invitaciones.length > 0">
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Email</th>
-          <th>Estado</th>
-          <th>Token</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let invitacion of invitaciones">
-          <td>{{ invitacion.id }}</td>
-          <td>{{ invitacion.emailInvitado || invitacion.email || 'N/D' }}</td>
-          <td>{{ invitacion.estado || 'N/D' }}</td>
-          <td>{{ invitacion.token || 'N/D' }}</td>
-          <td>
-            <button
-              type="button"
-              class="btn-reject"
-              (click)="cancelarInvitacion(invitacion.id)"
-              [disabled]="cancelLoadingInvitationId === invitacion.id"
-            >
-              Cancelar
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</section>
+      <div class="table-wrapper" *ngIf="!isLoadingInvitaciones && invitaciones.length > 0">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Email</th>
+              <th>Estado</th>
+              <th>Token</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let invitacion of invitaciones">
+              <td>{{ invitacion.id }}</td>
+              <td>{{ invitacion.emailInvitado || invitacion.email || 'N/D' }}</td>
+              <td>{{ invitacion.estado || 'N/D' }}</td>
+              <td>{{ invitacion.token || 'N/D' }}</td>
+              <td>
+                <button
+                  type="button"
+                  class="btn-reject"
+                  (click)="cancelarInvitacion(invitacion.id)"
+                  [disabled]="cancelLoadingInvitationId === invitacion.id"
+                >
+                  Cancelar
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
   </div>
 </div>

@@ -146,3 +146,14 @@ label {
   background: #e2e8f0;
   color: #0f172a;
 }
+
+.pred-locked {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #f1f5f9;
+  color: #64748b;
+  font-weight: 600;
+  font-size: 14px;
+}

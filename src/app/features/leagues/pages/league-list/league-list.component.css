@@ -65,7 +65,6 @@
 .btn-link {
   background: #eff6ff;
   color: #2563eb;
-  margin-top: 12px;
 }
 
 .btn-danger {
@@ -120,4 +119,11 @@
 
 .league-type {
   color: #1e293b;
+}
+
+.card-actions {
+  margin-top: 12px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
 }

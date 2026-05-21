@@ -1,0 +1,63 @@
+<div class="admin-page">
+  <div class="admin-card">
+    <div class="top-bar">
+      <a routerLink="/ligas" class="btn-secondary">← Volver</a>
+    </div>
+
+    <h1>Ingreso de resultados oficiales</h1>
+    <p class="subtitle">Solo disponible para administradores del sistema.</p>
+
+    <div *ngIf="errorMessage" class="message error-box">
+      {{ errorMessage }}
+    </div>
+
+    <div *ngIf="successMessage" class="message success-box">
+      {{ successMessage }}
+    </div>
+
+    <div *ngIf="isLoading" class="info-box">
+      Cargando partidos...
+    </div>
+
+    <div class="match-grid" *ngIf="!isLoading && partidos.length > 0">
+      <div class="match-item" *ngFor="let partido of partidos">
+        <h2>{{ getEquipoLocal(partido) }} vs {{ getEquipoVisitante(partido) }}</h2>
+        <p><strong>Fecha:</strong> {{ getFecha(partido) }}</p>
+        <p><strong>Finalizado:</strong> {{ partido.finalizado ? 'Sí' : 'No' }}</p>
+
+        <div class="score-grid">
+          <div class="form-group">
+            <label>Goles local</label>
+            <input
+              type="number"
+              min="0"
+              [(ngModel)]="resultados[partido.id].golesLocal"
+              class="admin-input"
+              [disabled]="partido.finalizado"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Goles visitante</label>
+            <input
+              type="number"
+              min="0"
+              [(ngModel)]="resultados[partido.id].golesVisitante"
+              class="admin-input"
+              [disabled]="partido.finalizado"
+            />
+          </div>
+        </div>
+
+        <button
+          type="button"
+          class="btn-primary"
+          (click)="guardarResultado(partido)"
+          [disabled]="partido.finalizado"
+        >
+          {{ partido.finalizado ? 'Finalizado' : 'Guardar resultado' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -45,13 +45,21 @@
         <p><strong>Fecha:</strong> {{ getFecha(prediccion) }}</p>
         <p><strong>Mi marcador:</strong> {{ getMarcador(prediccion) }}</p>
 
-        <p *ngIf="prediccion.puntos !== undefined && prediccion.puntos !== null">
-          <strong>Puntos:</strong> {{ prediccion.puntos }}
+        <p *ngIf="prediccion.puntosGanados !== undefined && prediccion.puntosGanados !== null">
+          <strong>Puntos ganados:</strong> {{ prediccion.puntosGanados }}
         </p>
 
-        <a [routerLink]="['/predicciones/editar', prediccion.id]" class="btn-secondary btn-edit">
+        <a
+          *ngIf="canEdit(prediccion)"
+          [routerLink]="['/predicciones/editar', prediccion.id]"
+           class="btn-secondary btn-edit"
+        >
           Editar predicción
         </a>
+
+<span *ngIf="!canEdit(prediccion)" class="pred-locked">
+  Edición bloqueada
+</span>
       </div>
     </div>
   </div>
