@@ -9,6 +9,8 @@ import { UpdateUserRequest } from '../interfaces/update-user-request.interface';
 import { UpdateUserRoleRequest } from '../interfaces/update-user-role-request.interface';
 import { UpdateUserPasswordRequest } from '../interfaces/update-user-password-request.interface';
 import { MessageResponse } from '../../auth/interfaces/message-response.interface';
+import { Role } from '../interfaces/role.interface';
+
 
 @Injectable({ providedIn: 'root' })
 export class UserAdminService {
@@ -47,5 +49,8 @@ export class UserAdminService {
   //  204 No Content
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+  getRoles(): Observable<Role[]> {
+    return this.http.get<Role[]>(`${this.apiUrl}/roles`);
   }
 }

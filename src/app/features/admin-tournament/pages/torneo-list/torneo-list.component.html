@@ -1,0 +1,66 @@
+<div class="admin-page">
+  <div class="admin-card">
+    <div class="top-bar">
+      <h1>Torneos</h1>
+      <a routerLink="/admin/torneo/crear" class="btn-primary">+ Nuevo torneo</a>
+    </div>
+
+    <div class="filters">
+      <input type="text" class="form-input" placeholder="Buscar por nombre..." [(ngModel)]="searchNombre" />
+      <input type="text" class="form-input filter-sm" placeholder="Año (ej: 2026)" [(ngModel)]="searchAnio" />
+      <input type="text" class="form-input" placeholder="País sede..." [(ngModel)]="searchPais" />
+      <button type="button" class="btn-secondary" (click)="clearFilters()" *ngIf="hayFiltrosActivos">
+        × Limpiar
+      </button>
+    </div>
+
+    <div *ngIf="errorMessage" class="message error-box">{{ errorMessage }}</div>
+    <div *ngIf="successMessage" class="message success-box">{{ successMessage }}</div>
+    <div *ngIf="isLoading" class="info-box">Cargando torneos...</div>
+
+    <p class="result-count" *ngIf="!isLoading && torneos.length > 0">
+      {{ filteredTorneos.length }} de {{ torneos.length }} torneo(s)
+    </p>
+
+    <div *ngIf="!isLoading && filteredTorneos.length === 0 && torneos.length > 0" class="info-box">
+      Ningún torneo coincide con los filtros.
+    </div>
+    <div *ngIf="!isLoading && torneos.length === 0" class="info-box">
+      No hay torneos registrados.
+    </div>
+
+    <div class="table-wrapper" *ngIf="!isLoading && filteredTorneos.length > 0">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Año</th>
+            <th>País sede</th>
+            <th>Inicio</th>
+            <th>Fin</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of filteredTorneos">
+            <td>{{ t.id }}</td>
+            <td>{{ t.nombre }}</td>
+            <td>{{ t['año'] }}</td>
+            <td>{{ t.paisSede }}</td>
+            <td>{{ t.fechaInicio | date:'dd/MM/yyyy' }}</td>
+            <td>{{ t.fechaFin | date:'dd/MM/yyyy' }}</td>
+            <td class="actions">
+              <a [routerLink]="['/admin/torneo', t.id, 'configurar']" class="btn-link">Configurar</a>
+              <a [routerLink]="['/admin/torneo', t.id, 'editar']" class="btn-link">Editar</a>
+              <button type="button" class="btn-danger-link" (click)="eliminar(t)" [disabled]="deletingId === t.id">
+                {{ deletingId === t.id ? 'Eliminando...' : 'Eliminar' }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>

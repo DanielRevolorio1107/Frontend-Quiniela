@@ -1,0 +1,136 @@
+<div class="admin-page">
+  <div class="admin-card">
+    <div class="top-bar">
+      <a routerLink="/admin/usuarios" class="btn-secondary">← Volver a usuarios</a>
+    </div>
+
+    <div *ngIf="errorMessage" class="message error-box">{{ errorMessage }}</div>
+    <div *ngIf="successMessage" class="message success-box">{{ successMessage }}</div>
+
+    <div *ngIf="isLoadingUser" class="info-box">Cargando usuario...</div>
+
+    <ng-container *ngIf="!isLoadingUser && user">
+      <header class="user-header">
+        <h1>{{ user.fullName }}</h1>
+        <span class="role-badge" [class.role-admin]="user.role === 'Administrador'">
+          {{ user.role }}
+        </span>
+      </header>
+
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="label">ID</span>
+          <span class="value">{{ user.id }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Nombre</span>
+          <span class="value">{{ user.firstName }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Apellido</span>
+          <span class="value">{{ user.lastName }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Email</span>
+          <span class="value">{{ user.email }}</span>
+        </div>
+      </div>
+
+      <div class="actions-bar">
+        <a [routerLink]="['/admin/usuarios', user.id, 'editar']" class="btn-secondary">
+          Editar datos
+        </a>
+        <button type="button" class="btn-secondary" (click)="toggleRoleSection()">
+          {{ showRoleSection ? 'Cerrar' : 'Cambiar rol' }}
+        </button>
+        <button type="button" class="btn-secondary" (click)="togglePasswordSection()">
+          {{ showPasswordSection ? 'Cerrar' : 'Cambiar contraseña' }}
+        </button>
+        <button type="button" class="btn-danger" (click)="eliminar()" [disabled]="isDeleting">
+          {{ isDeleting ? 'Eliminando...' : 'Eliminar usuario' }}
+        </button>
+      </div>
+
+      <!-- ===== Cambiar rol ===== -->
+      <section class="sub-form" *ngIf="showRoleSection">
+        <h2>Cambiar rol</h2>
+        <form [formGroup]="roleForm" (ngSubmit)="submitRole()" novalidate>
+          <div class="form-group">
+            <label for="roleId">Nuevo rol</label>
+            <select id="roleId" formControlName="roleId" class="form-input">
+              <option [ngValue]="null" disabled>
+                {{ isLoadingRoles ? 'Cargando roles...' : 'Selecciona un rol' }}
+              </option>
+              <option *ngFor="let role of roles" [ngValue]="role.id">
+                {{ role.name }}
+              </option>
+            </select>
+            <small class="error-text" *ngIf="roleId.touched && roleId.hasError('required')">
+              Debes seleccionar un rol.
+            </small>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary" [disabled]="isSubmittingRole">
+              {{ isSubmittingRole ? 'Guardando...' : 'Guardar nuevo rol' }}
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- ===== Cambiar contraseña ===== -->
+      <section class="sub-form" *ngIf="showPasswordSection">
+        <h2>Cambiar contraseña</h2>
+        <form [formGroup]="passwordForm" (ngSubmit)="submitPassword()" novalidate>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="newPassword">Nueva contraseña</label>
+              <input
+                id="newPassword"
+                type="password"
+                formControlName="newPassword"
+                class="form-input"
+                autocomplete="new-password"
+              />
+              <small class="error-text" *ngIf="newPassword.touched && newPassword.hasError('required')">
+                La contraseña es obligatoria.
+              </small>
+              <small class="error-text" *ngIf="newPassword.touched && newPassword.hasError('minlength')">
+                Mínimo 8 caracteres.
+              </small>
+              <small class="error-text" *ngIf="newPassword.touched && newPassword.hasError('pattern')">
+                Debe incluir mayúscula, minúscula, número y carácter especial.
+              </small>
+            </div>
+
+            <div class="form-group">
+              <label for="confirmPassword">Confirmar nueva contraseña</label>
+              <input
+                id="confirmPassword"
+                type="password"
+                formControlName="confirmPassword"
+                class="form-input"
+                autocomplete="new-password"
+              />
+              <small class="error-text" *ngIf="confirmPassword.touched && confirmPassword.hasError('required')">
+                Debes confirmar la contraseña.
+              </small>
+              <small
+                class="error-text"
+                *ngIf="confirmPassword.touched && passwordForm.hasError('passwordMismatch') && !confirmPassword.hasError('required')"
+              >
+                Las contraseñas no coinciden.
+              </small>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary" [disabled]="isSubmittingPassword">
+              {{ isSubmittingPassword ? 'Guardando...' : 'Guardar nueva contraseña' }}
+            </button>
+          </div>
+        </form>
+      </section>
+    </ng-container>
+  </div>
+</div>
