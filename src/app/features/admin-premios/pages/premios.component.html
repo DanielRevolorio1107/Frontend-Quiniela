@@ -1,0 +1,213 @@
+<div class="admin-page">
+    <div class="admin-card">
+
+        <div class="top-bar">
+            <h1>Premios globales</h1>
+            <button type="button" class="btn-secondary" (click)="loadPremios()">
+                Actualizar
+            </button>
+        </div>
+
+        <div *ngIf="errorMessage" class="message error-box">{{ errorMessage }}</div>
+        <div *ngIf="successMessage" class="message success-box">{{ successMessage }}</div>
+
+        <!-- ===== PREMIOS EN TIEMPO REAL ===== -->
+        <section class="section">
+            <h2>Estimado en tiempo real</h2>
+
+            <div *ngIf="isLoadingPremios" class="info-box">Calculando premios...</div>
+
+            <ng-container *ngIf="!isLoadingPremios && premios">
+
+                <div class="stats-row">
+                    <div class="stat-card stat-highlight">
+                        <span class="stat-label">Total recaudado global</span>
+                        <span class="stat-value">{{ premios.totalRecaudadoGlobal | number:'1.2-2' }}</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Fondo individual (0.5%)</span>
+                        <span class="stat-value">{{ premios.montoGlobalIndividual | number:'1.2-2' }}</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Fondo de liga (0.5%)</span>
+                        <span class="stat-value">{{ premios.montoGlobalLiga | number:'1.2-2' }}</span>
+                    </div>
+                </div>
+
+                <!-- Top individuales -->
+                <div class="subsection" *ngIf="premios.topIndividuales.length > 0">
+                    <h3>Top individuales</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Nombre</th>
+                                <th>Puntos</th>
+                                <th>Premio estimado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let u of premios.topIndividuales">
+                                <td>{{ u.posicion }}</td>
+                                <td>{{ u.fullName }}</td>
+                                <td>{{ u.totalPuntos }}</td>
+                                <td>
+                                    <span *ngIf="u.premioAsignado !== null">
+                                        {{ u.premioAsignado | number:'1.2-2' }}
+                                    </span>
+                                    <span *ngIf="u.premioAsignado === null" class="text-muted">—</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="empty-note" *ngIf="premios.topIndividuales.length === 0">
+                    No hay participantes en ligas de apuesta todavía.
+                </div>
+
+                <!-- Mejor liga -->
+                <div class="subsection" *ngIf="premios.mejorLiga">
+                    <h3>Mejor liga</h3>
+                    <div class="liga-card">
+                        <div class="liga-item">
+                            <span class="label">Liga</span>
+                            <span class="value">{{ premios.mejorLiga.nombreLiga }}</span>
+                        </div>
+                        <div class="liga-item">
+                            <span class="label">Miembros</span>
+                            <span class="value">{{ premios.mejorLiga.totalMiembros }}</span>
+                        </div>
+                        <div class="liga-item">
+                            <span class="label">Promedio de puntos</span>
+                            <span class="value">{{ premios.mejorLiga.promedioPuntos | number:'1.2-2' }}</span>
+                        </div>
+                        <div class="liga-item">
+                            <span class="label">Premio total</span>
+                            <span class="value">{{ premios.mejorLiga.premioTotal | number:'1.2-2' }}</span>
+                        </div>
+                    </div>
+                </div>
+
+            </ng-container>
+        </section>
+
+        <hr class="divider">
+
+        <!-- ===== GESTIÓN POR TORNEO ===== -->
+        <section class="section">
+            <h2>Gestión por torneo</h2>
+
+            <div class="form-group">
+                <label for="torneo">Selecciona un torneo</label>
+                <select id="torneo" [(ngModel)]="torneoSeleccionado" (ngModelChange)="onTorneoChange()"
+                    class="form-input">
+                    <option [ngValue]="null" disabled>
+                        {{ isLoadingTorneos ? 'Cargando torneos...' : 'Selecciona un torneo' }}
+                    </option>
+                    <option *ngFor="let t of torneos" [ngValue]="t.id">
+                        {{ t.nombre }}
+                    </option>
+                </select>
+            </div>
+
+            <div class="torneo-actions" *ngIf="torneoSeleccionado">
+
+                <!-- Descargar CSV de premios -->
+                <div class="action-card">
+                    <div class="action-info">
+                        <strong>Exportar premios</strong>
+                        <span>Descarga el CSV con todos los premios distribuidos en este torneo</span>
+                    </div>
+                    <button type="button" class="btn-secondary" (click)="descargarPremios()"
+                        [disabled]="isDescargandoPremios">
+                        {{ isDescargandoPremios ? 'Generando...' : '↓ Descargar CSV' }}
+                    </button>
+                </div>
+
+                <!-- Ver historial -->
+                <div class="action-card">
+                    <div class="action-info">
+                        <strong>Historial de premios</strong>
+                        <span>Ver los premios que ya fueron distribuidos en este torneo</span>
+                    </div>
+                    <button type="button" class="btn-secondary" (click)="verHistorial()"
+                        [disabled]="isLoadingHistorial">
+                        {{ isLoadingHistorial ? 'Cargando...' : 'Ver historial' }}
+                    </button>
+                </div>
+
+                <!-- Cerrar torneo -->
+                <div class="action-card action-danger">
+                    <div class="action-info">
+                        <strong>Cerrar torneo</strong>
+                        <span>Calcula y registra todos los premios definitivos. Acción irreversible.</span>
+                    </div>
+                    <button type="button" class="btn-danger" (click)="cerrarTorneo()" [disabled]="isCerrando">
+                        {{ isCerrando ? 'Procesando...' : 'Cerrar torneo' }}
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Historial table -->
+            <div class="table-wrapper" *ngIf="historialCargado">
+                <h3 *ngIf="historial.length > 0">
+                    {{ historial.length }} premios distribuidos
+                </h3>
+                <div class="empty-note" *ngIf="historial.length === 0">
+                    No se han distribuido premios en este torneo todavía.
+                </div>
+                <table *ngIf="historial.length > 0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Usuario</th>
+                            <th>Liga</th>
+                            <th>Concepto</th>
+                            <th>Monto</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let p of historial">
+                            <td>{{ p.posicion }}</td>
+                            <td>{{ p.fullName }}</td>
+                            <td>{{ p.nombreLiga || '—' }}</td>
+                            <td>{{ p.concepto }}</td>
+                            <td>{{ p.monto | number:'1.2-2' }}</td>
+                            <td>{{ p.fechaDistribucion | date:'dd/MM/yyyy HH:mm' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Resultado del cierre -->
+            <div class="table-wrapper" *ngIf="resultadoCierre.length > 0">
+                <h3>Premios distribuidos en este cierre</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Usuario</th>
+                            <th>Liga</th>
+                            <th>Concepto</th>
+                            <th>Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let p of resultadoCierre">
+                            <td>{{ p.posicion }}</td>
+                            <td>{{ p.fullName }}</td>
+                            <td>{{ p.nombreLiga || '—' }}</td>
+                            <td>{{ p.concepto }}</td>
+                            <td>{{ p.monto | number:'1.2-2' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </section>
+
+    </div>
+</div>

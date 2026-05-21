@@ -1,0 +1,191 @@
+<div class="admin-page">
+  <div class="admin-card">
+
+    <!-- Cabecera -->
+    <div class="top-bar">
+      <div class="torneo-header" *ngIf="torneo">
+        <a routerLink="/admin/torneo" class="back-link">← Torneos</a>
+        <h1>{{ torneo.nombre }}</h1>
+        <span class="torneo-meta">{{ torneo['año'] }} · {{ torneo.paisSede }}</span>
+      </div>
+      <div *ngIf="isLoadingTorneo" class="info-box-inline">Cargando...</div>
+    </div>
+
+    <div *ngIf="errorMessage" class="message error-box">{{ errorMessage }}</div>
+    <div *ngIf="successMessage" class="message success-box">{{ successMessage }}</div>
+
+    <div class="tabs">
+      <button type="button" class="tab-btn" [class.active]="activeTab === 'fases'" (click)="activeTab = 'fases'">
+        Fases <span class="tab-count">{{ fases.length }}</span>
+      </button>
+      <button type="button" class="tab-btn" [class.active]="activeTab === 'grupos'" (click)="activeTab = 'grupos'">
+        Grupos <span class="tab-count">{{ grupos.length }}</span>
+      </button>
+    </div>
+
+    <div *ngIf="activeTab === 'fases'" class="tab-content">
+
+      <div class="section-actions">
+        <input type="text" class="form-input search-input" placeholder="Buscar fase..." [(ngModel)]="searchFase" />
+        <button type="button" class="btn-primary" (click)="toggleNuevaFase()">
+          {{ showNuevaFase ? '× Cancelar' : '+ Nueva fase' }}
+        </button>
+      </div>
+
+      <!-- Form nueva fase -->
+      <div class="inline-form" *ngIf="showNuevaFase">
+        <input type="text" class="form-input" placeholder="Nombre de la fase" [(ngModel)]="nuevaFase.nombre" />
+        <input type="number" class="form-input input-sm" placeholder="Orden" [(ngModel)]="nuevaFase.orden" min="1" />
+        <button type="button" class="btn-primary" (click)="crearFase()" [disabled]="isSubmittingFase || !nuevaFase.nombre.trim()">
+          {{ isSubmittingFase ? 'Guardando...' : 'Crear' }}
+        </button>
+      </div>
+
+      <div *ngIf="isLoadingFases" class="info-box">Cargando fases...</div>
+      <div *ngIf="!isLoadingFases && filteredFases.length === 0 && fases.length === 0" class="info-box">
+        No hay fases. Crea la primera arriba.
+      </div>
+      <div *ngIf="!isLoadingFases && filteredFases.length === 0 && fases.length > 0" class="info-box">
+        Ninguna fase coincide con la búsqueda.
+      </div>
+
+      <div class="table-wrapper" *ngIf="!isLoadingFases && filteredFases.length > 0">
+        <table>
+          <thead>
+            <tr>
+              <th>Orden</th>
+              <th>Nombre</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let fase of filteredFases">
+              <ng-container *ngIf="editingFaseId !== fase.id">
+                <td class="orden-cell">{{ fase.orden }}</td>
+                <td>{{ fase.nombre }}</td>
+                <td class="actions">
+                  <button type="button" class="btn-link" (click)="startEditFase(fase)">Editar</button>
+                  <button type="button" class="btn-danger-link" (click)="deleteFase(fase.id, fase.nombre)">Eliminar</button>
+                </td>
+              </ng-container>
+              <ng-container *ngIf="editingFaseId === fase.id">
+                <td>
+                  <input type="number" class="form-input input-sm" [(ngModel)]="editFase.orden" min="1" />
+                </td>
+                <td>
+                  <input type="text" class="form-input" [(ngModel)]="editFase.nombre" />
+                </td>
+                <td class="actions">
+                  <button type="button" class="btn-primary btn-sm" (click)="saveEditFase(fase.id)">Guardar</button>
+                  <button type="button" class="btn-secondary btn-sm" (click)="cancelEditFase()">Cancelar</button>
+                </td>
+              </ng-container>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div *ngIf="activeTab === 'grupos'" class="tab-content">
+
+      <div class="section-actions">
+        <input type="text" class="form-input search-input" placeholder="Buscar grupo..." [(ngModel)]="searchGrupo" />
+        <button type="button" class="btn-primary" (click)="toggleNuevoGrupo()">
+          {{ showNuevoGrupo ? '× Cancelar' : '+ Nuevo grupo' }}
+        </button>
+      </div>
+
+      <!-- Form nuevo grupo -->
+      <div class="inline-form" *ngIf="showNuevoGrupo">
+        <input type="text" class="form-input" placeholder="Nombre del grupo (ej: Grupo A)" [(ngModel)]="nuevoGrupoNombre" />
+        <button type="button" class="btn-primary" (click)="crearGrupo()" [disabled]="isSubmittingGrupo || !nuevoGrupoNombre.trim()">
+          {{ isSubmittingGrupo ? 'Guardando...' : 'Crear' }}
+        </button>
+      </div>
+
+      <div *ngIf="isLoadingGrupos" class="info-box">Cargando grupos...</div>
+      <div *ngIf="!isLoadingGrupos && filteredGrupos.length === 0 && grupos.length === 0" class="info-box">
+        No hay grupos. Crea el primero arriba.
+      </div>
+      <div *ngIf="!isLoadingGrupos && filteredGrupos.length === 0 && grupos.length > 0" class="info-box">
+        Ningún grupo coincide con la búsqueda.
+      </div>
+
+      <div class="grupos-list" *ngIf="!isLoadingGrupos">
+        <div class="grupo-card" *ngFor="let grupo of filteredGrupos">
+
+          <div class="grupo-header">
+            <ng-container *ngIf="editingGrupoId !== grupo.id">
+              <span class="grupo-nombre">{{ grupo.nombre }}</span>
+              <span class="equipo-count">{{ grupo.equipos.length }} equipo(s)</span>
+              <div class="grupo-actions">
+                <button type="button" class="btn-link" (click)="startEditGrupo(grupo)">Editar</button>
+                <button type="button" class="btn-link" (click)="toggleEquipos(grupo.id)">
+                  {{ managingEquiposGrupoId === grupo.id ? 'Cerrar equipos' : 'Equipos' }}
+                </button>
+                <button type="button" class="btn-danger-link" (click)="deleteGrupo(grupo.id, grupo.nombre)">Eliminar</button>
+              </div>
+            </ng-container>
+            <ng-container *ngIf="editingGrupoId === grupo.id">
+              <input type="text" class="form-input" [(ngModel)]="editGrupoNombre" />
+              <button type="button" class="btn-primary btn-sm" (click)="saveEditGrupo(grupo.id)">Guardar</button>
+              <button type="button" class="btn-secondary btn-sm" (click)="cancelEditGrupo()">Cancelar</button>
+            </ng-container>
+          </div>
+
+          <div class="equipos-badges" *ngIf="grupo.equipos.length > 0 && managingEquiposGrupoId !== grupo.id">
+            <span class="equipo-badge" *ngFor="let e of grupo.equipos">
+              {{ e.codigoFifa }} — {{ e.nombre }}
+            </span>
+          </div>
+
+          <div class="equipos-panel" *ngIf="managingEquiposGrupoId === grupo.id">
+
+            <div class="equipos-asignados" *ngIf="grupo.equipos.length > 0">
+              <p class="panel-label">Equipos en este grupo</p>
+              <div class="equipo-row" *ngFor="let e of grupo.equipos">
+                <span class="equipo-code">{{ e.codigoFifa }}</span>
+                <span>{{ e.nombre }}</span>
+                <button type="button" class="btn-danger-link" (click)="removerEquipo(grupo.id, e.id, e.nombre)">
+                  Remover
+                </button>
+              </div>
+            </div>
+
+            <div class="asignar-equipo">
+              <p class="panel-label">Asignar equipo</p>
+              <div *ngIf="isLoadingEquipos" class="info-box-inline">Cargando equipos...</div>
+
+              <ng-container *ngIf="!isLoadingEquipos">
+                <input
+                  type="text"
+                  class="form-input"
+                  placeholder="Buscar por nombre o código FIFA..."
+                  [(ngModel)]="searchEquipoDisponible"
+                />
+                <select class="form-input" [(ngModel)]="equipoParaAsignar">
+                  <option [ngValue]="null" disabled>
+                    {{ equiposDisponiblesParaGrupo(grupo.id).length === 0 ? 'No hay equipos disponibles' : 'Selecciona un equipo' }}
+                  </option>
+                  <option *ngFor="let e of equiposDisponiblesParaGrupo(grupo.id)" [ngValue]="e.id">
+                    {{ e.codigoFifa }} — {{ e.nombre }}
+                  </option>
+                </select>
+                <button
+                  type="button"
+                  class="btn-primary"
+                  (click)="asignarEquipo(grupo.id)"
+                  [disabled]="!equipoParaAsignar || isAsignando"
+                >
+                  {{ isAsignando ? 'Asignando...' : 'Asignar' }}
+                </button>
+              </ng-container>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

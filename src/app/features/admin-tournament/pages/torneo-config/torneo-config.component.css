@@ -1,0 +1,76 @@
+.admin-page { padding: 24px; max-width: 1100px; margin: 0 auto; }
+.admin-card { background: #fff; border: 1px solid #e5e5e5; border-radius: 8px; padding: 24px; }
+
+/* Header */
+.top-bar { margin-bottom: 20px; }
+.torneo-header { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.back-link { font-size: 14px; color: #6b7280; text-decoration: none; }
+.back-link:hover { color: #374151; }
+.torneo-header h1 { margin: 0; font-size: 20px; }
+.torneo-meta { font-size: 14px; color: #6b7280; }
+.info-box-inline { font-size: 14px; color: #6b7280; }
+
+/* Tabs */
+.tabs { display: flex; border-bottom: 2px solid #e5e7eb; margin-bottom: 20px; gap: 4px; }
+.tab-btn { background: none; border: none; padding: 10px 18px; font-size: 14px; cursor: pointer; color: #6b7280; border-bottom: 2px solid transparent; margin-bottom: -2px; }
+.tab-btn.active { color: #1f2937; font-weight: 600; border-bottom-color: #1f2937; }
+.tab-count { background: #e5e7eb; color: #374151; border-radius: 10px; padding: 1px 7px; font-size: 12px; margin-left: 6px; }
+.tab-btn.active .tab-count { background: #1f2937; color: #fff; }
+
+/* Section actions */
+.section-actions { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+.search-input { flex: 1; min-width: 200px; max-width: 340px; }
+
+/* Inline form (nueva fase / grupo) */
+.inline-form { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; background: #f9fafb; padding: 12px; border-radius: 6px; border: 1px solid #e5e7eb; }
+.inline-form .form-input { flex: 1; min-width: 140px; }
+
+/* Tabla */
+.table-wrapper { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #eee; }
+th { background: #fafafa; font-weight: 600; }
+.orden-cell { width: 70px; }
+
+/* Grupos */
+.grupos-list { display: flex; flex-direction: column; gap: 12px; }
+.grupo-card { border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; }
+.grupo-header { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: #fafafa; flex-wrap: wrap; }
+.grupo-nombre { font-weight: 600; font-size: 15px; flex: 1; }
+.equipo-count { font-size: 12px; color: #6b7280; white-space: nowrap; }
+.grupo-actions { display: flex; gap: 12px; align-items: center; }
+.grupo-header .form-input { flex: 1; min-width: 160px; }
+
+/* Badges de equipos */
+.equipos-badges { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 16px; border-top: 1px solid #f0f0f0; }
+.equipo-badge { background: #eff6ff; color: #1e40af; font-size: 12px; padding: 3px 10px; border-radius: 12px; }
+
+/* Panel de equipos */
+.equipos-panel { border-top: 1px solid #e5e7eb; padding: 16px; background: #fff; }
+.panel-label { font-size: 12px; text-transform: uppercase; color: #6b7280; letter-spacing: 0.4px; margin: 0 0 10px; font-weight: 600; }
+.equipos-asignados { margin-bottom: 20px; }
+.equipo-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+.equipo-row:last-child { border-bottom: none; }
+.equipo-code { font-weight: 600; color: #374151; min-width: 40px; }
+.equipo-row span:nth-child(2) { flex: 1; }
+.asignar-equipo { display: flex; flex-direction: column; gap: 8px; }
+
+/* Inputs compartidos */
+.form-input { padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; background: #fff; box-sizing: border-box; width: 100%; }
+.form-input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.15); }
+.input-sm { max-width: 80px; }
+
+/* Botones */
+.btn-primary { background: #1f2937; color: #fff; padding: 8px 14px; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; white-space: nowrap; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-secondary { background: #fff; color: #374151; padding: 8px 14px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; cursor: pointer; }
+.btn-sm { padding: 5px 10px; font-size: 13px; }
+.btn-link { background: none; border: none; color: #2563eb; cursor: pointer; font-size: 14px; padding: 0; }
+.btn-danger-link { background: none; border: none; color: #dc2626; cursor: pointer; font-size: 14px; padding: 0; }
+
+/* Mensajes */
+.message { padding: 10px 14px; border-radius: 6px; margin-bottom: 14px; font-size: 14px; }
+.error-box { background: #fee2e2; color: #991b1b; }
+.success-box { background: #dcfce7; color: #166534; }
+.info-box { padding: 14px; background: #f5f5f5; border-radius: 6px; text-align: center; color: #6b7280; font-size: 14px; }
+.actions { display: flex; gap: 12px; }

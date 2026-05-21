@@ -67,9 +67,12 @@ export class LoginComponent {
 
         this.isLoading = false;
 
-        this.router.navigate(['/ligas']);
-
-        console.log('Login correcto:', response);
+        // Redirigir según rol
+        if (response.role.name === 'Administrador') {
+          this.router.navigate(['/bracket']);
+        } else {
+          this.router.navigate(['/ligas']);
+        }
       },
       error: (error) => {
         this.isLoading = false;

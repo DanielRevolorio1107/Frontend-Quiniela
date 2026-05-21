@@ -1,0 +1,65 @@
+<div class="admin-page">
+  <div class="admin-card">
+    <div class="top-bar">
+      <h1>Gestión de usuarios</h1>
+      <a routerLink="/admin/usuarios/crear" class="btn-primary">+ Nuevo usuario</a>
+    </div>
+
+    <div *ngIf="errorMessage" class="message error-box">{{ errorMessage }}</div>
+    <div *ngIf="successMessage" class="message success-box">{{ successMessage }}</div>
+
+    <div *ngIf="isLoading" class="info-box">Cargando usuarios...</div>
+
+    <div *ngIf="!isLoading && usuarios.length === 0" class="info-box">
+      No hay usuarios para mostrar.
+    </div>
+
+    <div class="table-wrapper" *ngIf="!isLoading && usuarios.length > 0">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre completo</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let usuario of usuarios">
+            <td>{{ usuario.id }}</td>
+            <td>{{ usuario.fullName }}</td>
+            <td>{{ usuario.email }}</td>
+            <td>
+              <span class="role-badge" [class.role-admin]="usuario.role === 'Administrador'">
+                {{ usuario.role }}
+              </span>
+            </td>
+            <td class="actions">
+              <a [routerLink]="['/admin/usuarios', usuario.id]" class="btn-link">Ver</a>
+              <a [routerLink]="['/admin/usuarios', usuario.id, 'editar']" class="btn-link">Editar</a>
+              <button
+                type="button"
+                class="btn-danger-link"
+                (click)="eliminar(usuario)"
+                [disabled]="deletingUserId === usuario.id"
+              >
+                {{ deletingUserId === usuario.id ? 'Eliminando...' : 'Eliminar' }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination" *ngIf="!isLoading && (page > 1 || hasNextPage)">
+      <button type="button" (click)="changePage(page - 1)" [disabled]="page <= 1">
+        ← Anterior
+      </button>
+      <span>Página {{ page }}</span>
+      <button type="button" (click)="changePage(page + 1)" [disabled]="!hasNextPage">
+        Siguiente →
+      </button>
+    </div>
+  </div>
+</div>
