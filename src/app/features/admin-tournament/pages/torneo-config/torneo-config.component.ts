@@ -73,9 +73,6 @@ export class TorneoConfigComponent implements OnInit {
     this.loadTorneo();
   }
 
-  // ==============================
-  // CARGA INICIAL
-  // ==============================
 
   loadTorneo(): void {
     this.torneoService.getById(this.torneoId).subscribe({
@@ -109,9 +106,7 @@ export class TorneoConfigComponent implements OnInit {
     });
   }
 
-  // ==============================
-  // FILTROS (computed)
-  // ==============================
+
 
   get filteredFases(): Fase[] {
     if (!this.searchFase.trim()) return this.fases;
@@ -139,9 +134,6 @@ export class TorneoConfigComponent implements OnInit {
     return disponibles;
   }
 
-  // ==============================
-  // FASES
-  // ==============================
 
   toggleNuevaFase(): void {
     this.showNuevaFase = !this.showNuevaFase;
@@ -204,9 +196,6 @@ export class TorneoConfigComponent implements OnInit {
     });
   }
 
-  // ==============================
-  // GRUPOS
-  // ==============================
 
   toggleNuevoGrupo(): void {
     this.showNuevoGrupo = !this.showNuevoGrupo;
@@ -268,9 +257,7 @@ export class TorneoConfigComponent implements OnInit {
     });
   }
 
-  // ==============================
-  // EQUIPOS POR GRUPO
-  // ==============================
+
 
   toggleEquipos(grupoId: number): void {
     if (this.managingEquiposGrupoId === grupoId) {
@@ -320,9 +307,6 @@ export class TorneoConfigComponent implements OnInit {
     });
   }
 
-  // ==============================
-  // HELPERS
-  // ==============================
 
   private showError(msg: string): void { this.errorMessage = msg; this.successMessage = ''; }
   private clearMessages(): void { this.errorMessage = ''; this.successMessage = ''; }

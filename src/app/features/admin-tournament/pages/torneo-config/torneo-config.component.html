@@ -14,7 +14,6 @@
     <div *ngIf="errorMessage" class="message error-box">{{ errorMessage }}</div>
     <div *ngIf="successMessage" class="message success-box">{{ successMessage }}</div>
 
-    <!-- Tabs -->
     <div class="tabs">
       <button type="button" class="tab-btn" [class.active]="activeTab === 'fases'" (click)="activeTab = 'fases'">
         Fases <span class="tab-count">{{ fases.length }}</span>
@@ -24,7 +23,6 @@
       </button>
     </div>
 
-    <!-- ===================== TAB: FASES ===================== -->
     <div *ngIf="activeTab === 'fases'" class="tab-content">
 
       <div class="section-actions">
@@ -62,7 +60,6 @@
           </thead>
           <tbody>
             <tr *ngFor="let fase of filteredFases">
-              <!-- Modo lectura -->
               <ng-container *ngIf="editingFaseId !== fase.id">
                 <td class="orden-cell">{{ fase.orden }}</td>
                 <td>{{ fase.nombre }}</td>
@@ -71,7 +68,6 @@
                   <button type="button" class="btn-danger-link" (click)="deleteFase(fase.id, fase.nombre)">Eliminar</button>
                 </td>
               </ng-container>
-              <!-- Modo edición inline -->
               <ng-container *ngIf="editingFaseId === fase.id">
                 <td>
                   <input type="number" class="form-input input-sm" [(ngModel)]="editFase.orden" min="1" />
@@ -90,7 +86,6 @@
       </div>
     </div>
 
-    <!-- ===================== TAB: GRUPOS ===================== -->
     <div *ngIf="activeTab === 'grupos'" class="tab-content">
 
       <div class="section-actions">
@@ -119,7 +114,6 @@
       <div class="grupos-list" *ngIf="!isLoadingGrupos">
         <div class="grupo-card" *ngFor="let grupo of filteredGrupos">
 
-          <!-- Cabecera del grupo -->
           <div class="grupo-header">
             <ng-container *ngIf="editingGrupoId !== grupo.id">
               <span class="grupo-nombre">{{ grupo.nombre }}</span>
@@ -139,17 +133,14 @@
             </ng-container>
           </div>
 
-          <!-- Equipos asignados (badges) -->
           <div class="equipos-badges" *ngIf="grupo.equipos.length > 0 && managingEquiposGrupoId !== grupo.id">
             <span class="equipo-badge" *ngFor="let e of grupo.equipos">
               {{ e.codigoFifa }} — {{ e.nombre }}
             </span>
           </div>
 
-          <!-- Panel de gestión de equipos -->
           <div class="equipos-panel" *ngIf="managingEquiposGrupoId === grupo.id">
 
-            <!-- Equipos ya asignados -->
             <div class="equipos-asignados" *ngIf="grupo.equipos.length > 0">
               <p class="panel-label">Equipos en este grupo</p>
               <div class="equipo-row" *ngFor="let e of grupo.equipos">
@@ -161,7 +152,6 @@
               </div>
             </div>
 
-            <!-- Asignar nuevo equipo -->
             <div class="asignar-equipo">
               <p class="panel-label">Asignar equipo</p>
               <div *ngIf="isLoadingEquipos" class="info-box-inline">Cargando equipos...</div>
