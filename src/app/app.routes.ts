@@ -15,6 +15,16 @@ import { MyPredictionsComponent } from './features/predictions/pages/my-predicti
 import { PredictionFormComponent } from './features/predictions/pages/prediction-form/prediction-form.component';
 import { MatchListComponent } from './features/predictions/pages/match-list/match-list.component';
 import { PredictionEditComponent } from './features/predictions/pages/prediction-edit/prediction-edit.component';
+import { AdminMatchResultsComponent } from './features/admin/pages/admin-match-results/admin-match-results.component';
+import { UserListComponent } from './features/admin-users/pages/user-list/user-list.component';
+import { UserCreateComponent } from './features/admin-users/pages/user-create/user-create.component';
+import { UserDetailComponent } from './features/admin-users/pages/user-detail/user-detail.component';
+import { ReportesComponent } from './features/admin-reports/pages/reportes.component';
+import { PremiosComponent } from './features/admin-premios/pages/premios.component';
+import { TorneoListComponent } from './features/admin-tournament/pages/torneo-list/torneo-list.component';
+import { TorneoFormComponent } from './features/admin-tournament/pages/torneo-form/torneo-form.component';
+import { TorneoConfigComponent } from './features/admin-tournament/pages/torneo-config/torneo-config.component';
+import { BracketComponent } from './features/bracket/pages/bracket/bracket.component';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
