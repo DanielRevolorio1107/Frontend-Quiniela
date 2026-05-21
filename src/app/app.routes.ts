@@ -1,19 +1,20 @@
 import { Routes } from '@angular/router';
-
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
-
 import { LoginComponent } from './features/auth/pages/login/login.component';
 import { RegisterComponent } from './features/auth/pages/register/register.component';
 import { ProfileComponent } from './features/auth/pages/profile/profile.component';
 import { ForgotPasswordComponent } from './features/auth/pages/forgot-password/forgot-password.component';
 import { RecoverPasswordComponent } from './features/auth/pages/recover-password/recover-password.component';
-
 import { LeagueListComponent } from './features/leagues/pages/league-list/league-list.component';
 import { LeagueCreateComponent } from './features/leagues/pages/league-create/league-create.component';
 import { LeagueDetailComponent } from './features/leagues/pages/league-detail/league-detail.component';
 import { LeagueSearchComponent } from './features/leagues/pages/league-search/league-search.component';
-
+import { InvitationResponseComponent } from './features/leagues/pages/invitation-response/invitation-response.component';
+import { MyPredictionsComponent } from './features/predictions/pages/my-predictions/my-predictions.component';
+import { PredictionFormComponent } from './features/predictions/pages/prediction-form/prediction-form.component';
+import { MatchListComponent } from './features/predictions/pages/match-list/match-list.component';
+import { PredictionEditComponent } from './features/predictions/pages/prediction-edit/prediction-edit.component';
 import { UserListComponent } from './features/admin-users/pages/user-list/user-list.component';
 import { UserCreateComponent } from './features/admin-users/pages/user-create/user-create.component';
 import { UserDetailComponent } from './features/admin-users/pages/user-detail/user-detail.component';
@@ -22,11 +23,6 @@ import { PremiosComponent } from './features/admin-premios/pages/premios.compone
 import { TorneoListComponent } from './features/admin-tournament/pages/torneo-list/torneo-list.component';
 import { TorneoFormComponent } from './features/admin-tournament/pages/torneo-form/torneo-form.component';
 import { TorneoConfigComponent } from './features/admin-tournament/pages/torneo-config/torneo-config.component';
-
-
-
-
-
 
 export const routes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -43,23 +39,27 @@ export const routes: Routes = [
     { path: 'ligas/crear', component: LeagueCreateComponent, canActivate: [authGuard] },
     { path: 'ligas/buscar', component: LeagueSearchComponent, canActivate: [authGuard] },
     { path: 'ligas/:id', component: LeagueDetailComponent, canActivate: [authGuard] },
+    { path: 'invitacion/responder', component: InvitationResponseComponent },
 
-    // M7 - Panel de Administración
+    // Partidos y Predicciones
+    { path: 'partidos', component: MatchListComponent, canActivate: [authGuard] },
+    { path: 'predicciones/nueva/:partidoId', component: PredictionFormComponent, canActivate: [authGuard] },
+    { path: 'predicciones/mias', component: MyPredictionsComponent, canActivate: [authGuard] },
+    { path: 'predicciones/editar/:id', component: PredictionEditComponent, canActivate: [authGuard] },
+
+    // Admin - Usuarios
     { path: 'admin', redirectTo: 'admin/usuarios', pathMatch: 'full' },
     { path: 'admin/usuarios', component: UserListComponent, canActivate: [adminGuard] },
     { path: 'admin/usuarios/crear', component: UserCreateComponent, canActivate: [adminGuard] },
     { path: 'admin/usuarios/:id', component: UserDetailComponent, canActivate: [adminGuard] },
     { path: 'admin/reportes', component: ReportesComponent, canActivate: [adminGuard] },
     { path: 'admin/premios', component: PremiosComponent, canActivate: [adminGuard] },
-    // M7 - Torneos
+
+    // Admin - Torneos
     { path: 'admin/torneo', component: TorneoListComponent, canActivate: [adminGuard] },
     { path: 'admin/torneo/crear', component: TorneoFormComponent, canActivate: [adminGuard] },
     { path: 'admin/torneo/:id/editar', component: TorneoFormComponent, canActivate: [adminGuard] },
     { path: 'admin/torneo/:id/configurar', component: TorneoConfigComponent, canActivate: [adminGuard] },
-
-
-
-
 
     { path: '**', redirectTo: 'login' },
 ];
