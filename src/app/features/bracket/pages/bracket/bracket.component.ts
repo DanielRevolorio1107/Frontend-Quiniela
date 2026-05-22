@@ -29,16 +29,16 @@ export class BracketComponent implements OnInit {
   errorMessage = '';
   isAdmin = false;
 
-  // Modal: resultado
-  showResultModal = false;
-  resultPartido: Partido | null = null;
-  inputGolesLocal: number | null = null;
-  inputGolesVisitante: number | null = null;
-  fueAPenales = false;
-  penalesLocal: number | null = null;
-  penalesVisitante: number | null = null;
-  isSubmittingResult = false;
-  resultError = '';
+ // Borrar estas:
+showResultModal = false;
+resultPartido: Partido | null = null;
+inputGolesLocal: number | null = null;
+inputGolesVisitante: number | null = null;
+fueAPenales = false;
+penalesLocal: number | null = null;
+penalesVisitante: number | null = null;
+isSubmittingResult = false;
+resultError = '';
 
   ngOnInit(): void {
     this.isAdmin = this.sessionService.getRole() === 'Administrador';
@@ -138,69 +138,11 @@ get tercerPuesto(): Partido  { return (this.byFase(6)[0] ?? null) as Partido; }
       : p.golesVisitante > p.golesLocal;
   }
 
-  canEnterResult(p: Partido | null): boolean {
-    return !!this.isAdmin && !!p && !p.finalizado
-      && !!p.equipoLocal && !!p.equipoVisitante;
-  }
-
-  canEditResult(p: Partido | null): boolean {
-    return !!this.isAdmin && !!p && !!p.finalizado;
-  }
 
 
-  openResultModal(p: Partido, event: Event): void {
-    event.stopPropagation();
-    this.resultPartido = p;
-    this.inputGolesLocal = p.golesLocal;
-    this.inputGolesVisitante = p.golesVisitante;
-    this.fueAPenales = false;
-    this.penalesLocal = null;
-    this.penalesVisitante = null;
-    this.resultError = '';
-    this.showResultModal = true;
-  }
 
-  confirmResult(): void {
-    if (!this.resultPartido
-      || this.inputGolesLocal === null
-      || this.inputGolesVisitante === null) return;
 
-    if (this.fueAPenales
-      && (this.penalesLocal === null || this.penalesVisitante === null)) {
-      this.resultError = 'Ingresá el marcador de penales.';
-      return;
-    }
 
-    this.isSubmittingResult = true;
-    this.resultError = '';
-
-    const body: any = {
-      golesLocal: this.inputGolesLocal,
-      golesVisitante: this.inputGolesVisitante,
-    };
-
-    if (this.fueAPenales) {
-      body.fueAPenales = true;
-      body.penalesLocal = this.penalesLocal;
-      body.penalesVisitante = this.penalesVisitante;
-    }
-
-    this.bracketService.ingresarResultado(this.resultPartido.id, body).subscribe({
-      next: () => {
-        this.isSubmittingResult = false;
-        this.showResultModal = false;
-        this.loadAll();
-      },
-      error: error => {
-        this.isSubmittingResult = false;
-        this.resultError = this.parseError(error, 'No se pudo guardar el resultado.');
-      }
-    });
-  }
-
-  closeModal(): void {
-    this.showResultModal = false;
-  }
 
   private parseError(error: any, fallback: string): string {
     if (error.status === 0) return 'No se pudo conectar con el servidor.';
