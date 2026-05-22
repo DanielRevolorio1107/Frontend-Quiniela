@@ -1,63 +1,113 @@
 <div class="admin-page">
   <div class="admin-card">
+
     <div class="top-bar">
-      <a routerLink="/admin" class="btn-secondary">← Volver al panel admin</a>
-    </div>
-
-    <h1>Ingreso de resultados oficiales</h1>
-    <p class="subtitle">Solo disponible para administradores del sistema.</p>
-
-    <div *ngIf="errorMessage" class="message error-box">
-      {{ errorMessage }}
-    </div>
-
-    <div *ngIf="successMessage" class="message success-box">
-      {{ successMessage }}
-    </div>
-
-    <div *ngIf="isLoading" class="info-box">
-      Cargando partidos...
-    </div>
-
-    <div class="match-grid" *ngIf="!isLoading && partidos.length > 0">
-      <div class="match-item" *ngFor="let partido of partidos">
-        <h2>{{ getEquipoLocal(partido) }} vs {{ getEquipoVisitante(partido) }}</h2>
-        <p><strong>Fecha:</strong> {{ getFecha(partido) }}</p>
-        <p><strong>Finalizado:</strong> {{ partido.finalizado ? 'Sí' : 'No' }}</p>
-
-        <div class="score-grid">
-          <div class="form-group">
-            <label>Goles local</label>
-            <input
-              type="number"
-              min="0"
-              [(ngModel)]="resultados[partido.id].golesLocal"
-              class="admin-input"
-              [disabled]="partido.finalizado"
-            />
-          </div>
-
-          <div class="form-group">
-            <label>Goles visitante</label>
-            <input
-              type="number"
-              min="0"
-              [(ngModel)]="resultados[partido.id].golesVisitante"
-              class="admin-input"
-              [disabled]="partido.finalizado"
-            />
-          </div>
-        </div>
-
-        <button
-          type="button"
-          class="btn-primary"
-          (click)="guardarResultado(partido)"
-          [disabled]="partido.finalizado"
-        >
-          {{ partido.finalizado ? 'Finalizado' : 'Guardar resultado' }}
-        </button>
+      <a routerLink="/dashboard" class="btn-secondary">← Volver</a>
+      <div class="top-bar-right">
+        <h1>Ingreso de resultados</h1>
       </div>
     </div>
+
+    <div class="fase-tabs">
+      <button
+        *ngFor="let f of fases"
+        class="fase-tab"
+        [class.active]="faseActiva === f.id"
+        (click)="cambiarFase(f.id)">
+        {{ f.nombre }}
+      </button>
+    </div>
+
+    <div *ngIf="errorMessage" class="message error-box">{{ errorMessage }}</div>
+    <div *ngIf="successMessage" class="message success-box">{{ successMessage }}</div>
+    <div *ngIf="isLoading" class="info-box">Cargando partidos...</div>
+
+    <div class="partidos-grid" *ngIf="!isLoading">
+
+      <div *ngIf="partidosFiltrados.length === 0" class="empty-state">
+        No hay partidos en esta fase.
+      </div>
+
+      <div class="partido-card" *ngFor="let partido of partidosFiltrados"
+           [class.finalizado]="partido.finalizado"
+           [class.en-vivo]="!partido.finalizado && partido.golesLocal !== null">
+
+        <!-- Header del partido -->
+        <div class="partido-header">
+          <span class="partido-id">#{{ partido.id }}</span>
+          <span class="partido-badge" [class]="estadoBadge(partido)">
+            {{ estadoLabel(partido) }}
+          </span>
+          <span class="partido-fecha">{{ getFecha(partido) }}</span>
+        </div>
+
+        <!-- Equipos y marcador -->
+        <div class="partido-body">
+
+          <!-- Local -->
+          <div class="equipo-col">
+            <img *ngIf="partido.equipoLocal?.banderaUrl"
+                 [src]="partido.equipoLocal.banderaUrl"
+                 [alt]="partido.equipoLocal.codigoFifa"
+                 class="bandera" />
+            <span class="equipo-nombre">{{ nombreLocal(partido) }}</span>
+          </div>
+
+          <!-- Inputs o resultado -->
+          <div class="score-col" *ngIf="!partido.finalizado">
+            <input type="number" min="0"
+                   [(ngModel)]="marcadores[partido.id].local"
+                   class="score-input" placeholder="0" />
+            <span class="vs">—</span>
+            <input type="number" min="0"
+                   [(ngModel)]="marcadores[partido.id].visitante"
+                   class="score-input" placeholder="0" />
+          </div>
+
+          <div class="score-result" *ngIf="partido.finalizado">
+            {{ partido.golesLocal }} — {{ partido.golesVisitante }}
+          </div>
+
+          <!-- Visitante -->
+          <div class="equipo-col right">
+            <span class="equipo-nombre">{{ nombreVisitante(partido) }}</span>
+            <img *ngIf="partido.equipoVisitante?.banderaUrl"
+                 [src]="partido.equipoVisitante.banderaUrl"
+                 [alt]="partido.equipoVisitante.codigoFifa"
+                 class="bandera" />
+          </div>
+
+        </div>
+
+        <!-- Estadio -->
+        <div class="partido-estadio" *ngIf="partido.estadio">
+          📍 {{ partido.estadio.nombre }}, {{ partido.estadio.ciudad }}
+        </div>
+
+        <!-- Acciones -->
+        <div class="partido-acciones" *ngIf="!partido.finalizado">
+          <button class="btn-live"
+                  (click)="actualizarEnVivo(partido)"
+                  [disabled]="savingId === partido.id
+                              || marcadores[partido.id].local === null
+                              || marcadores[partido.id].visitante === null">
+            {{ savingId === partido.id ? 'Guardando...' : '⟳ Actualizar en vivo' }}
+          </button>
+          <button class="btn-finish"
+                  (click)="finalizarPartido(partido)"
+                  [disabled]="savingId === partido.id
+                              || marcadores[partido.id].local === null
+                              || marcadores[partido.id].visitante === null">
+            ✓ Finalizar partido
+          </button>
+        </div>
+
+        <div class="partido-finalizado-msg" *ngIf="partido.finalizado">
+          Resultado oficial: {{ partido.golesLocal }} — {{ partido.golesVisitante }}
+        </div>
+
+      </div>
+    </div>
+
   </div>
 </div>

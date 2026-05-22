@@ -1,0 +1,57 @@
+<div class="admin-page">
+  <div class="admin-card">
+
+    <div class="top-bar">
+      <a routerLink="/admin/equipos" class="btn-secondary">← Volver</a>
+      <h1>{{ isEdit ? 'Editar equipo' : 'Nuevo equipo' }}</h1>
+    </div>
+
+    <div *ngIf="errorMessage" class="msg error-msg">{{ errorMessage }}</div>
+    <div *ngIf="isLoading && isEdit" class="info-txt">Cargando...</div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="admin-form" *ngIf="!isLoading || !isEdit">
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nombre del país *</label>
+          <input formControlName="nombre" class="form-input" placeholder="México" />
+          <span class="error-text" *ngIf="nombre.touched && nombre.errors?.['required']">Campo requerido</span>
+        </div>
+        <div class="form-group">
+          <label>Código FIFA *</label>
+          <input formControlName="codigoFifa" class="form-input" placeholder="MEX" maxlength="6" style="text-transform:uppercase" />
+          <span class="hint-text">2-6 letras. Ej: MEX, USA, gb-sct</span>
+          <span class="error-text" *ngIf="codigoFifa.touched && codigoFifa.errors?.['required']">Campo requerido</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>URL de la bandera</label>
+        <div class="bandera-row">
+          <input formControlName="banderaUrl" class="form-input" placeholder="https://flagcdn.com/mx.svg" />
+          <img *ngIf="banderaPreview" [src]="banderaPreview" alt="Bandera" class="bandera-preview" />
+        </div>
+        <span class="hint-text">Se genera automáticamente del código FIFA. Editá si es un caso especial (gb-sct, gb-eng).</span>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Entrenador</label>
+          <input formControlName="entrenador" class="form-input" placeholder="Javier Aguirre" />
+        </div>
+        <div class="form-group">
+          <label>Capitán</label>
+          <input formControlName="capitan" class="form-input" placeholder="Hirving Lozano" />
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <a routerLink="/admin/equipos" class="btn-secondary">Cancelar</a>
+        <button type="submit" class="btn-primary" [disabled]="isLoading">
+          {{ isLoading ? 'Guardando...' : (isEdit ? 'Actualizar' : 'Crear equipo') }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

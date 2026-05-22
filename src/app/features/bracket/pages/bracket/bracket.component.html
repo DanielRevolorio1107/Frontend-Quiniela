@@ -1,9 +1,6 @@
 <div class="bracket-page">
 
-  <div class="bracket-header">
-    <h1>⚽ Copa Mundial FIFA 2026</h1>
-    <button class="btn-refresh" (click)="loadAll()">↺ Actualizar</button>
-  </div>
+  
 
   <div *ngIf="isLoading" class="loading-state">Cargando torneo...</div>
   <div *ngIf="errorMessage" class="error-state">{{ errorMessage }}</div>

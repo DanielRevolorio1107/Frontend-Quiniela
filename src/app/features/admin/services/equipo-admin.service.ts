@@ -2,46 +2,26 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../enviroments/enviroments';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class EquipoAdminService {
   private http = inject(HttpClient);
-  private apiUrl = environment.apiUrl;
+  private base = `${environment.apiUrl}/equipo`;
 
-  getAll(page = 1, pageSize = 100) {
-    return this.http.get(`${this.apiUrl}/equipo?page=${page}&pageSize=${pageSize}`);
+  getAll(page = 1, pageSize = 200) {
+    return this.http.get<any[]>(`${this.base}?page=${page}&pageSize=${pageSize}`);
   }
 
   getById(id: number) {
-    return this.http.get(`${this.apiUrl}/equipo/${id}`);
+    return this.http.get<any>(`${this.base}/${id}`);
   }
 
   getSelect() {
-    return this.http.get(`${this.apiUrl}/equipo/select`);
+    return this.http.get<any[]>(`${this.base}/select`);
   }
 
-  create(data: {
-    nombre: string;
-    codigoFifa: string;
-    banderaUrl: string;
-    entrenador: string;
-    capitan: string;
-  }) {
-    return this.http.post(`${this.apiUrl}/equipo`, data);
-  }
+  create(data: any) { return this.http.post<any>(this.base, data); }
 
-  update(id: number, data: {
-    nombre?: string;
-    codigoFifa?: string;
-    banderaUrl?: string;
-    entrenador?: string;
-    capitan?: string;
-  }) {
-    return this.http.put(`${this.apiUrl}/equipo/${id}`, data);
-  }
+  update(id: number, data: any) { return this.http.put<any>(`${this.base}/${id}`, data); }
 
-  delete(id: number) {
-    return this.http.delete(`${this.apiUrl}/equipo/${id}`);
-  }
+  delete(id: number) { return this.http.delete<void>(`${this.base}/${id}`); }
 }

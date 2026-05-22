@@ -66,12 +66,7 @@ export class LoginComponent {
         );
 
         this.isLoading = false;
-
-        if (response.role.name === 'Administrador') {
-          this.router.navigate(['/admin']);
-        } else {
-          this.router.navigate(['/ligas']);
-        }
+        this.router.navigate(['/dashboard']);
       },
       error: (error) => {
         this.isLoading = false;

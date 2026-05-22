@@ -1,0 +1,72 @@
+<div class="admin-page">
+  <div class="admin-card">
+
+    <div class="top-bar">
+      <a routerLink="/dashboard" class="btn-secondary">← Volver</a>
+      <h1>Partidos</h1>
+      <div class="top-actions">
+        <a routerLink="/admin/partidos/resultados" class="btn-results">⟳ Resultados en vivo</a>
+        <button class="btn-primary" (click)="crear()">+ Nuevo partido</button>
+      </div>
+    </div>
+
+    <div *ngIf="errorMessage" class="msg error-msg">{{ errorMessage }}</div>
+    <div *ngIf="successMessage" class="msg success-msg">{{ successMessage }}</div>
+
+    <div class="fase-tabs">
+      <button *ngFor="let f of fases"
+              class="fase-tab" [class.active]="faseActiva === f.id"
+              (click)="cambiarFase(f.id)">
+        {{ f.nombre }}
+      </button>
+    </div>
+
+    <div *ngIf="isLoading" class="info-txt">Cargando...</div>
+
+    <table class="admin-table" *ngIf="!isLoading">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Fase</th>
+          <th>Local</th>
+          <th>Visitante</th>
+          <th>Fecha</th>
+          <th>Estadio</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="filtrados.length === 0">
+          <td colspan="8" class="empty-cell">No hay partidos en esta fase.</td>
+        </tr>
+        <tr *ngFor="let p of filtrados">
+          <td class="td-id">{{ p.id }}</td>
+          <td class="td-fase">{{ p.fase?.nombre }}</td>
+          <td>
+            <div class="equipo-cell">
+              <img *ngIf="p.equipoLocal?.banderaUrl" [src]="p.equipoLocal.banderaUrl" class="flag-mini" />
+              <span>{{ nombreLocal(p) }}</span>
+            </div>
+          </td>
+          <td>
+            <div class="equipo-cell">
+              <img *ngIf="p.equipoVisitante?.banderaUrl" [src]="p.equipoVisitante.banderaUrl" class="flag-mini" />
+              <span>{{ nombreVisitante(p) }}</span>
+            </div>
+          </td>
+          <td class="td-fecha">{{ getFecha(p) }}</td>
+          <td>{{ p.estadio?.nombre || '—' }}</td>
+          <td>
+            <span class="badge" [class]="estadoBadge(p)">{{ estadoLabel(p) }}</span>
+          </td>
+          <td class="td-actions">
+            <button class="btn-edit" (click)="editar(p.id)">Editar</button>
+            <button class="btn-delete" [disabled]="p.finalizado" (click)="eliminar(p.id, nombreLocal(p) + ' vs ' + nombreVisitante(p))">Eliminar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+</div>

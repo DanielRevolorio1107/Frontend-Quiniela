@@ -19,73 +19,83 @@ import { PredictionFormComponent } from './features/predictions/pages/prediction
 import { MatchListComponent } from './features/predictions/pages/match-list/match-list.component';
 import { PredictionEditComponent } from './features/predictions/pages/prediction-edit/prediction-edit.component';
 
+import { DashboardComponent } from './features/dashboard/pages/dashboard/dashboard.component';
+
 import { AdminMatchResultsComponent } from './features/admin/pages/admin-match-results/admin-match-results.component';
+import { EstadioListComponent } from './features/admin/pages/estadio-list/estadio-list.component';
+import { EstadioFormComponent } from './features/admin/pages/estadio-form/estadio-form.component';
+import { EquipoListComponent } from './features/admin/pages/equipo-list/equipo-list.component';
+import { EquipoFormComponent } from './features/admin/pages/equipo-form/equipo-form.component';
+import { PartidoListComponent } from './features/admin/pages/partido-list/partido-list.component';
+import { PartidoFormComponent } from './features/admin/pages/partido-form/partido-form.component';
+
 import { UserListComponent } from './features/admin-users/pages/user-list/user-list.component';
 import { UserCreateComponent } from './features/admin-users/pages/user-create/user-create.component';
 import { UserDetailComponent } from './features/admin-users/pages/user-detail/user-detail.component';
+
 import { ReportesComponent } from './features/admin-reports/pages/reportes.component';
 import { PremiosComponent } from './features/admin-premios/pages/premios.component';
+
 import { TorneoListComponent } from './features/admin-tournament/pages/torneo-list/torneo-list.component';
 import { TorneoFormComponent } from './features/admin-tournament/pages/torneo-form/torneo-form.component';
 import { TorneoConfigComponent } from './features/admin-tournament/pages/torneo-config/torneo-config.component';
 
-import { BracketComponent } from './features/bracket/pages/bracket/bracket.component';
-import { AdminDashboardComponent } from './features/admin/pages/admin-dashboard/admin-dashboard.component';
-import { EstadioListComponent } from './features/estadio-list/estadio-list.component';
-import { EstadioFormComponent } from './features/estadio-form/estadio-form.component';
-import { EquipoFormComponent } from './features/equipo-form/equipo-form.component';
-import { EquipoListComponent } from './features/equipo-list/equipo-list.component';
-
 export const routes: Routes = [
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
+    { path: '', redirectTo: 'login', pathMatch: 'full' },
 
-  // Auth
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
-  { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
-  { path: 'forgot-password', component: ForgotPasswordComponent },
-  { path: 'recuperar-password', component: RecoverPasswordComponent },
+    // Auth
+    { path: 'login', component: LoginComponent },
+    { path: 'register', component: RegisterComponent },
+    { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
+    { path: 'forgot-password', component: ForgotPasswordComponent },
+    { path: 'recuperar-password', component: RecoverPasswordComponent },
 
-  // Ligas
-  { path: 'ligas', component: LeagueListComponent, canActivate: [authGuard] },
-  { path: 'ligas/crear', component: LeagueCreateComponent, canActivate: [authGuard] },
-  { path: 'ligas/buscar', component: LeagueSearchComponent, canActivate: [authGuard] },
-  { path: 'ligas/:id', component: LeagueDetailComponent, canActivate: [authGuard] },
-  { path: 'invitacion/responder', component: InvitationResponseComponent },
+    // Dashboard
+    { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
 
-  // Partidos y Predicciones
-  { path: 'partidos', component: MatchListComponent, canActivate: [authGuard] },
-  { path: 'predicciones/nueva/:partidoId', component: PredictionFormComponent, canActivate: [authGuard] },
-  { path: 'predicciones/mias', component: MyPredictionsComponent, canActivate: [authGuard] },
-  { path: 'predicciones/editar/:id', component: PredictionEditComponent, canActivate: [authGuard] },
+    // Ligas
+    { path: 'ligas', component: LeagueListComponent, canActivate: [authGuard] },
+    { path: 'ligas/crear', component: LeagueCreateComponent, canActivate: [authGuard] },
+    { path: 'ligas/buscar', component: LeagueSearchComponent, canActivate: [authGuard] },
+    { path: 'ligas/:id', component: LeagueDetailComponent, canActivate: [authGuard] },
+    { path: 'invitacion/responder', component: InvitationResponseComponent },
 
-  // Bracket para todos los usuarios logueados
-  { path: 'bracket', component: BracketComponent, canActivate: [authGuard] },
+    // Partidos y Predicciones
+    { path: 'partidos', component: MatchListComponent, canActivate: [authGuard] },
+    { path: 'predicciones/nueva/:partidoId', component: PredictionFormComponent, canActivate: [authGuard] },
+    { path: 'predicciones/mias', component: MyPredictionsComponent, canActivate: [authGuard] },
+    { path: 'predicciones/editar/:id', component: PredictionEditComponent, canActivate: [authGuard] },
 
-  // Admin sistema
-  { path: 'admin', component: AdminDashboardComponent, canActivate: [adminGuard] },
-  { path: 'admin/partidos', component: AdminMatchResultsComponent, canActivate: [adminGuard] },
-  { path: 'admin/usuarios', component: UserListComponent, canActivate: [adminGuard] },
-  { path: 'admin/usuarios/crear', component: UserCreateComponent, canActivate: [adminGuard] },
-  { path: 'admin/usuarios/:id', component: UserDetailComponent, canActivate: [adminGuard] },
-  { path: 'admin/reportes', component: ReportesComponent, canActivate: [adminGuard] },
-  { path: 'admin/premios', component: PremiosComponent, canActivate: [adminGuard] },
+    // Admin — Estadios
+    { path: 'admin/estadios', component: EstadioListComponent, canActivate: [adminGuard] },
+    { path: 'admin/estadios/crear', component: EstadioFormComponent, canActivate: [adminGuard] },
+    { path: 'admin/estadios/:id/editar', component: EstadioFormComponent, canActivate: [adminGuard] },
 
-  // Admin torneos
-  { path: 'admin/torneo', component: TorneoListComponent, canActivate: [adminGuard] },
-  { path: 'admin/torneo/crear', component: TorneoFormComponent, canActivate: [adminGuard] },
-  { path: 'admin/torneo/:id/editar', component: TorneoFormComponent, canActivate: [adminGuard] },
-  { path: 'admin/torneo/:id/configurar', component: TorneoConfigComponent, canActivate: [adminGuard] },
+    // Admin — Equipos
+    { path: 'admin/equipos', component: EquipoListComponent, canActivate: [adminGuard] },
+    { path: 'admin/equipos/crear', component: EquipoFormComponent, canActivate: [adminGuard] },
+    { path: 'admin/equipos/:id/editar', component: EquipoFormComponent, canActivate: [adminGuard] },
 
-  // Admin estadios
-  { path: 'admin/estadios', component: EstadioListComponent, canActivate: [adminGuard] },
-  { path: 'admin/estadios/crear', component: EstadioFormComponent, canActivate: [adminGuard] },
-  { path: 'admin/estadios/:id/editar', component: EstadioFormComponent, canActivate: [adminGuard] },
+    // Admin — Usuarios
+    { path: 'admin/usuarios', component: UserListComponent, canActivate: [adminGuard] },
+    { path: 'admin/usuarios/crear', component: UserCreateComponent, canActivate: [adminGuard] },
+    { path: 'admin/usuarios/:id', component: UserDetailComponent, canActivate: [adminGuard] },
 
-  //Admin equipos
-  { path: 'admin/equipos', component: EquipoListComponent, canActivate: [adminGuard] },
-{ path: 'admin/equipos/crear', component: EquipoFormComponent, canActivate: [adminGuard] },
-{ path: 'admin/equipos/:id/editar', component: EquipoFormComponent, canActivate: [adminGuard] },
+    // Admin — Reportes y Premios
+    { path: 'admin/reportes', component: ReportesComponent, canActivate: [adminGuard] },
+    { path: 'admin/premios', component: PremiosComponent, canActivate: [adminGuard] },
 
-  { path: '**', redirectTo: 'login' }
+    // Admin — Torneos
+    { path: 'admin/torneo', component: TorneoListComponent, canActivate: [adminGuard] },
+    { path: 'admin/torneo/crear', component: TorneoFormComponent, canActivate: [adminGuard] },
+    { path: 'admin/torneo/:id/editar', component: TorneoFormComponent, canActivate: [adminGuard] },
+    { path: 'admin/torneo/:id/configurar', component: TorneoConfigComponent, canActivate: [adminGuard] },
+
+    // Admin — Partidos
+    { path: 'admin/partidos', component: PartidoListComponent, canActivate: [adminGuard] },
+    { path: 'admin/partidos/crear', component: PartidoFormComponent, canActivate: [adminGuard] },
+    { path: 'admin/partidos/resultados', component: AdminMatchResultsComponent, canActivate: [adminGuard] },
+    { path: 'admin/partidos/:id/editar', component: PartidoFormComponent, canActivate: [adminGuard] },
+
+    { path: '**', redirectTo: 'login' }
 ];
