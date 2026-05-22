@@ -1,0 +1,106 @@
+<div class="admin-page">
+  <div class="admin-card">
+
+    <div class="top-bar">
+      <a routerLink="/admin/partidos" class="btn-secondary">← Volver</a>
+      <h1>{{ isEdit ? 'Editar partido' : 'Nuevo partido' }}</h1>
+    </div>
+
+    <div *ngIf="errorMessage" class="msg error-msg">{{ errorMessage }}</div>
+    <div *ngIf="isLoadingData" class="info-txt">Cargando datos...</div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="admin-form" *ngIf="!isLoadingData">
+
+      <!-- Torneo -->
+      <div class="form-group">
+        <label>Torneo *</label>
+        <select formControlName="torneoId" class="form-input">
+          <option [value]="null">Seleccionar torneo...</option>
+          <option *ngFor="let t of torneos" [value]="t.id">{{ t.nombre }}</option>
+        </select>
+      </div>
+
+      <!-- Fase y Grupo -->
+      <div class="form-row">
+        <div class="form-group">
+          <label>Fase *</label>
+          <select formControlName="faseId" class="form-input" [attr.disabled]="isEdit ? true : null">
+            <option *ngFor="let f of fases" [value]="f.id">{{ f.nombre }}</option>
+          </select>
+        </div>
+        <div class="form-group" *ngIf="esFaseGrupos">
+          <label>Grupo</label>
+          <select formControlName="grupoId" class="form-input">
+            <option [value]="null">Sin grupo</option>
+            <option *ngFor="let g of grupos" [value]="g.id">{{ g.nombre }}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Equipos -->
+      <div class="section-title">Equipos</div>
+      <p class="section-hint" *ngIf="!esFaseGrupos">
+        Para fases eliminatorias podés usar descripciones placeholder ("1º Grupo A")
+        y asignar el equipo real cuando clasifique.
+      </p>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Equipo local</label>
+          <select formControlName="equipoLocalId" class="form-input">
+            <option [value]="null">Sin asignar</option>
+            <option *ngFor="let e of equipos" [value]="e.id">
+              {{ e.codigoFifa }} — {{ e.nombre }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group" *ngIf="!esFaseGrupos">
+          <label>Descripción local (placeholder)</label>
+          <input formControlName="descripcionLocal" class="form-input" placeholder="1º Grupo A" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Equipo visitante</label>
+          <select formControlName="equipoVisitanteId" class="form-input">
+            <option [value]="null">Sin asignar</option>
+            <option *ngFor="let e of equipos" [value]="e.id">
+              {{ e.codigoFifa }} — {{ e.nombre }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group" *ngIf="!esFaseGrupos">
+          <label>Descripción visitante (placeholder)</label>
+          <input formControlName="descripcionVisitante" class="form-input" placeholder="2º Grupo B" />
+        </div>
+      </div>
+
+      <!-- Horario y sede -->
+      <div class="section-title">Horario y sede</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Fecha y hora *</label>
+          <input formControlName="fechaHora" type="datetime-local" class="form-input" />
+        </div>
+        <div class="form-group">
+          <label>Estadio *</label>
+          <select formControlName="estadioId" class="form-input">
+            <option [value]="null">Seleccionar estadio...</option>
+            <option *ngFor="let e of estadios" [value]="e.id">
+              {{ e.nombre }} — {{ e.ciudad }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <a routerLink="/admin/partidos" class="btn-secondary">Cancelar</a>
+        <button type="submit" class="btn-primary" [disabled]="isLoading">
+          {{ isLoading ? 'Guardando...' : (isEdit ? 'Actualizar' : 'Crear partido') }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

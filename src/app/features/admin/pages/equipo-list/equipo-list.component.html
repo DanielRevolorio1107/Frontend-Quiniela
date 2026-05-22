@@ -1,0 +1,53 @@
+<div class="admin-page">
+  <div class="admin-card">
+
+    <div class="top-bar">
+      <a routerLink="/dashboard" class="btn-secondary">← Volver</a>
+      <h1>Equipos</h1>
+      <button class="btn-primary" (click)="crear()">+ Nuevo equipo</button>
+    </div>
+
+    <div *ngIf="errorMessage" class="msg error-msg">{{ errorMessage }}</div>
+    <div *ngIf="successMessage" class="msg success-msg">{{ successMessage }}</div>
+
+    <div class="filters">
+      <input [(ngModel)]="searchNombre" (ngModelChange)="filter()" placeholder="Buscar por nombre..." class="filter-input" />
+      <input [(ngModel)]="searchCodigo" (ngModelChange)="filter()" placeholder="Código FIFA (ej: MEX)..." class="filter-input" />
+    </div>
+
+    <div *ngIf="isLoading" class="info-txt">Cargando...</div>
+
+    <table class="admin-table" *ngIf="!isLoading">
+      <thead>
+        <tr>
+          <th>Bandera</th>
+          <th>Nombre</th>
+          <th>Código FIFA</th>
+          <th>Entrenador</th>
+          <th>Capitán</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="filtrados.length === 0">
+          <td colspan="6" class="empty-cell">No hay equipos.</td>
+        </tr>
+        <tr *ngFor="let e of filtrados">
+          <td>
+            <img *ngIf="e.banderaUrl" [src]="e.banderaUrl" [alt]="e.codigoFifa" class="flag-img" />
+            <span *ngIf="!e.banderaUrl" class="no-flag">—</span>
+          </td>
+          <td class="td-bold">{{ e.nombre }}</td>
+          <td><span class="badge-codigo">{{ e.codigoFifa }}</span></td>
+          <td>{{ e.entrenador || '—' }}</td>
+          <td>{{ e.capitan || '—' }}</td>
+          <td class="td-actions">
+            <button class="btn-edit" (click)="editar(e.id)">Editar</button>
+            <button class="btn-delete" (click)="eliminar(e.id, e.nombre)">Eliminar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+</div>

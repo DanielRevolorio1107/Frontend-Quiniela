@@ -2,8 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-
-import { AdminMatchService } from '../../services/admin-match.service';
+import { PartidoAdminService } from '../../services/partido-admin.service';
 
 @Component({
   selector: 'app-admin-match-results',
@@ -13,121 +12,147 @@ import { AdminMatchService } from '../../services/admin-match.service';
   styleUrl: './admin-match-results.component.css'
 })
 export class AdminMatchResultsComponent implements OnInit {
-  private adminMatchService = inject(AdminMatchService);
+  private partidoService = inject(PartidoAdminService);
+
+  readonly TORNEO_ID = 1;
 
   partidos: any[] = [];
   isLoading = true;
   errorMessage = '';
   successMessage = '';
 
-  resultados: Record<number, { golesLocal: number | null; golesVisitante: number | null }> = {};
+  faseActiva = 1;
 
-  ngOnInit(): void {
-    this.loadPartidos();
-  }
+  readonly fases = [
+    { id: 1, nombre: 'Grupos' },
+    { id: 2, nombre: 'Dieciseisavos' },
+    { id: 3, nombre: 'Octavos' },
+    { id: 4, nombre: 'Cuartos' },
+    { id: 5, nombre: 'Semifinal' },
+    { id: 6, nombre: '3er Puesto' },
+    { id: 7, nombre: 'Final' },
+  ];
+
+  // marcador temporal por partido { [id]: {local, visitante} }
+  marcadores: Record<number, { local: number | null; visitante: number | null }> = {};
+  savingId: number | null = null;
+
+  ngOnInit(): void { this.loadPartidos(); }
 
   loadPartidos(): void {
     this.isLoading = true;
     this.errorMessage = '';
     this.successMessage = '';
 
-    this.adminMatchService.getAllPartidos(1, 100).subscribe({
-      next: (response: any) => {
-        this.partidos = this.extractArray(response);
-
-        for (const partido of this.partidos) {
-          this.resultados[partido.id] = {
-            golesLocal: partido.golesLocal ?? null,
-            golesVisitante: partido.golesVisitante ?? null
+    this.partidoService.getByTorneo(this.TORNEO_ID).subscribe({
+      next: (res: any) => {
+        this.partidos = this.toArray(res).sort((a, b) => a.id - b.id);
+        for (const p of this.partidos) {
+          this.marcadores[p.id] = {
+            local: p.golesLocal ?? null,
+            visitante: p.golesVisitante ?? null
           };
         }
-
         this.isLoading = false;
       },
-      error: (error) => {
+      error: err => {
         this.isLoading = false;
-
-        if (error.status === 403) {
-          this.errorMessage = 'Solo un administrador del sistema puede ingresar resultados.';
-          return;
-        }
-
-        if (error.status === 401) {
-          this.errorMessage = 'Tu sesión no tiene permisos para esta pantalla.';
-          return;
-        }
-
-        this.errorMessage = error?.error?.error || 'No se pudieron cargar los partidos.';
+        this.errorMessage = err?.error?.error || 'No se pudieron cargar los partidos.';
       }
     });
   }
 
-  guardarResultado(partido: any): void {
-    this.errorMessage = '';
+  get partidosFiltrados(): any[] {
+    return this.partidos.filter(p => p.fase?.id === this.faseActiva);
+  }
+
+  cambiarFase(id: number): void {
+    this.faseActiva = id;
     this.successMessage = '';
+    this.errorMessage = '';
+  }
 
-    const data = this.resultados[partido.id];
+  actualizarEnVivo(partido: any): void {
+    const m = this.marcadores[partido.id];
+    if (m.local === null || m.visitante === null) return;
 
-    if (
-      data?.golesLocal === null ||
-      data?.golesVisitante === null ||
-      data?.golesLocal < 0 ||
-      data?.golesVisitante < 0
-    ) {
-      this.errorMessage = 'Debes ingresar un resultado válido.';
-      return;
-    }
+    this.savingId = partido.id;
+    this.errorMessage = '';
 
-    this.adminMatchService.ingresarResultado(partido.id, {
-      golesLocal: Number(data.golesLocal),
-      golesVisitante: Number(data.golesVisitante)
+    this.partidoService.actualizarMarcador(partido.id, {
+      golesLocal: Number(m.local),
+      golesVisitante: Number(m.visitante)
     }).subscribe({
       next: () => {
-        this.successMessage = 'Resultado oficial ingresado correctamente.';
+        this.savingId = null;
+        this.successMessage = `Marcador actualizado: ${this.nombreLocal(partido)} ${m.local} - ${m.visitante} ${this.nombreVisitante(partido)}`;
         this.loadPartidos();
       },
-      error: (error) => {
-        if (error.status === 403) {
-          this.errorMessage = 'Solo un administrador del sistema puede ingresar resultados.';
-          return;
-        }
-
-        if (error.status === 401) {
-          this.errorMessage = 'Tu sesión no tiene permisos para esta acción.';
-          return;
-        }
-
-        this.errorMessage = error?.error?.error || 'No se pudo ingresar el resultado.';
+      error: err => {
+        this.savingId = null;
+        this.errorMessage = err?.error?.error || 'No se pudo actualizar el marcador.';
       }
     });
   }
 
-  private extractArray(response: any): any[] {
-    if (Array.isArray(response)) return response;
-    if (Array.isArray(response?.items)) return response.items;
-    if (Array.isArray(response?.data)) return response.data;
-    return [];
+  finalizarPartido(partido: any): void {
+    const m = this.marcadores[partido.id];
+    if (m.local === null || m.visitante === null) return;
+
+    const confirmar = confirm(
+      `¿Finalizar ${this.nombreLocal(partido)} ${m.local} - ${m.visitante} ${this.nombreVisitante(partido)}?\n\nEsto calculará puntos y no podrá revertirse.`
+    );
+    if (!confirmar) return;
+
+    this.savingId = partido.id;
+    this.errorMessage = '';
+
+    this.partidoService.ingresarResultado(partido.id, {
+      golesLocal: Number(m.local),
+      golesVisitante: Number(m.visitante)
+    }).subscribe({
+      next: () => {
+        this.savingId = null;
+        this.successMessage = `Partido finalizado correctamente.`;
+        this.loadPartidos();
+      },
+      error: err => {
+        this.savingId = null;
+        this.errorMessage = err?.error?.error || 'No se pudo finalizar el partido.';
+      }
+    });
   }
 
-  getEquipoLocal(partido: any): string {
-    return partido?.equipoLocal?.nombre || 'Equipo local';
+  nombreLocal(p: any): string {
+    return p?.equipoLocal?.nombre || p?.descripcionLocal || 'Local';
   }
 
-  getEquipoVisitante(partido: any): string {
-    return partido?.equipoVisitante?.nombre || 'Equipo visitante';
+  nombreVisitante(p: any): string {
+    return p?.equipoVisitante?.nombre || p?.descripcionVisitante || 'Visitante';
   }
 
-  getFecha(partido: any): string {
-    if (!partido?.fechaHora) return 'Sin fecha';
-
+  getFecha(p: any): string {
+    if (!p?.fechaHora) return 'Sin fecha';
     return new Intl.DateTimeFormat('es-GT', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true,
-      timeZone: 'UTC'
-    }).format(new Date(partido.fechaHora));
+      day: '2-digit', month: 'short', year: 'numeric',
+      hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'UTC'
+    }).format(new Date(p.fechaHora));
+  }
+
+  estadoBadge(p: any): string {
+    if (p.finalizado) return 'finalizado';
+    if (p.golesLocal !== null) return 'en-vivo';
+    return 'pendiente';
+  }
+
+  estadoLabel(p: any): string {
+    if (p.finalizado) return 'Finalizado';
+    if (p.golesLocal !== null) return 'En curso';
+    return 'Pendiente';
+  }
+
+  private toArray(res: any): any[] {
+    if (Array.isArray(res)) return res;
+    return res?.items ?? res?.data ?? [];
   }
 }

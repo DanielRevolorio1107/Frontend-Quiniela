@@ -1,0 +1,49 @@
+<div class="admin-page">
+  <div class="admin-card">
+
+    <div class="top-bar">
+      <a routerLink="/admin/estadios" class="btn-secondary">← Volver</a>
+      <h1>{{ isEdit ? 'Editar estadio' : 'Nuevo estadio' }}</h1>
+    </div>
+
+    <div *ngIf="errorMessage" class="msg error-msg">{{ errorMessage }}</div>
+    <div *ngIf="isLoading && isEdit" class="info-txt">Cargando...</div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="admin-form" *ngIf="!isLoading || !isEdit">
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nombre del estadio *</label>
+          <input formControlName="nombre" class="form-input" placeholder="Estadio Azteca" />
+          <span class="error-text" *ngIf="nombre.touched && nombre.errors?.['required']">Campo requerido</span>
+        </div>
+        <div class="form-group">
+          <label>Capacidad *</label>
+          <input formControlName="capacidad" type="number" class="form-input" placeholder="87000" />
+          <span class="error-text" *ngIf="capacidad.touched && capacidad.errors?.['min']">Debe ser mayor a 0</span>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Ciudad *</label>
+          <input formControlName="ciudad" class="form-input" placeholder="Ciudad de México" />
+          <span class="error-text" *ngIf="ciudad.touched && ciudad.errors?.['required']">Campo requerido</span>
+        </div>
+        <div class="form-group">
+          <label>País *</label>
+          <input formControlName="pais" class="form-input" placeholder="México" />
+          <span class="error-text" *ngIf="pais.touched && pais.errors?.['required']">Campo requerido</span>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <a routerLink="/admin/estadios" class="btn-secondary">Cancelar</a>
+        <button type="submit" class="btn-primary" [disabled]="isLoading">
+          {{ isLoading ? 'Guardando...' : (isEdit ? 'Actualizar' : 'Crear estadio') }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

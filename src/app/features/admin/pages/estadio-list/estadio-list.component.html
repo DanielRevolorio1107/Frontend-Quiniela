@@ -1,0 +1,49 @@
+<div class="admin-page">
+  <div class="admin-card">
+
+    <div class="top-bar">
+      <a routerLink="/dashboard" class="btn-secondary">← Volver</a>
+      <h1>Estadios</h1>
+      <button class="btn-primary" (click)="crear()">+ Nuevo estadio</button>
+    </div>
+
+    <div *ngIf="errorMessage" class="msg error-msg">{{ errorMessage }}</div>
+    <div *ngIf="successMessage" class="msg success-msg">{{ successMessage }}</div>
+
+    <div class="filters">
+      <input [(ngModel)]="searchNombre" (ngModelChange)="filter()" placeholder="Buscar por nombre..." class="filter-input" />
+      <input [(ngModel)]="searchCiudad" (ngModelChange)="filter()" placeholder="Ciudad..." class="filter-input" />
+      <input [(ngModel)]="searchPais" (ngModelChange)="filter()" placeholder="País..." class="filter-input" />
+    </div>
+
+    <div *ngIf="isLoading" class="info-txt">Cargando...</div>
+
+    <table class="admin-table" *ngIf="!isLoading">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Ciudad</th>
+          <th>País</th>
+          <th>Capacidad</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="filtrados.length === 0">
+          <td colspan="5" class="empty-cell">No hay estadios.</td>
+        </tr>
+        <tr *ngFor="let e of filtrados">
+          <td class="td-bold">{{ e.nombre }}</td>
+          <td>{{ e.ciudad }}</td>
+          <td>{{ e.pais }}</td>
+          <td>{{ e.capacidad | number }}</td>
+          <td class="td-actions">
+            <button class="btn-edit" (click)="editar(e.id)">Editar</button>
+            <button class="btn-delete" (click)="eliminar(e.id, e.nombre)">Eliminar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+</div>
