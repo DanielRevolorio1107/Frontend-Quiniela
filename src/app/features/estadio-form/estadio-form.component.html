@@ -1,0 +1,46 @@
+<div class="admin-page">
+  <div class="admin-card">
+    <div class="top-bar">
+      <a routerLink="/admin/estadios" class="btn-secondary">← Estadios</a>
+    </div>
+
+    <div class="header-block">
+      <h1>{{ isEditMode ? 'Editar estadio' : 'Nuevo estadio' }}</h1>
+      <p class="subtitle">Completa la información de la sede.</p>
+    </div>
+
+    <div *ngIf="errorMessage" class="message error-box">
+      {{ errorMessage }}
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="form-grid">
+      <div class="form-group">
+        <label>Nombre</label>
+        <input type="text" formControlName="nombre" class="admin-input" />
+      </div>
+
+      <div class="form-group">
+        <label>Ciudad</label>
+        <input type="text" formControlName="ciudad" class="admin-input" />
+      </div>
+
+      <div class="form-group">
+        <label>País</label>
+        <input type="text" formControlName="pais" class="admin-input" />
+      </div>
+
+      <div class="form-group">
+        <label>Capacidad</label>
+        <input type="number" formControlName="capacidad" class="admin-input" />
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn-primary" [disabled]="isLoading">
+          {{ isLoading ? 'Guardando...' : (isEditMode ? 'Actualizar' : 'Crear estadio') }}
+        </button>
+
+        <a routerLink="/admin/estadios" class="btn-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>

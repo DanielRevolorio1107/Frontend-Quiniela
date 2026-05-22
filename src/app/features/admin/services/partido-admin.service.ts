@@ -7,12 +7,28 @@ export class PartidoAdminService {
     private http = inject(HttpClient);
     private base = `${environment.apiUrl}/partido`;
 
-    getByTorneo(torneoId: number) {
-        return this.http.get<any[]>(`${this.base}/torneo/${torneoId}`);
+    getAll(page = 1, pageSize = 50) {
+        return this.http.get<any[]>(`${this.base}?page=${page}&pageSize=${pageSize}`);
     }
 
     getById(id: number) {
         return this.http.get<any>(`${this.base}/${id}`);
+    }
+
+    getByTorneo(torneoId: number) {
+        return this.http.get<any[]>(`${this.base}/torneo/${torneoId}`);
+    }
+
+    getByFase(faseId: number) {
+        return this.http.get<any[]>(`${this.base}/fase/${faseId}`);
+    }
+
+    getByGrupo(grupoId: number) {
+        return this.http.get<any[]>(`${this.base}/grupo/${grupoId}`);
+    }
+
+    getPendientes(torneoId: number) {
+        return this.http.get<any[]>(`${this.base}/pendientes/${torneoId}`);
     }
 
     actualizarMarcador(id: number, data: { golesLocal: number; golesVisitante: number }) {
@@ -22,7 +38,6 @@ export class PartidoAdminService {
     ingresarResultado(id: number, data: { golesLocal: number; golesVisitante: number }) {
         return this.http.put<any>(`${this.base}/${id}/resultado`, data);
     }
-
 
     create(data: any) {
         return this.http.post<any>(this.base, data);
@@ -47,9 +62,8 @@ export class PartidoAdminService {
     getEstadiosSelect() {
         return this.http.get<any[]>(`${environment.apiUrl}/estadio/select`);
     }
+
     getTorneosSelect() {
         return this.http.get<any[]>(`${environment.apiUrl}/torneo/select`);
     }
-
-
 }

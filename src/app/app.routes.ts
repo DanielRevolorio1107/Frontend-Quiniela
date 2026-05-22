@@ -29,7 +29,6 @@ import { EquipoFormComponent } from './features/admin/pages/equipo-form/equipo-f
 import { PartidoListComponent } from './features/admin/pages/partido-list/partido-list.component';
 import { PartidoFormComponent } from './features/admin/pages/partido-form/partido-form.component';
 
-
 import { UserListComponent } from './features/admin-users/pages/user-list/user-list.component';
 import { UserCreateComponent } from './features/admin-users/pages/user-create/user-create.component';
 import { UserDetailComponent } from './features/admin-users/pages/user-detail/user-detail.component';
@@ -51,7 +50,7 @@ export const routes: Routes = [
     { path: 'forgot-password', component: ForgotPasswordComponent },
     { path: 'recuperar-password', component: RecoverPasswordComponent },
 
-    // Dashboard (página principal post-login)
+    // Dashboard
     { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
 
     // Ligas
@@ -66,9 +65,6 @@ export const routes: Routes = [
     { path: 'predicciones/nueva/:partidoId', component: PredictionFormComponent, canActivate: [authGuard] },
     { path: 'predicciones/mias', component: MyPredictionsComponent, canActivate: [authGuard] },
     { path: 'predicciones/editar/:id', component: PredictionEditComponent, canActivate: [authGuard] },
-
-    // Admin — Resultados
-    //{ path: 'admin/partidos', component: AdminMatchResultsComponent, canActivate: [adminGuard] },
 
     // Admin — Estadios
     { path: 'admin/estadios', component: EstadioListComponent, canActivate: [adminGuard] },
@@ -95,6 +91,7 @@ export const routes: Routes = [
     { path: 'admin/torneo/:id/editar', component: TorneoFormComponent, canActivate: [adminGuard] },
     { path: 'admin/torneo/:id/configurar', component: TorneoConfigComponent, canActivate: [adminGuard] },
 
+    // Admin — Partidos
     { path: 'admin/partidos', component: PartidoListComponent, canActivate: [adminGuard] },
     { path: 'admin/partidos/crear', component: PartidoFormComponent, canActivate: [adminGuard] },
     { path: 'admin/partidos/resultados', component: AdminMatchResultsComponent, canActivate: [adminGuard] },

@@ -6,9 +6,12 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TorneoAdminService } from '../../services/torneo-admin.service';
 import { FaseAdminService } from '../../services/fase-admin.service';
 import { GrupoAdminService } from '../../services/grupo-admin.service';
+
 import { Torneo } from '../../interfaces/torneo.interface';
 import { Fase, FaseCreate } from '../../interfaces/fase.interface';
 import { Grupo, GrupoCreate, EquipoSelect } from '../../interfaces/grupo.interface';
+import { EstadioAdminService } from '../../../admin/services/estadio-admin.service';
+import { PartidoAdminService } from '../../../admin/services/partido-admin.service';
 
 @Component({
   selector: 'app-torneo-config',
@@ -22,47 +25,60 @@ export class TorneoConfigComponent implements OnInit {
   private torneoService = inject(TorneoAdminService);
   private faseService = inject(FaseAdminService);
   private grupoService = inject(GrupoAdminService);
+  private partidoService = inject(PartidoAdminService);
+  private estadioService = inject(EstadioAdminService);
 
   torneoId = 0;
   torneo: Torneo | null = null;
+
   fases: Fase[] = [];
   grupos: Grupo[] = [];
-  equiposSelect: EquipoSelect[] = [];
+  equiposDisponibles: EquipoSelect[] = [];
+  estadiosDisponibles: any[] = [];
+  partidos: any[] = [];
 
   isLoadingTorneo = true;
   isLoadingFases = false;
   isLoadingGrupos = false;
   isLoadingEquipos = false;
+  isLoadingEstadios = false;
+  isLoadingPartidos = false;
 
-  activeTab: 'fases' | 'grupos' = 'fases';
+  activeTab: 'fases' | 'grupos' | 'partidos' = 'fases';
 
-  // Búsqueda
   searchFase = '';
   searchGrupo = '';
   searchEquipoDisponible = '';
 
-  // Fase — nueva
   showNuevaFase = false;
   nuevaFase: FaseCreate = { nombre: '', orden: 1, torneoId: 0 };
   isSubmittingFase = false;
 
-  // Fase — edición inline
   editingFaseId: number | null = null;
   editFase = { nombre: '', orden: 1 };
 
-  // Grupo — nuevo
   showNuevoGrupo = false;
   nuevoGrupoNombre = '';
   isSubmittingGrupo = false;
 
-  // Grupo — edición inline
   editingGrupoId: number | null = null;
   editGrupoNombre = '';
 
-  // Equipos
   managingEquiposGrupoId: number | null = null;
   equipoParaAsignar: number | null = null;
   isAsignando = false;
+
+  partidoEditId: number | null = null;
+  partidoForm = {
+    faseId: null as number | null,
+    grupoId: null as number | null,
+    equipoLocalId: null as number | null,
+    equipoVisitanteId: null as number | null,
+    descripcionLocal: '',
+    descripcionVisitante: '',
+    fechaHora: '',
+    estadioId: null as number | null
+  };
 
   errorMessage = '';
   successMessage = '';
@@ -73,40 +89,95 @@ export class TorneoConfigComponent implements OnInit {
     this.loadTorneo();
   }
 
-
   loadTorneo(): void {
     this.torneoService.getById(this.torneoId).subscribe({
-      next: (t) => { this.torneo = t; this.isLoadingTorneo = false; this.loadFases(); this.loadGrupos(); },
-      error: (e) => { this.isLoadingTorneo = false; this.showError(this.parseError(e, 'No se pudo cargar el torneo.')); },
+      next: (t) => {
+        this.torneo = t;
+        this.isLoadingTorneo = false;
+        this.loadFases();
+        this.loadGrupos();
+        this.loadEquiposSelectIfNeeded();
+        this.loadEstadios();
+        this.loadPartidos();
+      },
+      error: (e) => {
+        this.isLoadingTorneo = false;
+        this.showError(this.parseError(e, 'No se pudo cargar el torneo.'));
+      },
     });
   }
 
   loadFases(): void {
     this.isLoadingFases = true;
     this.faseService.getByTorneo(this.torneoId).subscribe({
-      next: (data) => { this.fases = data.sort((a, b) => a.orden - b.orden); this.isLoadingFases = false; },
-      error: (e) => { this.isLoadingFases = false; this.showError(this.parseError(e, 'No se pudieron cargar las fases.')); },
+      next: (data) => {
+        this.fases = data.sort((a, b) => a.orden - b.orden);
+        this.isLoadingFases = false;
+      },
+      error: (e) => {
+        this.isLoadingFases = false;
+        this.showError(this.parseError(e, 'No se pudieron cargar las fases.'));
+      },
     });
   }
 
   loadGrupos(): void {
     this.isLoadingGrupos = true;
     this.grupoService.getByTorneo(this.torneoId).subscribe({
-      next: (data) => { this.grupos = data.sort((a, b) => a.nombre.localeCompare(b.nombre)); this.isLoadingGrupos = false; },
-      error: (e) => { this.isLoadingGrupos = false; this.showError(this.parseError(e, 'No se pudieron cargar los grupos.')); },
+      next: (data) => {
+        this.grupos = data.sort((a, b) => a.nombre.localeCompare(b.nombre));
+        this.isLoadingGrupos = false;
+      },
+      error: (e) => {
+        this.isLoadingGrupos = false;
+        this.showError(this.parseError(e, 'No se pudieron cargar los grupos.'));
+      },
     });
   }
 
   loadEquiposSelectIfNeeded(): void {
-    if (this.equiposSelect.length > 0) return;
+    if (this.equiposDisponibles.length > 0) return;
+
     this.isLoadingEquipos = true;
     this.grupoService.getEquiposSelect().subscribe({
-      next: (data) => { this.equiposSelect = data; this.isLoadingEquipos = false; },
-      error: () => { this.isLoadingEquipos = false; },
+      next: (data) => {
+        this.equiposDisponibles = data;
+        this.isLoadingEquipos = false;
+      },
+      error: (e) => {
+        this.isLoadingEquipos = false;
+        this.showError(this.parseError(e, 'No se pudieron cargar los equipos.'));
+      },
     });
   }
 
+  loadEstadios(): void {
+    this.isLoadingEstadios = true;
+    this.estadioService.getSelect().subscribe({
+      next: (data: any) => {
+        this.estadiosDisponibles = Array.isArray(data) ? data : [];
+        this.isLoadingEstadios = false;
+      },
+      error: (e: any) => {
+        this.isLoadingEstadios = false;
+        this.showError(this.parseError(e, 'No se pudieron cargar los estadios.'));
+      }
+    });
+  }
 
+  loadPartidos(): void {
+    this.isLoadingPartidos = true;
+    this.partidoService.getByTorneo(this.torneoId).subscribe({
+      next: (data: any) => {
+        this.partidos = Array.isArray(data) ? data : [];
+        this.isLoadingPartidos = false;
+      },
+      error: (e: any) => {
+        this.isLoadingPartidos = false;
+        this.showError(this.parseError(e, 'No se pudieron cargar los partidos.'));
+      }
+    });
+  }
 
   get filteredFases(): Fase[] {
     if (!this.searchFase.trim()) return this.fases;
@@ -123,7 +194,7 @@ export class TorneoConfigComponent implements OnInit {
   equiposDisponiblesParaGrupo(grupoId: number): EquipoSelect[] {
     const grupo = this.grupos.find(g => g.id === grupoId);
     const asignados = new Set(grupo?.equipos.map(e => e.id) ?? []);
-    let disponibles = this.equiposSelect.filter(e => !asignados.has(e.id));
+    let disponibles = this.equiposDisponibles.filter(e => !asignados.has(e.id));
 
     if (this.searchEquipoDisponible.trim()) {
       const q = this.searchEquipoDisponible.toLowerCase();
@@ -131,9 +202,9 @@ export class TorneoConfigComponent implements OnInit {
         e.nombre.toLowerCase().includes(q) || e.codigoFifa.toLowerCase().includes(q)
       );
     }
+
     return disponibles;
   }
-
 
   toggleNuevaFase(): void {
     this.showNuevaFase = !this.showNuevaFase;
@@ -156,7 +227,10 @@ export class TorneoConfigComponent implements OnInit {
         this.nuevaFase = { nombre: '', orden: 1, torneoId: this.torneoId };
         this.successMessage = 'Fase creada correctamente.';
       },
-      error: (e) => { this.isSubmittingFase = false; this.showError(this.parseError(e, 'No se pudo crear la fase.')); },
+      error: (e) => {
+        this.isSubmittingFase = false;
+        this.showError(this.parseError(e, 'No se pudo crear la fase.'));
+      },
     });
   }
 
@@ -196,7 +270,6 @@ export class TorneoConfigComponent implements OnInit {
     });
   }
 
-
   toggleNuevoGrupo(): void {
     this.showNuevoGrupo = !this.showNuevoGrupo;
     if (this.showNuevoGrupo) this.nuevoGrupoNombre = '';
@@ -217,7 +290,10 @@ export class TorneoConfigComponent implements OnInit {
         this.nuevoGrupoNombre = '';
         this.successMessage = 'Grupo creado correctamente.';
       },
-      error: (e) => { this.isSubmittingGrupo = false; this.showError(this.parseError(e, 'No se pudo crear el grupo.')); },
+      error: (e) => {
+        this.isSubmittingGrupo = false;
+        this.showError(this.parseError(e, 'No se pudo crear el grupo.'));
+      },
     });
   }
 
@@ -233,7 +309,7 @@ export class TorneoConfigComponent implements OnInit {
     this.grupoService.update(id, { nombre: this.editGrupoNombre }).subscribe({
       next: (updated) => {
         this.grupos = this.grupos.map(g => g.id === id ? { ...updated, equipos: g.equipos } : g)
-                        .sort((a, b) => a.nombre.localeCompare(b.nombre));
+          .sort((a, b) => a.nombre.localeCompare(b.nombre));
         this.editingGrupoId = null;
         this.successMessage = 'Grupo actualizado.';
       },
@@ -241,7 +317,9 @@ export class TorneoConfigComponent implements OnInit {
     });
   }
 
-  cancelEditGrupo(): void { this.editingGrupoId = null; }
+  cancelEditGrupo(): void {
+    this.editingGrupoId = null;
+  }
 
   deleteGrupo(id: number, nombre: string): void {
     if (!confirm(`¿Eliminar el grupo "${nombre}"? Se removerán todos los equipos asignados.`)) return;
@@ -257,62 +335,196 @@ export class TorneoConfigComponent implements OnInit {
     });
   }
 
-
-
-  toggleEquipos(grupoId: number): void {
-    if (this.managingEquiposGrupoId === grupoId) {
-      this.managingEquiposGrupoId = null;
-    } else {
-      this.managingEquiposGrupoId = grupoId;
-      this.equipoParaAsignar = null;
-      this.searchEquipoDisponible = '';
-      this.loadEquiposSelectIfNeeded();
-    }
+  toggleEquiposGrupo(id: number): void {
+    this.managingEquiposGrupoId = this.managingEquiposGrupoId === id ? null : id;
+    this.equipoParaAsignar = null;
+    this.searchEquipoDisponible = '';
+    this.loadEquiposSelectIfNeeded();
   }
 
-  asignarEquipo(grupoId: number): void {
+  asignarEquipoAGrupo(grupoId: number): void {
     if (!this.equipoParaAsignar) return;
     this.isAsignando = true;
     this.clearMessages();
 
     this.grupoService.asignarEquipo(grupoId, this.equipoParaAsignar).subscribe({
-      next: () => {
-        const equipo = this.equiposSelect.find(e => e.id === this.equipoParaAsignar)!;
-        this.grupos = this.grupos.map(g => g.id === grupoId
-          ? { ...g, equipos: [...g.equipos, { ...equipo, entrenador: '', capitan: '' }] }
-          : g
-        );
-        this.equipoParaAsignar = null;
-        this.searchEquipoDisponible = '';
+      next: (grupoActualizado) => {
+        this.grupos = this.grupos.map(g => g.id === grupoId ? grupoActualizado : g)
+          .sort((a, b) => a.nombre.localeCompare(b.nombre));
         this.isAsignando = false;
+        this.equipoParaAsignar = null;
         this.successMessage = 'Equipo asignado correctamente.';
       },
-      error: (e) => { this.isAsignando = false; this.showError(this.parseError(e, 'No se pudo asignar el equipo.')); },
+      error: (e) => {
+        this.isAsignando = false;
+        this.showError(this.parseError(e, 'No se pudo asignar el equipo.'));
+      },
     });
   }
 
-  removerEquipo(grupoId: number, equipoId: number, equipoNombre: string): void {
-    if (!confirm(`¿Remover "${equipoNombre}" del grupo?`)) return;
+  removerEquipoDeGrupo(grupoId: number, equipoId: number, nombreEquipo: string): void {
+    if (!confirm(`¿Quitar "${nombreEquipo}" de este grupo?`)) return;
     this.clearMessages();
 
     this.grupoService.removerEquipo(grupoId, equipoId).subscribe({
       next: () => {
-        this.grupos = this.grupos.map(g => g.id === grupoId
-          ? { ...g, equipos: g.equipos.filter(e => e.id !== equipoId) }
-          : g
-        );
-        this.successMessage = 'Equipo removido.';
+        this.loadGrupos();
+        this.successMessage = 'Equipo removido del grupo.';
       },
       error: (e) => this.showError(this.parseError(e, 'No se pudo remover el equipo.')),
     });
   }
 
+  savePartido(): void {
+    this.clearMessages();
 
-  private showError(msg: string): void { this.errorMessage = msg; this.successMessage = ''; }
-  private clearMessages(): void { this.errorMessage = ''; this.successMessage = ''; }
+    if (!this.partidoForm.faseId) {
+      this.showError('Debes seleccionar una fase.');
+      return;
+    }
+
+    if (!this.partidoForm.estadioId) {
+      this.showError('Debes seleccionar un estadio.');
+      return;
+    }
+
+    if (!this.partidoForm.fechaHora) {
+      this.showError('Debes ingresar la fecha y hora del partido.');
+      return;
+    }
+
+    if (!this.partidoForm.equipoLocalId && !this.partidoForm.descripcionLocal.trim()) {
+      this.showError('Debes seleccionar equipo local o escribir descripción local.');
+      return;
+    }
+
+    if (!this.partidoForm.equipoVisitanteId && !this.partidoForm.descripcionVisitante.trim()) {
+      this.showError('Debes seleccionar equipo visitante o escribir descripción visitante.');
+      return;
+    }
+
+    const payload = {
+      torneoId: this.torneoId,
+      faseId: this.partidoForm.faseId,
+      grupoId: this.partidoForm.grupoId || null,
+      equipoLocalId: this.partidoForm.equipoLocalId || null,
+      equipoVisitanteId: this.partidoForm.equipoVisitanteId || null,
+      descripcionLocal: this.partidoForm.descripcionLocal.trim() || null,
+      descripcionVisitante: this.partidoForm.descripcionVisitante.trim() || null,
+      fechaHora: this.partidoForm.fechaHora,
+      estadioId: this.partidoForm.estadioId
+    };
+
+    if (this.partidoEditId) {
+      this.partidoService.update(this.partidoEditId, {
+        equipoLocalId: payload.equipoLocalId,
+        equipoVisitanteId: payload.equipoVisitanteId,
+        descripcionLocal: payload.descripcionLocal,
+        descripcionVisitante: payload.descripcionVisitante,
+        fechaHora: payload.fechaHora,
+        estadioId: payload.estadioId
+      }).subscribe({
+        next: () => {
+          this.successMessage = 'Partido actualizado correctamente.';
+          this.resetPartidoForm();
+          this.loadPartidos();
+        },
+        error: (e) => this.showError(this.parseError(e, 'No se pudo actualizar el partido.'))
+      });
+      return;
+    }
+
+    this.partidoService.create(payload).subscribe({
+      next: () => {
+        this.successMessage = 'Partido creado correctamente.';
+        this.resetPartidoForm();
+        this.loadPartidos();
+      },
+      error: (e) => this.showError(this.parseError(e, 'No se pudo crear el partido.'))
+    });
+  }
+
+  editPartido(partido: any): void {
+    this.partidoEditId = partido.id;
+    this.activeTab = 'partidos';
+    this.partidoForm = {
+      faseId: partido.fase?.id || null,
+      grupoId: partido.grupoId || null,
+      equipoLocalId: partido.equipoLocal?.id || null,
+      equipoVisitanteId: partido.equipoVisitante?.id || null,
+      descripcionLocal: partido.descripcionLocal || '',
+      descripcionVisitante: partido.descripcionVisitante || '',
+      fechaHora: this.toDateTimeLocal(partido.fechaHora),
+      estadioId: partido.estadio?.id || null
+    };
+  }
+
+  deletePartido(id: number): void {
+    if (!confirm('¿Deseas eliminar este partido?')) return;
+    this.clearMessages();
+
+    this.partidoService.delete(id).subscribe({
+      next: () => {
+        this.successMessage = 'Partido eliminado correctamente.';
+        this.loadPartidos();
+      },
+      error: (e) => this.showError(this.parseError(e, 'No se pudo eliminar el partido.'))
+    });
+  }
+
+  resetPartidoForm(): void {
+    this.partidoEditId = null;
+    this.partidoForm = {
+      faseId: null,
+      grupoId: null,
+      equipoLocalId: null,
+      equipoVisitanteId: null,
+      descripcionLocal: '',
+      descripcionVisitante: '',
+      fechaHora: '',
+      estadioId: null
+    };
+  }
+
+  getEquiposDeGrupoSeleccionado(): any[] {
+    if (!this.partidoForm.grupoId) return this.equiposDisponibles;
+    const grupo = this.grupos.find(g => g.id === this.partidoForm.grupoId);
+    return grupo?.equipos || [];
+  }
+
+  getFechaPartido(fecha: string): string {
+  if (!fecha) return 'N/D';
+
+  return new Intl.DateTimeFormat('es-GT', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+    timeZone: 'America/Guatemala'
+  }).format(new Date(fecha));
+}
+
+  private toDateTimeLocal(dateValue: string): string {
+    if (!dateValue) return '';
+    const date = new Date(dateValue);
+    const offset = date.getTimezoneOffset();
+    const local = new Date(date.getTime() - offset * 60000);
+    return local.toISOString().slice(0, 16);
+  }
+
+  private clearMessages(): void {
+    this.errorMessage = '';
+    this.successMessage = '';
+  }
+
+  private showError(msg: string): void {
+    this.errorMessage = msg;
+    this.successMessage = '';
+  }
+
   private parseError(error: any, fallback: string): string {
-    if (error.status === 0) return 'No se pudo conectar con el servidor.';
-    if (error.status === 401 || error.status === 403) return 'No tienes permisos.';
-    return error?.error?.error || error?.error?.message || fallback;
+    return error?.error?.error || fallback;
   }
 }
