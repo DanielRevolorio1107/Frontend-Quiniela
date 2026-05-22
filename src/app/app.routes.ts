@@ -31,6 +31,10 @@ import { TorneoConfigComponent } from './features/admin-tournament/pages/torneo-
 
 import { BracketComponent } from './features/bracket/pages/bracket/bracket.component';
 import { AdminDashboardComponent } from './features/admin/pages/admin-dashboard/admin-dashboard.component';
+import { EstadioListComponent } from './features/estadio-list/estadio-list.component';
+import { EstadioFormComponent } from './features/estadio-form/estadio-form.component';
+import { EquipoFormComponent } from './features/equipo-form/equipo-form.component';
+import { EquipoListComponent } from './features/equipo-list/equipo-list.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -72,6 +76,16 @@ export const routes: Routes = [
   { path: 'admin/torneo/crear', component: TorneoFormComponent, canActivate: [adminGuard] },
   { path: 'admin/torneo/:id/editar', component: TorneoFormComponent, canActivate: [adminGuard] },
   { path: 'admin/torneo/:id/configurar', component: TorneoConfigComponent, canActivate: [adminGuard] },
+
+  // Admin estadios
+  { path: 'admin/estadios', component: EstadioListComponent, canActivate: [adminGuard] },
+  { path: 'admin/estadios/crear', component: EstadioFormComponent, canActivate: [adminGuard] },
+  { path: 'admin/estadios/:id/editar', component: EstadioFormComponent, canActivate: [adminGuard] },
+
+  //Admin equipos
+  { path: 'admin/equipos', component: EquipoListComponent, canActivate: [adminGuard] },
+{ path: 'admin/equipos/crear', component: EquipoFormComponent, canActivate: [adminGuard] },
+{ path: 'admin/equipos/:id/editar', component: EquipoFormComponent, canActivate: [adminGuard] },
 
   { path: '**', redirectTo: 'login' }
 ];

@@ -1,0 +1,102 @@
+<div class="admin-page">
+  <div class="admin-card">
+    <div class="top-bar">
+      <a routerLink="/admin" class="btn-secondary">← Panel admin</a>
+    </div>
+
+    <div class="header-block">
+      <h1>Equipos</h1>
+      <p class="subtitle">Gestiona países clasificados y equipos del torneo.</p>
+    </div>
+
+    <div *ngIf="errorMessage" class="message error-box">
+      {{ errorMessage }}
+    </div>
+
+    <div *ngIf="successMessage" class="message success-box">
+      {{ successMessage }}
+    </div>
+
+    <div class="toolbar">
+      <div class="filters">
+        <input
+          type="text"
+          [(ngModel)]="searchNombre"
+          (input)="applyFilters()"
+          placeholder="Buscar por nombre..."
+          class="admin-input"
+        />
+
+        <input
+          type="text"
+          [(ngModel)]="searchCodigo"
+          (input)="applyFilters()"
+          placeholder="Código FIFA..."
+          class="admin-input"
+        />
+
+        <input
+          type="text"
+          [(ngModel)]="searchEntrenador"
+          (input)="applyFilters()"
+          placeholder="Entrenador..."
+          class="admin-input"
+        />
+      </div>
+
+      <button type="button" class="btn-primary" (click)="createEquipo()">
+        + Nuevo equipo
+      </button>
+    </div>
+
+    <div *ngIf="isLoading" class="info-box">
+      Cargando equipos...
+    </div>
+
+    <div *ngIf="!isLoading && equiposFiltrados.length === 0" class="info-box">
+      No hay equipos registrados.
+    </div>
+
+    <div class="table-wrapper" *ngIf="!isLoading && equiposFiltrados.length > 0">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Bandera</th>
+            <th>Nombre</th>
+            <th>Código FIFA</th>
+            <th>Entrenador</th>
+            <th>Capitán</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let equipo of equiposFiltrados">
+            <td>{{ equipo.id }}</td>
+            <td>
+              <img
+                *ngIf="equipo.banderaUrl"
+                [src]="equipo.banderaUrl"
+                [alt]="equipo.nombre"
+                class="flag-img"
+              />
+              <span *ngIf="!equipo.banderaUrl">—</span>
+            </td>
+            <td>{{ equipo.nombre }}</td>
+            <td>{{ equipo.codigoFifa }}</td>
+            <td>{{ equipo.entrenador || '—' }}</td>
+            <td>{{ equipo.capitan || '—' }}</td>
+            <td class="actions-cell">
+              <button type="button" class="btn-link" (click)="editEquipo(equipo.id)">
+                Editar
+              </button>
+              <button type="button" class="btn-link danger" (click)="deleteEquipo(equipo.id, equipo.nombre)">
+                Eliminar
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

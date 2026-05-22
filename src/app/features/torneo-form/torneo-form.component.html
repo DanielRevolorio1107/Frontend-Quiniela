@@ -1,0 +1,46 @@
+<div class="admin-page">
+  <div class="admin-card">
+    <div class="top-bar">
+      <a routerLink="/admin/torneo" class="btn-secondary">← Volver a torneos</a>
+    </div>
+
+    <h1>{{ isEditMode ? 'Editar torneo' : 'Crear torneo' }}</h1>
+
+    <div *ngIf="errorMessage" class="message error-box">
+      {{ errorMessage }}
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="form-grid" novalidate>
+      <div class="form-group">
+        <label for="nombre">Nombre</label>
+        <input id="nombre" type="text" formControlName="nombre" class="admin-input" />
+      </div>
+
+      <div class="form-group">
+        <label for="año">Año</label>
+        <input id="año" type="number" formControlName="año" class="admin-input" />
+      </div>
+
+      <div class="form-group">
+        <label for="paisSede">País sede</label>
+        <input id="paisSede" type="text" formControlName="paisSede" class="admin-input" />
+      </div>
+
+      <div class="form-group">
+        <label for="fechaInicio">Fecha inicio</label>
+        <input id="fechaInicio" type="date" formControlName="fechaInicio" class="admin-input" />
+      </div>
+
+      <div class="form-group">
+        <label for="fechaFin">Fecha fin</label>
+        <input id="fechaFin" type="date" formControlName="fechaFin" class="admin-input" />
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn-primary" [disabled]="isLoading">
+          {{ isLoading ? 'Guardando...' : (isEditMode ? 'Actualizar' : 'Crear') }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
