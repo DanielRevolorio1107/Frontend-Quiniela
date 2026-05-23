@@ -30,6 +30,8 @@ export interface Partido {
   estadio: EstadioInfo;
   golesLocal: number | null;
   golesVisitante: number | null;
+  golesLocalPenales: number | null;     
+  golesVisitantePenales: number | null;
   finalizado: boolean;
 }
 

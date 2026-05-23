@@ -37,7 +37,6 @@
   margin: 0 0 16px;
 }
 
-/* ===== Stat cards ===== */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -74,7 +73,6 @@
   color: #1f2937;
 }
 
-/* ===== Total recaudado ===== */
 .total-recaudado {
   background: #eff6ff;
   border: 1px solid #bfdbfe;
@@ -99,7 +97,6 @@
   color: #1e40af;
 }
 
-/* ===== Descargas ===== */
 .download-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -156,7 +153,6 @@
   cursor: not-allowed;
 }
 
-/* ===== Compartido ===== */
 .message {
   padding: 10px 14px;
   border-radius: 6px;

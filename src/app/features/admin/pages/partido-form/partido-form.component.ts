@@ -13,20 +13,20 @@ import { PartidoAdminService } from '../../services/partido-admin.service';
   styleUrl: './partido-form.component.css'
 })
 export class PartidoFormComponent implements OnInit {
-  private fb      = inject(FormBuilder);
-  private route   = inject(ActivatedRoute);
-  private router  = inject(Router);
+  private fb = inject(FormBuilder);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private service = inject(PartidoAdminService);
 
   id: number | null = null;
-  isEdit          = false;
-  isLoading       = false;
-  isLoadingData   = true;
-  errorMessage    = '';
+  isEdit = false;
+  isLoading = false;
+  isLoadingData = true;
+  errorMessage = '';
 
-  torneos:  any[] = [];
-  grupos:   any[] = [];
-  equipos:  any[] = [];
+  torneos: any[] = [];
+  grupos: any[] = [];
+  equipos: any[] = [];
   estadios: any[] = [];
 
   readonly fases = [
@@ -40,15 +40,15 @@ export class PartidoFormComponent implements OnInit {
   ];
 
   form = this.fb.group({
-    torneoId:             [null as number | null],
-    faseId:               [1],
-    grupoId:              [null as number | null],
-    equipoLocalId:        [null as number | null],
-    equipoVisitanteId:    [null as number | null],
-    descripcionLocal:     [''],
+    torneoId: [null as number | null],
+    faseId: [1],
+    grupoId: [null as number | null],
+    equipoLocalId: [null as number | null],
+    equipoVisitanteId: [null as number | null],
+    descripcionLocal: [''],
     descripcionVisitante: [''],
-    fechaHora:            [''],
-    estadioId:            [null as number | null],
+    fechaHora: [''],
+    estadioId: [null as number | null],
   });
 
   get esFaseGrupos(): boolean {
@@ -60,15 +60,15 @@ export class PartidoFormComponent implements OnInit {
     if (id > 0) { this.id = id; this.isEdit = true; }
 
     forkJoin({
-      torneos:  this.service.getTorneosSelect(),
-      grupos:   this.service.getGruposByTorneo(1), // carga inicial, se puede filtrar por torneo después
-      equipos:  this.service.getEquiposSelect(),
+      torneos: this.service.getTorneosSelect(),
+      grupos: this.service.getGruposByTorneo(1), // carga inicial, se puede filtrar por torneo después
+      equipos: this.service.getEquiposSelect(),
       estadios: this.service.getEstadiosSelect(),
     }).subscribe({
       next: ({ torneos, grupos, equipos, estadios }) => {
-        this.torneos  = this.toArray(torneos);
-        this.grupos   = this.toArray(grupos);
-        this.equipos  = this.toArray(equipos);
+        this.torneos = this.toArray(torneos);
+        this.grupos = this.toArray(grupos);
+        this.equipos = this.toArray(equipos);
         this.estadios = this.toArray(estadios);
         this.isLoadingData = false;
         if (this.isEdit) this.loadPartido(id);
@@ -85,27 +85,32 @@ export class PartidoFormComponent implements OnInit {
     this.service.getById(id).subscribe({
       next: (p: any) => {
         this.form.patchValue({
-          torneoId:             p.torneoId || null,
-          faseId:               p.fase?.id || 1,
-          grupoId:              p.grupoId || null,
-          equipoLocalId:        p.equipoLocal?.id || null,
-          equipoVisitanteId:    p.equipoVisitante?.id || null,
-          descripcionLocal:     p.descripcionLocal || '',
+          torneoId: p.torneoId || null,
+          faseId: p.fase?.id || 1,
+          grupoId: p.grupoId || null,
+          equipoLocalId: p.equipoLocal?.id || null,
+          equipoVisitanteId: p.equipoVisitante?.id || null,
+          descripcionLocal: p.descripcionLocal || '',
           descripcionVisitante: p.descripcionVisitante || '',
-          fechaHora:            p.fechaHora ? new Date(p.fechaHora).toISOString().slice(0, 16) : '',
-          estadioId:            p.estadio?.id || null,
+          fechaHora: p.fechaHora ? this.toLocalInput(p.fechaHora) : '',
+          estadioId: p.estadio?.id || null,
         });
         this.isLoading = false;
       },
       error: err => { this.isLoading = false; this.errorMessage = err?.error?.error || 'Error al cargar.'; }
     });
   }
+  private toLocalInput(utcDate: string): string {
+    const d = new Date(utcDate);
+    const offset = d.getTimezoneOffset() * 60000;
+    return new Date(d.getTime() - offset).toISOString().slice(0, 16);
+  }
 
   submit(): void {
     this.errorMessage = '';
     const v = this.form.value;
 
-    if (!v.torneoId)  { this.errorMessage = 'Seleccioná un torneo.'; return; }
+    if (!v.torneoId) { this.errorMessage = 'Seleccioná un torneo.'; return; }
     if (!v.fechaHora) { this.errorMessage = 'La fecha es obligatoria.'; return; }
     if (!v.estadioId) { this.errorMessage = 'El estadio es obligatorio.'; return; }
 
@@ -113,12 +118,12 @@ export class PartidoFormComponent implements OnInit {
 
     if (this.isEdit) {
       const payload = {
-        equipoLocalId:        v.equipoLocalId     ? Number(v.equipoLocalId)     : null,
-        equipoVisitanteId:    v.equipoVisitanteId ? Number(v.equipoVisitanteId) : null,
-        descripcionLocal:     v.descripcionLocal     || null,
+        equipoLocalId: v.equipoLocalId ? Number(v.equipoLocalId) : null,
+        equipoVisitanteId: v.equipoVisitanteId ? Number(v.equipoVisitanteId) : null,
+        descripcionLocal: v.descripcionLocal || null,
         descripcionVisitante: v.descripcionVisitante || null,
-        fechaHora:            new Date(v.fechaHora!).toISOString(),
-        estadioId:            Number(v.estadioId),
+        fechaHora: new Date(v.fechaHora!).toISOString(),
+        estadioId: Number(v.estadioId),
       };
 
       this.service.update(this.id!, payload).subscribe({
@@ -128,15 +133,15 @@ export class PartidoFormComponent implements OnInit {
 
     } else {
       const payload = {
-        torneoId:             Number(v.torneoId),
-        faseId:               Number(v.faseId),
-        grupoId:              v.grupoId              ? Number(v.grupoId)              : null,
-        equipoLocalId:        v.equipoLocalId        ? Number(v.equipoLocalId)        : null,
-        equipoVisitanteId:    v.equipoVisitanteId    ? Number(v.equipoVisitanteId)    : null,
-        descripcionLocal:     v.descripcionLocal     || null,
+        torneoId: Number(v.torneoId),
+        faseId: Number(v.faseId),
+        grupoId: v.grupoId ? Number(v.grupoId) : null,
+        equipoLocalId: v.equipoLocalId ? Number(v.equipoLocalId) : null,
+        equipoVisitanteId: v.equipoVisitanteId ? Number(v.equipoVisitanteId) : null,
+        descripcionLocal: v.descripcionLocal || null,
         descripcionVisitante: v.descripcionVisitante || null,
-        fechaHora:            new Date(v.fechaHora!).toISOString(),
-        estadioId:            Number(v.estadioId),
+        fechaHora: new Date(v.fechaHora!).toISOString(),
+        estadioId: Number(v.estadioId),
       };
 
       this.service.create(payload).subscribe({

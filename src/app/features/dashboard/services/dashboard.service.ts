@@ -21,4 +21,12 @@ export class DashboardService {
   getClasificacion(grupoId: number): Observable<GrupoConClasificacion['clasificacion']> {
     return this.http.get<any>(`${this.apiUrl}/grupo/${grupoId}/clasificacion`);
   }
+
+  getRankingUsuarios(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/ranking/global/usuarios`);
+  }
+
+  getRankingLigas(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/ranking/global/ligas`);
+  }
 }
