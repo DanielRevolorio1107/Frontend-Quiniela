@@ -176,6 +176,16 @@
       </div>
     </section>
 
+    <section class="section" *ngIf="liga">
+      <h2>Premios estimados</h2>
+
+      <div class="action-buttons">
+        <a [routerLink]="['/ligas', liga.id, 'premios']" class="btn-approve">
+          Ver premios estimados
+        </a>
+      </div>
+    </section>
+
     <section class="section">
       <h2>Invitaciones por correo</h2>
 

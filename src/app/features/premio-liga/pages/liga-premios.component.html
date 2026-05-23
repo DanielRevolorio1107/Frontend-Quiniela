@@ -1,0 +1,59 @@
+<div class="premios-page">
+  <div class="premios-card">
+    <div class="top-bar">
+      <a routerLink="/ligas" class="btn-secondary">← Volver a ligas</a>
+      <button type="button" class="btn-secondary" (click)="loadPremios()">Actualizar</button>
+    </div>
+
+    <h1>Premios estimados de la liga</h1>
+    <p class="subtitle">
+      Esta tabla muestra la posición actual y el premio estimado si el torneo terminara hoy.
+    </p>
+
+    <div *ngIf="errorMessage" class="message error-box">
+      {{ errorMessage }}
+    </div>
+
+    <div *ngIf="isLoading" class="info-box">
+      Calculando premios...
+    </div>
+
+    <div *ngIf="!isLoading && premios.length === 0" class="info-box">
+      No hay datos de premios para esta liga.
+    </div>
+
+    <div *ngIf="!isLoading && premios.length > 0">
+      <div class="note-box" *ngIf="!tienePremios()">
+        Esta liga no tiene premios asignados todavía o es una liga de diversión.
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Usuario</th>
+              <th>Equipo</th>
+              <th>Puntos</th>
+              <th>Premio estimado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of premios">
+              <td>{{ item.posicion }}</td>
+              <td>{{ item.fullName }}</td>
+              <td>{{ item.nombreEquipo }}</td>
+              <td>{{ item.puntos }}</td>
+              <td>
+                <span *ngIf="item.premioAsignado !== null">
+                  {{ item.premioAsignado | number:'1.2-2' }}
+                </span>
+                <span *ngIf="item.premioAsignado === null" class="text-muted">—</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
