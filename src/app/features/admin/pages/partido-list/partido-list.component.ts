@@ -83,7 +83,7 @@ export class PartidoListComponent implements OnInit {
     if (!p?.fechaHora) return 'Sin fecha';
     return new Intl.DateTimeFormat('es-GT', {
       day: '2-digit', month: 'short', year: 'numeric',
-      hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'UTC'
+      hour: '2-digit', minute: '2-digit', hour12: true, //timeZone: 'UTC'
     }).format(new Date(p.fechaHora));
   }
 

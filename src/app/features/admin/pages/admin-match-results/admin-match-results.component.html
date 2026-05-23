@@ -9,10 +9,8 @@
     </div>
 
     <div class="fase-tabs">
-      <button
-        *ngFor="let f of fases"
-        class="fase-tab"
-        [class.active]="faseActiva === f.id"
+      <button *ngFor="let f of fases"
+        class="fase-tab" [class.active]="faseActiva === f.id"
         (click)="cambiarFase(f.id)">
         {{ f.nombre }}
       </button>
@@ -32,7 +30,7 @@
            [class.finalizado]="partido.finalizado"
            [class.en-vivo]="!partido.finalizado && partido.golesLocal !== null">
 
-        <!-- Header del partido -->
+        <!-- Header -->
         <div class="partido-header">
           <span class="partido-id">#{{ partido.id }}</span>
           <span class="partido-badge" [class]="estadoBadge(partido)">
@@ -51,9 +49,15 @@
                  [alt]="partido.equipoLocal.codigoFifa"
                  class="bandera" />
             <span class="equipo-nombre">{{ nombreLocal(partido) }}</span>
+            <!-- Botón asignar 3er lugar -->
+            <button *ngIf="!partido.equipoLocal && esTerceroSlot(partido, true)"
+                    class="btn-tercero"
+                    (click)="abrirTerceros(partido, true)">
+              3ro →
+            </button>
           </div>
 
-          <!-- Inputs o resultado -->
+          <!-- Score inputs o resultado -->
           <div class="score-col" *ngIf="!partido.finalizado">
             <input type="number" min="0"
                    [(ngModel)]="marcadores[partido.id].local"
@@ -65,11 +69,16 @@
           </div>
 
           <div class="score-result" *ngIf="partido.finalizado">
-            {{ partido.golesLocal }} — {{ partido.golesVisitante }}
+            {{ resultadoFinalizado(partido) }}
           </div>
 
           <!-- Visitante -->
           <div class="equipo-col right">
+            <button *ngIf="!partido.equipoVisitante && esTerceroSlot(partido, false)"
+                    class="btn-tercero"
+                    (click)="abrirTerceros(partido, false)">
+              ← 3ro
+            </button>
             <span class="equipo-nombre">{{ nombreVisitante(partido) }}</span>
             <img *ngIf="partido.equipoVisitante?.banderaUrl"
                  [src]="partido.equipoVisitante.banderaUrl"
@@ -77,6 +86,20 @@
                  class="bandera" />
           </div>
 
+        </div>
+
+        <!-- Sección penales — solo para eliminatorias con empate -->
+        <div class="penales-section" *ngIf="mostrarPenales(partido)">
+          <span class="penales-label">Penales</span>
+          <div class="penales-inputs">
+            <input type="number" min="0"
+                   [(ngModel)]="marcadores[partido.id].penalesLocal"
+                   class="score-input penales-input" placeholder="0" />
+            <span class="vs">—</span>
+            <input type="number" min="0"
+                   [(ngModel)]="marcadores[partido.id].penalesVisitante"
+                   class="score-input penales-input" placeholder="0" />
+          </div>
         </div>
 
         <!-- Estadio -->
@@ -91,22 +114,58 @@
                   [disabled]="savingId === partido.id
                               || marcadores[partido.id].local === null
                               || marcadores[partido.id].visitante === null">
-            {{ savingId === partido.id ? 'Guardando...' : '⟳ Actualizar en vivo' }}
+            {{ savingId === partido.id ? 'Guardando...' : '⟳ En vivo' }}
           </button>
           <button class="btn-finish"
                   (click)="finalizarPartido(partido)"
                   [disabled]="savingId === partido.id
                               || marcadores[partido.id].local === null
                               || marcadores[partido.id].visitante === null">
-            ✓ Finalizar partido
+            ✓ Finalizar
           </button>
         </div>
 
         <div class="partido-finalizado-msg" *ngIf="partido.finalizado">
-          Resultado oficial: {{ partido.golesLocal }} — {{ partido.golesVisitante }}
+          {{ resultadoFinalizado(partido) }}
         </div>
 
       </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL MEJORES TERCEROS -->
+<div class="modal-overlay" *ngIf="showTercerosModal" (click)="showTercerosModal = false">
+  <div class="modal-terceros" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <h3>Mejores terceros lugares</h3>
+      <p class="modal-sub">Seleccioná el equipo a asignar. Los primeros 8 clasifican.</p>
+    </div>
+
+    <div *ngIf="isLoadingTerceros" class="info-box">Cargando...</div>
+
+    <div class="terceros-list" *ngIf="!isLoadingTerceros">
+      <div class="tercero-row" *ngFor="let t of terceros; let i = index"
+           [class.clasificado]="i < 8"
+           (click)="asignarTercero(t)">
+        <span class="tercero-pos">{{ i + 1 }}</span>
+        <img [src]="t.banderaUrl" [alt]="t.equipoNombre" class="tercero-bandera" />
+        <div class="tercero-info">
+          <span class="tercero-nombre">{{ t.equipoNombre }}</span>
+          <span class="tercero-grupo">{{ t.grupoNombre }}</span>
+        </div>
+        <div class="tercero-stats">
+          <span class="tercero-pts">{{ t.puntos }} pts</span>
+          <span class="tercero-dg">DG: {{ t.diferenciaGoles }}</span>
+        </div>
+        <span class="tercero-badge" *ngIf="i < 8">Clasifica</span>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="showTercerosModal = false">Cancelar</button>
     </div>
 
   </div>

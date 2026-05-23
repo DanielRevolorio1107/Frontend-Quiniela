@@ -66,4 +66,7 @@ export class PartidoAdminService {
     getTorneosSelect() {
         return this.http.get<any[]>(`${environment.apiUrl}/torneo/select`);
     }
+    getMejoresTerceros(torneoId: number) {
+        return this.http.get<any[]>(`${environment.apiUrl}/grupo/torneo/${torneoId}/mejores-terceros`);
+    }
 }

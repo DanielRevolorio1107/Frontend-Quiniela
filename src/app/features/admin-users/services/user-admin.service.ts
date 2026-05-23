@@ -37,7 +37,7 @@ export class UserAdminService {
     return this.http.put<User>(`${this.apiUrl}/${id}`, data);
   }
 
-  //  Ahora devuelve el User actualizado, no MessageResponse
+  //  devuelve el User actualizado
   updateRole(id: number, data: UpdateUserRoleRequest): Observable<User> {
     return this.http.put<User>(`${this.apiUrl}/${id}/rol`, data);
   }

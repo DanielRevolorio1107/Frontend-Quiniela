@@ -1,15 +1,11 @@
 <div class="dashboard-page">
 
-    <!-- NAV -->
     <nav class="main-nav" (click)="$event.stopPropagation()">
         <div class="nav-brand">⚽ Copa Mundial FIFA 2026</div>
-
         <div class="nav-links">
 
             <div class="nav-dropdown" *ngIf="isAdmin">
-                <button class="nav-btn" (click)="toggleDropdown('admin', $event)">
-                    Administración <span class="caret">▾</span>
-                </button>
+                <button class="nav-btn" (click)="toggleDropdown('admin', $event)">Administración <span class="caret">▾</span></button>
                 <div class="dropdown-menu" [class.open]="activeDropdown === 'admin'">
                     <a routerLink="/admin/usuarios" class="dropdown-item" (click)="closeDropdowns()">Usuarios</a>
                     <a routerLink="/admin/premios" class="dropdown-item" (click)="closeDropdowns()">Premios</a>
@@ -19,35 +15,26 @@
             </div>
 
             <div class="nav-dropdown" *ngIf="isAdmin">
-                <button class="nav-btn" (click)="toggleDropdown('mundial', $event)">
-                    Admin Mundial <span class="caret">▾</span>
-                </button>
+                <button class="nav-btn" (click)="toggleDropdown('mundial', $event)">Admin Mundial <span class="caret">▾</span></button>
                 <div class="dropdown-menu" [class.open]="activeDropdown === 'mundial'">
-                    <a routerLink="/admin/partidos" class="dropdown-item" (click)="closeDropdowns()">Gestión
-                        partidos</a>
-                    <a routerLink="/admin/partidos/resultados" class="dropdown-item"
-                        (click)="closeDropdowns()">Resultados en vivo</a>
+                    <a routerLink="/admin/partidos" class="dropdown-item" (click)="closeDropdowns()">Gestión partidos</a>
+                    <a routerLink="/admin/partidos/resultados" class="dropdown-item" (click)="closeDropdowns()">Resultados en vivo</a>
                     <a routerLink="/admin/estadios" class="dropdown-item" (click)="closeDropdowns()">Estadios</a>
                     <a routerLink="/admin/equipos" class="dropdown-item" (click)="closeDropdowns()">Equipos</a>
                 </div>
             </div>
 
             <div class="nav-dropdown">
-                <button class="nav-btn" (click)="toggleDropdown('ligas', $event)">
-                    Gestión Ligas <span class="caret">▾</span>
-                </button>
+                <button class="nav-btn" (click)="toggleDropdown('ligas', $event)">Gestión Ligas <span class="caret">▾</span></button>
                 <div class="dropdown-menu" [class.open]="activeDropdown === 'ligas'">
                     <a routerLink="/ligas" class="dropdown-item" (click)="closeDropdowns()">Ligas</a>
-                    <a routerLink="/predicciones/mias" class="dropdown-item" (click)="closeDropdowns()">Mis
-                        predicciones</a>
+                    <a routerLink="/predicciones/mias" class="dropdown-item" (click)="closeDropdowns()">Mis predicciones</a>
                     <a routerLink="/partidos" class="dropdown-item" (click)="closeDropdowns()">Ver partidos</a>
                 </div>
             </div>
 
             <div class="nav-dropdown">
-                <button class="nav-btn nav-btn-user" (click)="toggleDropdown('perfil', $event)">
-                    {{ userFullName }} <span class="caret">▾</span>
-                </button>
+                <button class="nav-btn nav-btn-user" (click)="toggleDropdown('perfil', $event)">{{ userFullName }} <span class="caret">▾</span></button>
                 <div class="dropdown-menu dropdown-right" [class.open]="activeDropdown === 'perfil'">
                     <a routerLink="/profile" class="dropdown-item" (click)="closeDropdowns()">Mi perfil</a>
                     <button class="dropdown-item danger-item" (click)="logout()">Cerrar sesión</button>
@@ -55,192 +42,191 @@
             </div>
 
             <button class="btn-refresh" (click)="loadAll()">↺</button>
-
         </div>
     </nav>
 
-    <div *ngIf="isLoading" class="loading-state">Cargando torneo...</div>
-    <div *ngIf="errorMessage" class="error-state">{{ errorMessage }}</div>
+    <div class="dashboard-main">
 
-    <!-- BRACKET -->
-    <div class="bracket-body" *ngIf="!isLoading && !errorMessage">
-        <div class="bracket-inner">
-
-            <!-- GRUPOS IZQUIERDA (A-F) -->
-            <div class="groups-panel">
-                <div class="group-card" *ngFor="let g of leftGroups">
-                    <div class="group-name">{{ g.nombre }}</div>
-                    <table class="group-table">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Equipo</th>
-                                <th>PJ</th>
-                                <th>G</th>
-                                <th>E</th>
-                                <th>P</th>
-                                <th>DG</th>
-                                <th>Pts</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let row of g.clasificacion; let i = index" [class.classified]="i < 2">
-                                <td>{{ i + 1 }}</td>
-                                <td class="team-cell">
-                                    <img [src]="row.equipo.banderaUrl" [alt]="row.equipo.codigoFifa" class="flag-xs">
-                                    <span>{{ row.equipo.codigoFifa }}</span>
-                                </td>
-                                <td>{{ row.partidosJugados }}</td>
-                                <td>{{ row.ganados }}</td>
-                                <td>{{ row.empatados }}</td>
-                                <td>{{ row.perdidos }}</td>
-                                <td>{{ row.diferenciaGoles }}</td>
-                                <td class="pts">{{ row.puntos }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+        <!-- TOP 10 JUGADORES -->
+        <aside class="ranking-side">
+            <div class="ranking-card">
+                <div class="ranking-header">🥇 Top 10 Jugadores</div>
+                <div class="ranking-empty" *ngIf="isLoadingRanking">Cargando...</div>
+                <div class="ranking-empty" *ngIf="!isLoadingRanking && topUsuarios.length === 0">Sin datos aún</div>
+                <div class="ranking-row" *ngFor="let u of topUsuarios">
+                    <span class="ranking-pos" [class.gold]="u.posicion===1" [class.silver]="u.posicion===2" [class.bronze]="u.posicion===3">{{ u.posicion }}</span>
+                    <div class="ranking-info-row">
+                        <span class="ranking-name">{{ u.fullName }}</span>
+                        <span class="ranking-liga-tag">{{ u.nombreLiga || '—' }}</span>
+                    </div>
+                    <span class="ranking-pts">{{ u.totalPuntos }}<small> pts</small></span>
                 </div>
             </div>
+        </aside>
 
-            <!-- BRACKET IZQUIERDA -->
-            <div class="bracket-side left">
-                <div class="round r32">
-                    <div class="round-label">Dieciseisavos</div>
-                    <div class="rounds-col">
-                        <div class="bracket-pair" *ngFor="let pair of leftR32Pairs">
-                            <div class="match-slot"><ng-container
-                                    *ngTemplateOutlet="matchCard; context: { p: pair[0] }"></ng-container></div>
-                            <div class="match-slot"><ng-container
-                                    *ngTemplateOutlet="matchCard; context: { p: pair[1] }"></ng-container></div>
+        <!-- BRACKET -->
+        <div class="bracket-scroll">
+            <div *ngIf="isLoading" class="loading-state">Cargando torneo...</div>
+            <div *ngIf="errorMessage" class="error-state">{{ errorMessage }}</div>
+
+            <div class="bracket-body" *ngIf="!isLoading && !errorMessage">
+
+                <!-- Etiquetas de rondas -->
+                <div class="bracket-label-bar">
+                    <div class="lbl-spacer"></div>
+                    <div class="lbl-side">
+                        <div class="lbl-round">Dieciseisavos</div>
+                        <div class="lbl-round">Octavos</div>
+                        <div class="lbl-round">Cuartos</div>
+                        <div class="lbl-round">Semifinal</div>
+                    </div>
+                    <div class="lbl-center"></div>
+                    <div class="lbl-side">
+                        <div class="lbl-round">Semifinal</div>
+                        <div class="lbl-round">Cuartos</div>
+                        <div class="lbl-round">Octavos</div>
+                        <div class="lbl-round">Dieciseisavos</div>
+                    </div>
+                    <div class="lbl-spacer"></div>
+                </div>
+
+                <!-- Bracket inner -->
+                <div class="bracket-inner">
+
+                    <!-- GRUPOS IZQUIERDA (A-F) -->
+                    <div class="groups-panel">
+                        <div class="group-card" *ngFor="let g of leftGroups">
+                            <div class="group-name">{{ g.nombre }}</div>
+                            <table class="group-table">
+                                <thead><tr><th>#</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>DG</th><th>Pts</th></tr></thead>
+                                <tbody>
+                                    <tr *ngFor="let row of g.clasificacion; let i = index" [class.classified]="i < 2">
+                                        <td>{{ i + 1 }}</td>
+                                        <td class="team-cell"><img [src]="row.equipo.banderaUrl" [alt]="row.equipo.codigoFifa" class="flag-xs"><span>{{ row.equipo.codigoFifa }}</span></td>
+                                        <td>{{ row.partidosJugados }}</td><td>{{ row.ganados }}</td><td>{{ row.empatados }}</td>
+                                        <td>{{ row.perdidos }}</td><td>{{ row.diferenciaGoles }}</td><td class="pts">{{ row.puntos }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-                </div>
-                <div class="round r16">
-                    <div class="round-label">Octavos</div>
-                    <div class="rounds-col">
-                        <div class="bracket-pair" *ngFor="let pair of leftR16Pairs">
-                            <div class="match-slot"><ng-container
-                                    *ngTemplateOutlet="matchCard; context: { p: pair[0] }"></ng-container></div>
-                            <div class="match-slot"><ng-container
-                                    *ngTemplateOutlet="matchCard; context: { p: pair[1] }"></ng-container></div>
+
+                    <!-- BRACKET IZQUIERDA -->
+                    <div class="bracket-side left">
+                        <div class="round r32">
+                            <div class="rounds-col">
+                                <div class="bracket-pair" *ngFor="let pair of leftR32Pairs">
+                                    <div class="match-slot"><ng-container *ngTemplateOutlet="matchCard; context: { p: pair[0] }"></ng-container></div>
+                                    <div class="match-slot"><ng-container *ngTemplateOutlet="matchCard; context: { p: pair[1] }"></ng-container></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="round r16">
+                            <div class="rounds-col">
+                                <div class="bracket-pair" *ngFor="let pair of leftR16Pairs">
+                                    <div class="match-slot"><ng-container *ngTemplateOutlet="matchCard; context: { p: pair[0] }"></ng-container></div>
+                                    <div class="match-slot"><ng-container *ngTemplateOutlet="matchCard; context: { p: pair[1] }"></ng-container></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="round qf">
+                            <div class="rounds-col">
+                                <div class="bracket-pair">
+                                    <div class="match-slot"><ng-container *ngTemplateOutlet="matchCard; context: { p: leftQFPair[0] }"></ng-container></div>
+                                    <div class="match-slot"><ng-container *ngTemplateOutlet="matchCard; context: { p: leftQFPair[1] }"></ng-container></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="round sf">
+                            <div class="rounds-col">
+                                <div class="match-slot solo"><ng-container *ngTemplateOutlet="matchCard; context: { p: leftSF }"></ng-container></div>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="round qf">
-                    <div class="round-label">Cuartos</div>
-                    <div class="rounds-col">
-                        <div class="bracket-pair">
-                            <div class="match-slot"><ng-container
-                                    *ngTemplateOutlet="matchCard; context: { p: leftQFPair[0] }"></ng-container></div>
-                            <div class="match-slot"><ng-container
-                                    *ngTemplateOutlet="matchCard; context: { p: leftQFPair[1] }"></ng-container></div>
+
+                    <!-- CENTRO -->
+                    <div class="bracket-center">
+                        <div class="trophy-icon">🏆</div>
+                        <div class="center-label">CAMPEÓN</div>
+                        <div class="final-match"><ng-container *ngTemplateOutlet="matchCard; context: { p: finalPartido }"></ng-container></div>
+                        <div class="third-label">3er y 4to Puesto</div>
+                        <div class="third-match"><ng-container *ngTemplateOutlet="matchCard; context: { p: tercerPuesto }"></ng-container></div>
+                    </div>
+
+                    <!-- BRACKET DERECHA -->
+                    <div class="bracket-side right">
+                        <div class="round sf">
+                            <div class="rounds-col">
+                                <div class="match-slot solo"><ng-container *ngTemplateOutlet="matchCard; context: { p: rightSF }"></ng-container></div>
+                            </div>
+                        </div>
+                        <div class="round qf">
+                            <div class="rounds-col">
+                                <div class="bracket-pair">
+                                    <div class="match-slot"><ng-container *ngTemplateOutlet="matchCard; context: { p: rightQFPair[0] }"></ng-container></div>
+                                    <div class="match-slot"><ng-container *ngTemplateOutlet="matchCard; context: { p: rightQFPair[1] }"></ng-container></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="round r16">
+                            <div class="rounds-col">
+                                <div class="bracket-pair" *ngFor="let pair of rightR16Pairs">
+                                    <div class="match-slot"><ng-container *ngTemplateOutlet="matchCard; context: { p: pair[0] }"></ng-container></div>
+                                    <div class="match-slot"><ng-container *ngTemplateOutlet="matchCard; context: { p: pair[1] }"></ng-container></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="round r32">
+                            <div class="rounds-col">
+                                <div class="bracket-pair" *ngFor="let pair of rightR32Pairs">
+                                    <div class="match-slot"><ng-container *ngTemplateOutlet="matchCard; context: { p: pair[0] }"></ng-container></div>
+                                    <div class="match-slot"><ng-container *ngTemplateOutlet="matchCard; context: { p: pair[1] }"></ng-container></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="round sf">
-                    <div class="round-label">Semifinal</div>
-                    <div class="rounds-col">
-                        <div class="match-slot solo"><ng-container
-                                *ngTemplateOutlet="matchCard; context: { p: leftSF }"></ng-container></div>
+
+                    <!-- GRUPOS DERECHA (G-L) -->
+                    <div class="groups-panel">
+                        <div class="group-card" *ngFor="let g of rightGroups">
+                            <div class="group-name">{{ g.nombre }}</div>
+                            <table class="group-table">
+                                <thead><tr><th>#</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>DG</th><th>Pts</th></tr></thead>
+                                <tbody>
+                                    <tr *ngFor="let row of g.clasificacion; let i = index" [class.classified]="i < 2">
+                                        <td>{{ i + 1 }}</td>
+                                        <td class="team-cell"><img [src]="row.equipo.banderaUrl" [alt]="row.equipo.codigoFifa" class="flag-xs"><span>{{ row.equipo.codigoFifa }}</span></td>
+                                        <td>{{ row.partidosJugados }}</td><td>{{ row.ganados }}</td><td>{{ row.empatados }}</td>
+                                        <td>{{ row.perdidos }}</td><td>{{ row.diferenciaGoles }}</td><td class="pts">{{ row.puntos }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
+
                 </div>
             </div>
-
-            <!-- CENTRO -->
-            <div class="bracket-center">
-                <div class="trophy-icon">🏆</div>
-                <div class="center-label">CAMPEÓN</div>
-                <div class="final-match"><ng-container
-                        *ngTemplateOutlet="matchCard; context: { p: finalPartido }"></ng-container></div>
-                <div class="third-label">3er y 4to Puesto</div>
-                <div class="third-match"><ng-container
-                        *ngTemplateOutlet="matchCard; context: { p: tercerPuesto }"></ng-container></div>
-            </div>
-
-            <!-- BRACKET DERECHA -->
-            <div class="bracket-side right">
-                <div class="round sf">
-                    <div class="round-label">Semifinal</div>
-                    <div class="rounds-col">
-                        <div class="match-slot solo"><ng-container
-                                *ngTemplateOutlet="matchCard; context: { p: rightSF }"></ng-container></div>
-                    </div>
-                </div>
-                <div class="round qf">
-                    <div class="round-label">Cuartos</div>
-                    <div class="rounds-col">
-                        <div class="bracket-pair">
-                            <div class="match-slot"><ng-container
-                                    *ngTemplateOutlet="matchCard; context: { p: rightQFPair[0] }"></ng-container></div>
-                            <div class="match-slot"><ng-container
-                                    *ngTemplateOutlet="matchCard; context: { p: rightQFPair[1] }"></ng-container></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="round r16">
-                    <div class="round-label">Octavos</div>
-                    <div class="rounds-col">
-                        <div class="bracket-pair" *ngFor="let pair of rightR16Pairs">
-                            <div class="match-slot"><ng-container
-                                    *ngTemplateOutlet="matchCard; context: { p: pair[0] }"></ng-container></div>
-                            <div class="match-slot"><ng-container
-                                    *ngTemplateOutlet="matchCard; context: { p: pair[1] }"></ng-container></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="round r32">
-                    <div class="round-label">Dieciseisavos</div>
-                    <div class="rounds-col">
-                        <div class="bracket-pair" *ngFor="let pair of rightR32Pairs">
-                            <div class="match-slot"><ng-container
-                                    *ngTemplateOutlet="matchCard; context: { p: pair[0] }"></ng-container></div>
-                            <div class="match-slot"><ng-container
-                                    *ngTemplateOutlet="matchCard; context: { p: pair[1] }"></ng-container></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- GRUPOS DERECHA (G-L) -->
-            <div class="groups-panel">
-                <div class="group-card" *ngFor="let g of rightGroups">
-                    <div class="group-name">{{ g.nombre }}</div>
-                    <table class="group-table">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Equipo</th>
-                                <th>PJ</th>
-                                <th>G</th>
-                                <th>E</th>
-                                <th>P</th>
-                                <th>DG</th>
-                                <th>Pts</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let row of g.clasificacion; let i = index" [class.classified]="i < 2">
-                                <td>{{ i + 1 }}</td>
-                                <td class="team-cell">
-                                    <img [src]="row.equipo.banderaUrl" [alt]="row.equipo.codigoFifa" class="flag-xs">
-                                    <span>{{ row.equipo.codigoFifa }}</span>
-                                </td>
-                                <td>{{ row.partidosJugados }}</td>
-                                <td>{{ row.ganados }}</td>
-                                <td>{{ row.empatados }}</td>
-                                <td>{{ row.perdidos }}</td>
-                                <td>{{ row.diferenciaGoles }}</td>
-                                <td class="pts">{{ row.puntos }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
         </div>
+
+        <!-- TOP 10 LIGAS -->
+        <aside class="ranking-side">
+            <div class="ranking-card">
+                <div class="ranking-header">🏆 Top 10 Ligas</div>
+                <div class="ranking-empty" *ngIf="isLoadingRanking">Cargando...</div>
+                <div class="ranking-empty" *ngIf="!isLoadingRanking && topLigas.length === 0">Sin datos aún</div>
+                <div class="ranking-row" *ngFor="let l of topLigas">
+                    <span class="ranking-pos" [class.gold]="l.posicion===1" [class.silver]="l.posicion===2" [class.bronze]="l.posicion===3">{{ l.posicion }}</span>
+                    <div class="ranking-info-row">
+                        <span class="ranking-name">{{ l.nombreLiga }}</span>
+                        <span class="ranking-liga-tag">{{ l.totalMiembros }} miembros</span>
+                    </div>
+                    <span class="ranking-pts">{{ l.promedioPuntos | number:'1.0-1' }}<small> pts</small></span>
+                </div>
+            </div>
+        </aside>
+
     </div>
 
-    <!-- MATCH CARD TEMPLATE -->
     <ng-template #matchCard let-p="p">
         <div class="match-card" [class.finalizado]="p?.finalizado"
             [class.in-progress]="p && !p.finalizado && p.equipoLocal && p.equipoVisitante">
@@ -251,7 +237,7 @@
                     <span class="team-name">{{ p.equipoLocal.codigoFifa }}</span>
                 </ng-container>
                 <span *ngIf="!p?.equipoLocal" class="placeholder-text">{{ p?.descripcionLocal || '—' }}</span>
-                <span class="score" *ngIf="p?.finalizado">{{ p.golesLocal }}</span>
+                <span class="score" *ngIf="p?.finalizado">{{ p.golesLocal }}<small *ngIf="p.golesLocalPenales != null"> ({{ p.golesLocalPenales }})</small></span>
             </div>
 
             <div class="card-divider"></div>
@@ -262,7 +248,7 @@
                     <span class="team-name">{{ p.equipoVisitante.codigoFifa }}</span>
                 </ng-container>
                 <span *ngIf="!p?.equipoVisitante" class="placeholder-text">{{ p?.descripcionVisitante || '—' }}</span>
-                <span class="score" *ngIf="p?.finalizado">{{ p.golesVisitante }}</span>
+                <span class="score" *ngIf="p?.finalizado">{{ p.golesVisitante }}<small *ngIf="p.golesVisitantePenales != null"> ({{ p.golesVisitantePenales }})</small></span>
             </div>
 
         </div>

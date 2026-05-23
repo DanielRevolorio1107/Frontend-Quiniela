@@ -55,7 +55,7 @@
 
 /* Mensajes */
 .message { padding: 10px 14px; border-radius: 6px; font-size: 14px; margin-bottom: 16px; }
-.error-box { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
+.error-box  { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
 .success-box { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
 .info-box { color: #6b7280; font-size: 14px; padding: 20px 0; text-align: center; }
 
@@ -85,7 +85,7 @@
   gap: 12px;
 }
 
-.partido-card.en-vivo { border-color: #2563eb; }
+.partido-card.en-vivo  { border-color: #2563eb; }
 .partido-card.finalizado { background: #fafafa; border-color: #d1d5db; opacity: 0.85; }
 
 .partido-header {
@@ -104,8 +104,8 @@
   font-weight: 600;
 }
 
-.partido-badge.pendiente { background: #f3f4f6; color: #6b7280; }
-.partido-badge.en-vivo { background: #dbeafe; color: #1d4ed8; }
+.partido-badge.pendiente  { background: #f3f4f6; color: #6b7280; }
+.partido-badge.en-vivo    { background: #dbeafe; color: #1d4ed8; }
 .partido-badge.finalizado { background: #d1fae5; color: #065f46; }
 
 .partido-fecha { color: #6b7280; margin-left: auto; font-size: 11px; }
@@ -128,7 +128,13 @@
   text-align: right;
 }
 
-.bandera { width: 24px; height: 17px; object-fit: cover; border-radius: 2px; flex-shrink: 0; }
+.bandera {
+  width: 24px;
+  height: 17px;
+  object-fit: cover;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
 
 .equipo-nombre { font-size: 13px; font-weight: 600; color: #1f2937; }
 
@@ -196,7 +202,8 @@
 
 .btn-finish:hover:not(:disabled) { background: #111827; }
 
-.btn-live:disabled, .btn-finish:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-live:disabled,
+.btn-finish:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .partido-finalizado-msg {
   font-size: 12px;
@@ -205,4 +212,152 @@
   background: #d1fae5;
   border-radius: 4px;
   padding: 4px 8px;
+}
+
+/* ── Penales ── */
+.penales-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+.penales-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #1d4ed8;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+}
+
+.penales-inputs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.penales-input {
+  width: 44px !important;
+  font-size: 16px !important;
+}
+
+/* ── Botón 3er lugar ── */
+.btn-tercero {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.btn-tercero:hover { background: #fde68a; }
+
+/* ── Modal terceros ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.modal-terceros {
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #e5e5e5;
+  width: 480px;
+  max-width: 95vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-header { padding: 20px 20px 0; }
+.modal-header h3 { margin: 0 0 4px; font-size: 16px; color: #1f2937; }
+.modal-sub { font-size: 12px; color: #6b7280; margin: 0 0 12px; }
+
+.terceros-list {
+  flex: 1;
+  overflow-y: auto;
+  border-top: 1px solid #e5e5e5;
+}
+
+.tercero-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+}
+
+.tercero-row:hover { background: #f0f9ff; }
+.tercero-row.clasificado { background: #f0fdf4; }
+.tercero-row.clasificado:hover { background: #dcfce7; }
+
+.tercero-pos {
+  width: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #9ca3af;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.tercero-bandera {
+  width: 28px;
+  height: 20px;
+  object-fit: cover;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.tercero-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.tercero-nombre { font-size: 13px; font-weight: 600; color: #1f2937; }
+.tercero-grupo  { font-size: 11px; color: #6b7280; }
+
+.tercero-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.tercero-pts { font-size: 12px; font-weight: 700; color: #1f2937; }
+.tercero-dg  { font-size: 11px; color: #6b7280; }
+
+.tercero-badge {
+  background: #d1fae5;
+  color: #065f46;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.modal-footer {
+  padding: 12px 20px;
+  border-top: 1px solid #e5e5e5;
+  display: flex;
+  justify-content: flex-end;
 }
