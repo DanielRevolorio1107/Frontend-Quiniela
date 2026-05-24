@@ -37,11 +37,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   // Nav
   isAdmin = false;
-  activeDropdown: string | null = null;
+  
 
-  get userFullName(): string {
-    return localStorage.getItem('fullName') || 'Usuario';
-  }
+ 
 
   ngOnInit(): void {
     this.isAdmin = this.sessionService.getRole() === 'Administrador';
@@ -51,23 +49,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
 
-  @HostListener('document:click')
-  onDocumentClick(): void { this.activeDropdown = null; }
 
-  toggleDropdown(name: string, event: Event): void {
-    event.stopPropagation();
-    this.activeDropdown = this.activeDropdown === name ? null : name;
-  }
 
-  closeDropdowns(): void { this.activeDropdown = null; }
+  
 
-  logout(): void {
-    localStorage.removeItem('token');
-    localStorage.removeItem('email');
-    localStorage.removeItem('fullName');
-    localStorage.removeItem('role');
-    this.router.navigate(['/login']);
-  }
+
 
 
   loadAll(): void {

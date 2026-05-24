@@ -28,6 +28,8 @@ export class PartidoFormComponent implements OnInit {
   grupos: any[] = [];
   equipos: any[] = [];
   estadios: any[] = [];
+  mejoresTerceros: any[] = [];
+
 
   readonly fases = [
     { id: 1, nombre: 'Fase de Grupos' },
@@ -77,6 +79,10 @@ export class PartidoFormComponent implements OnInit {
         this.isLoadingData = false;
         this.errorMessage = err?.error?.error || 'Error al cargar datos.';
       }
+    });
+    this.service.getMejoresTerceros(1).subscribe({
+      next: (res: any) => { this.mejoresTerceros = this.toArray(res); },
+      error: () => { } // no crítico si falla
     });
   }
 
@@ -149,6 +155,21 @@ export class PartidoFormComponent implements OnInit {
         error: err => { this.isLoading = false; this.errorMessage = err?.error?.error || err?.error?.message || 'Error al crear.'; }
       });
     }
+  }
+
+  get localEsTercero(): boolean {
+    const desc = this.form.value.descripcionLocal;
+    return !!(desc?.includes('3º') || desc?.includes('3°'));
+  }
+
+  get visitanteEsTercero(): boolean {
+    const desc = this.form.value.descripcionVisitante;
+    return !!(desc?.includes('3º') || desc?.includes('3°'));
+  }
+
+  formatTercero(t: any): string {
+    const dg = t.diferenciaGoles >= 0 ? `+${t.diferenciaGoles}` : `${t.diferenciaGoles}`;
+    return `${t.grupoNombre} — ${t.equipoNombre} (${t.puntos} pts, ${dg})`;
   }
 
   private toArray(res: any): any[] {
