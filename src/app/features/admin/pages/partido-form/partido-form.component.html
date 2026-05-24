@@ -47,32 +47,42 @@
       <div class="form-row">
         <div class="form-group">
           <label>Equipo local</label>
-          <select formControlName="equipoLocalId" class="form-input">
+
+          <!-- Si es slot de 3er lugar → mostrar mejores terceros -->
+          <select *ngIf="localEsTercero" formControlName="equipoLocalId" class="form-input">
+            <option [value]="null">Sin asignar</option>
+            <option *ngFor="let t of mejoresTerceros; let i = index" [value]="t.equipoId" [class.clasificado]="i < 8">
+              {{ i + 1 }}. {{ formatTercero(t) }}{{ i < 8 ? ' ✓' : '' }} </option>
+          </select>
+
+          <!-- Caso normal → todos los equipos -->
+          <select *ngIf="!localEsTercero" formControlName="equipoLocalId" class="form-input">
             <option [value]="null">Sin asignar</option>
             <option *ngFor="let e of equipos" [value]="e.id">
               {{ e.codigoFifa }} — {{ e.nombre }}
             </option>
           </select>
-        </div>
-        <div class="form-group" *ngIf="!esFaseGrupos">
-          <label>Descripción local (placeholder)</label>
-          <input formControlName="descripcionLocal" class="form-input" placeholder="1º Grupo A" />
         </div>
       </div>
 
       <div class="form-row">
         <div class="form-group">
           <label>Equipo visitante</label>
-          <select formControlName="equipoVisitanteId" class="form-input">
+
+          <!-- Si es slot de 3er lugar → mostrar mejores terceros -->
+          <select *ngIf="visitanteEsTercero" formControlName="equipoVisitanteId" class="form-input">
+            <option [value]="null">Sin asignar</option>
+            <option *ngFor="let t of mejoresTerceros; let i = index" [value]="t.equipoId">
+              {{ i + 1 }}. {{ formatTercero(t) }}{{ i < 8 ? ' ✓' : '' }} </option>
+          </select>
+
+          <!-- Caso normal → todos los equipos -->
+          <select *ngIf="!visitanteEsTercero" formControlName="equipoVisitanteId" class="form-input">
             <option [value]="null">Sin asignar</option>
             <option *ngFor="let e of equipos" [value]="e.id">
               {{ e.codigoFifa }} — {{ e.nombre }}
             </option>
           </select>
-        </div>
-        <div class="form-group" *ngIf="!esFaseGrupos">
-          <label>Descripción visitante (placeholder)</label>
-          <input formControlName="descripcionVisitante" class="form-input" placeholder="2º Grupo B" />
         </div>
       </div>
 

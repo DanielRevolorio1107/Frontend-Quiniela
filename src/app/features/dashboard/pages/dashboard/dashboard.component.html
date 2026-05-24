@@ -1,49 +1,6 @@
 <div class="dashboard-page">
 
-    <nav class="main-nav" (click)="$event.stopPropagation()">
-        <div class="nav-brand">⚽ Copa Mundial FIFA 2026</div>
-        <div class="nav-links">
-
-            <div class="nav-dropdown" *ngIf="isAdmin">
-                <button class="nav-btn" (click)="toggleDropdown('admin', $event)">Administración <span class="caret">▾</span></button>
-                <div class="dropdown-menu" [class.open]="activeDropdown === 'admin'">
-                    <a routerLink="/admin/usuarios" class="dropdown-item" (click)="closeDropdowns()">Usuarios</a>
-                    <a routerLink="/admin/premios" class="dropdown-item" (click)="closeDropdowns()">Premios</a>
-                    <a routerLink="/admin/torneo" class="dropdown-item" (click)="closeDropdowns()">Torneos</a>
-                    <a routerLink="/admin/reportes" class="dropdown-item" (click)="closeDropdowns()">Reportes</a>
-                </div>
-            </div>
-
-            <div class="nav-dropdown" *ngIf="isAdmin">
-                <button class="nav-btn" (click)="toggleDropdown('mundial', $event)">Admin Mundial <span class="caret">▾</span></button>
-                <div class="dropdown-menu" [class.open]="activeDropdown === 'mundial'">
-                    <a routerLink="/admin/partidos" class="dropdown-item" (click)="closeDropdowns()">Gestión partidos</a>
-                    <a routerLink="/admin/partidos/resultados" class="dropdown-item" (click)="closeDropdowns()">Resultados en vivo</a>
-                    <a routerLink="/admin/estadios" class="dropdown-item" (click)="closeDropdowns()">Estadios</a>
-                    <a routerLink="/admin/equipos" class="dropdown-item" (click)="closeDropdowns()">Equipos</a>
-                </div>
-            </div>
-
-            <div class="nav-dropdown">
-                <button class="nav-btn" (click)="toggleDropdown('ligas', $event)">Gestión Ligas <span class="caret">▾</span></button>
-                <div class="dropdown-menu" [class.open]="activeDropdown === 'ligas'">
-                    <a routerLink="/ligas" class="dropdown-item" (click)="closeDropdowns()">Ligas</a>
-                    <a routerLink="/predicciones/mias" class="dropdown-item" (click)="closeDropdowns()">Mis predicciones</a>
-                    <a routerLink="/partidos" class="dropdown-item" (click)="closeDropdowns()">Ver partidos</a>
-                </div>
-            </div>
-
-            <div class="nav-dropdown">
-                <button class="nav-btn nav-btn-user" (click)="toggleDropdown('perfil', $event)">{{ userFullName }} <span class="caret">▾</span></button>
-                <div class="dropdown-menu dropdown-right" [class.open]="activeDropdown === 'perfil'">
-                    <a routerLink="/profile" class="dropdown-item" (click)="closeDropdowns()">Mi perfil</a>
-                    <button class="dropdown-item danger-item" (click)="logout()">Cerrar sesión</button>
-                </div>
-            </div>
-
-            <button class="btn-refresh" (click)="loadAll()">↺</button>
-        </div>
-    </nav>
+    
 
     <div class="dashboard-main">
 
