@@ -82,7 +82,7 @@ export class PartidoFormComponent implements OnInit {
     });
     this.service.getMejoresTerceros(1).subscribe({
       next: (res: any) => { this.mejoresTerceros = this.toArray(res); },
-      error: () => { } // no crítico si falla
+      error: () => { } 
     });
   }
 
