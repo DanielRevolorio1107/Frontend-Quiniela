@@ -40,6 +40,7 @@ import { PremiosComponent } from './features/admin-premios/pages/premios.compone
 import { TorneoListComponent } from './features/admin-tournament/pages/torneo-list/torneo-list.component';
 import { TorneoFormComponent } from './features/admin-tournament/pages/torneo-form/torneo-form.component';
 import { TorneoConfigComponent } from './features/admin-tournament/pages/torneo-config/torneo-config.component';
+import { LigaPremiosComponent } from './features/premio-liga/pages/liga-premios.component';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -99,5 +100,7 @@ export const routes: Routes = [
     { path: 'admin/partidos/resultados', component: AdminMatchResultsComponent, canActivate: [adminGuard] },
     { path: 'admin/partidos/:id/editar', component: PartidoFormComponent, canActivate: [adminGuard] },
 
+    //premio-liga
+    { path: 'ligas/:id/premios', component: LigaPremiosComponent, canActivate: [authGuard] },
     { path: '**', redirectTo: 'login' }
 ];

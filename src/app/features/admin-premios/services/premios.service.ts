@@ -6,6 +6,7 @@ import { environment } from '../../../../enviroments/enviroments';
 import { PremiosGlobales } from '../interfaces/premios-globales.interface';
 import { PremioDistribuido } from '../interfaces/premio-distribuido.interface';
 import { TorneoSelect } from '../interfaces/torneo-select.interface';
+import { PremioLiga } from '../../premio-liga/interfaces/premio-liga.interface';
 
 @Injectable({ providedIn: 'root' })
 export class PremiosService {
@@ -40,5 +41,8 @@ export class PremiosService {
         return this.http.get(`${this.reporteUrl}/premios/descargar/${torneoId}`, {
             responseType: 'blob',
         });
+    }
+    getPremiosLiga(ligaId: number): Observable<PremioLiga[]> {
+         return this.http.get<PremioLiga[]>(`${this.rankingUrl}/premios/liga/${ligaId}`);
     }
 }
