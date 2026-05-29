@@ -1,19 +1,277 @@
-.admin-page { padding: 24px; max-width: 800px; margin: 0 auto; }
-.admin-card { background: #fff; border: 1px solid #e5e5e5; border-radius: 10px; padding: 24px; }
-.top-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
-.top-bar h1 { margin: 0; font-size: 20px; color: #1f2937; }
-.btn-primary { background: #1f2937; color: #fff; border: none; padding: 8px 20px; border-radius: 6px; cursor: pointer; font-size: 14px; }
-.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-.btn-secondary { background: #fff; color: #374151; border: 1px solid #d1d5db; padding: 7px 14px; border-radius: 6px; font-size: 13px; text-decoration: none; cursor: pointer; }
-.msg { padding: 10px 14px; border-radius: 6px; font-size: 14px; margin-bottom: 16px; }
-.error-msg { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
-.info-txt { color: #6b7280; font-size: 14px; text-align: center; padding: 20px; }
-.admin-form { display: flex; flex-direction: column; gap: 16px; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.form-group { display: flex; flex-direction: column; gap: 6px; }
-.form-group label { font-size: 13px; font-weight: 600; color: #374151; }
-.form-input { padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; color: #1f2937; background: #fff; }
-.form-input:focus { outline: none; border-color: #2563eb; }
-.section-title { font-size: 13px; font-weight: 700; color: #374151; padding-top: 8px; border-top: 1px solid #f0f0f0; margin-top: 4px; }
-.section-hint { font-size: 12px; color: #6b7280; margin: 0; }
-.form-actions { display: flex; justify-content: flex-end; gap: 8px; padding-top: 8px; }
+/* Partido Form — Quiniela 2026 */
+
+.pf-page {
+  padding: 24px;
+  max-width: 820px;
+  margin: 0 auto;
+  background: var(--p-bg, #f4f9ff);
+  min-height: 100vh;
+}
+
+/* ── Card ── */
+.pf-card {
+  background: white;
+  border-radius: var(--radius-lg, 14px);
+  border: 1px solid var(--p-blue-bdr, #ccefff);
+  box-shadow: 0 4px 20px rgba(0, 183, 255, 0.08);
+  overflow: hidden;
+}
+
+/* ── Header ── */
+.pf-header {
+  background: linear-gradient(135deg, var(--p-blue-900) 0%, #0099dd 100%);
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.pf-header-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pf-header-title h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: white;
+}
+
+.pf-icon { font-size: 22px; }
+
+.btn-back {
+  background: rgba(255,255,255,0.15);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: var(--radius, 8px);
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.btn-back:hover { background: rgba(255,255,255,0.25); }
+
+/* ── Body ── */
+.pf-body { padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+
+/* ── Messages ── */
+.msg { padding: 11px 14px; border-radius: var(--radius, 8px); font-size: 14px; }
+.error-msg { background: var(--p-error-bg); color: var(--p-error-cl); border: 1px solid var(--p-error-bdr); }
+
+.loading-state { text-align: center; padding: 48px 20px; }
+.spinner { width: 34px; height: 34px; border: 3px solid var(--p-blue-bdr, #ccefff); border-top-color: var(--p-blue, #00b7ff); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 10px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-state p { color: var(--p-text-muted, #888); font-size: 14px; margin: 0; }
+
+/* ── Section block ── */
+.section-block {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: var(--p-bg, #f4f9ff);
+  border-radius: var(--radius, 10px);
+  border: 1px solid var(--p-blue-bdr, #e4ecf5);
+}
+
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--p-blue-900);
+}
+
+.section-hint {
+  font-size: 12px;
+  color: var(--p-text-muted, #888);
+  margin: -4px 0 0;
+  line-height: 1.5;
+}
+
+/* ── Grids ── */
+.form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+.form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+
+.field-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--p-text-mid, #555);
+}
+.req { color: var(--p-red); }
+
+.field-select,
+.field-input {
+  padding: 9px 11px;
+  border: 1px solid var(--p-blue-bdr, #ccefff);
+  border-radius: var(--radius, 8px);
+  font-size: 14px;
+  color: var(--p-text, #333);
+  background: white;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+.field-select:focus,
+.field-input:focus {
+  outline: none;
+  border-color: var(--p-blue, #00b7ff);
+  box-shadow: 0 0 0 3px rgba(0, 183, 255, 0.15);
+}
+.field-select:disabled { opacity: 0.65; cursor: not-allowed; background: #f0f4f8; }
+
+/* ── VS Card ── */
+.vs-card {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 16px;
+  align-items: start;
+  background: white;
+  border: 1px solid var(--p-blue-bdr, #ccefff);
+  border-radius: var(--radius, 10px);
+  padding: 16px;
+}
+
+/* ── Team picker ── */
+.team-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.team-preview {
+  background: var(--p-blue-tbl, #e8f7ff);
+  border: 1px solid var(--p-blue-bdr, #ccefff);
+  border-radius: var(--radius, 8px);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-height: 100px;
+  justify-content: center;
+}
+
+.team-flag {
+  width: 64px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  display: block;
+}
+
+.team-flag-fallback {
+  font-size: 40px;
+  line-height: 1;
+  display: none;
+}
+
+.team-info {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.team-code {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--p-blue-900);
+  letter-spacing: 0.04em;
+}
+
+.team-name {
+  font-size: 13px;
+  color: var(--p-text, #333);
+  font-weight: 600;
+}
+
+.team-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.team-empty-icon { font-size: 32px; opacity: 0.4; }
+.team-empty-lbl  { font-size: 12px; color: var(--p-text-muted, #aaa); font-style: italic; }
+
+/* ── VS separator ── */
+.vs-sep {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 34px;
+}
+
+.vs-text {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--p-blue-900);
+  background: var(--p-blue-tbl, #e8f7ff);
+  border: 2px solid var(--p-blue-bdr, #ccefff);
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── Actions ── */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.btn-cancel {
+  background: white;
+  color: #555;
+  border: 1px solid #ddd;
+  border-radius: var(--radius, 8px);
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-cancel:hover { background: #f4f4f4; }
+
+.btn-submit {
+  background: linear-gradient(135deg, #0099dd 0%, var(--p-blue-900) 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius, 8px);
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  box-shadow: 0 3px 10px rgba(0, 86, 179, 0.25);
+}
+.btn-submit:hover:not(:disabled) { opacity: 0.92; transform: translateY(-1px); }
+.btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* ── Responsive ── */
+@media (max-width: 767px) {
+  .pf-page  { padding: 12px 10px; }
+  .pf-body  { padding: 16px; gap: 16px; }
+  .form-grid-3 { grid-template-columns: 1fr; }
+  .form-grid-2 { grid-template-columns: 1fr; }
+  .vs-card {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .vs-sep { padding: 0; }
+}

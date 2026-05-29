@@ -1,88 +1,158 @@
-<div class="league-page">
-  <div class="league-card">
-    <div class="top-bar">
-      <a routerLink="/ligas" class="btn-secondary">← Volver a mis ligas</a>
-    </div>
+<div class="page">
 
-    <div class="league-header">
-      <h1>Buscar ligas</h1>
-      <p>Busca ligas disponibles y solicita unirte.</p>
-    </div>
-
-    <form [formGroup]="searchForm" (ngSubmit)="onSearch()" class="search-form" novalidate>
-      <div class="form-group">
-        <label for="nombre">Nombre de la liga</label>
-        <input
-          id="nombre"
-          type="text"
-          formControlName="nombre"
-          class="league-input"
-          placeholder="Ingresa el nombre de la liga"
-        />
-
-        <small class="error-text" *ngIf="nombre.touched && nombre.hasError('required')">
-          Debes ingresar un nombre para buscar.
-        </small>
-
-        <small class="error-text" *ngIf="nombre.touched && nombre.hasError('minlength')">
-          Ingresa al menos 2 caracteres.
-        </small>
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-main">
+      <div>
+        <h1>🔍 Ligas disponibles</h1>
+        <p>Únete a una liga existente o crea la tuya</p>
       </div>
-
-      <button type="submit" class="btn-primary" [disabled]="isLoading">
-        {{ isLoading ? 'Buscando...' : 'Buscar ligas' }}
-      </button>
-    </form>
-
-    <div *ngIf="errorMessage" class="message error-box">
-      {{ errorMessage }}
+      <div class="header-actions">
+        <a *ngIf="!isAdmin" routerLink="/ligas/crear" class="btn-primary">+ Crear liga</a>
+      </div>
     </div>
 
-    <div *ngIf="successMessage" class="message success-box">
-      {{ successMessage }}
+    <!-- Barra de búsqueda -->
+    <div class="search-bar">
+      <form [formGroup]="searchForm" (ngSubmit)="onSearch()" class="search-form" novalidate>
+        <input type="text" formControlName="nombre" class="search-input"
+          placeholder="Buscar por nombre..." />
+        <button type="submit" class="btn-search" [disabled]="isLoading">🔍 Buscar</button>
+        <button type="button" class="btn-clear" *ngIf="nombre.value.length > 0"
+                (click)="clearSearch()">✕ Ver todas</button>
+      </form>
+      <small class="error-text" *ngIf="errorMessage">{{ errorMessage }}</small>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="page-body">
+
+    <div *ngIf="successMessage" class="success-box">{{ successMessage }}</div>
+
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando ligas...</p>
     </div>
 
-    <div *ngIf="!isLoading && resultados.length === 0" class="info-box">
-      No hay resultados todavía. Realiza una búsqueda.
+    <!-- Sin resultados después de buscar -->
+    <div *ngIf="!isLoading && resultados.length === 0 && !errorMessage" class="empty-state">
+      <span class="empty-icon">🏅</span>
+      <p>No se encontraron ligas{{ nombre.value.length >= 2 ? ' con ese nombre' : '' }}</p>
     </div>
 
-    <div class="league-grid" *ngIf="!isLoading && resultados.length > 0">
-      <div class="league-item" *ngFor="let liga of resultados">
-        <h2>{{ liga.nombre }}</h2>
+    <!-- Resultados -->
+    <div class="results-grid" *ngIf="!isLoading && resultados.length > 0">
 
-        <p>
-          Tipo: <strong>{{ getTipoLiga(liga) }}</strong>
-        </p>
+      <div class="result-card" *ngFor="let liga of resultados"
+           [class.joined]="liga._yaPertenezco || joinSuccess[liga.id]">
 
-        <p *ngIf="liga.precioPorUnirse !== null && liga.precioPorUnirse !== undefined">
-          Precio por unirse: <strong>{{ liga.precioPorUnirse }}</strong>
-        </p>
+        <!-- Info principal -->
+        <div class="result-top">
+          <div class="result-icon">🏅</div>
+          <div class="result-info">
+            <h2 class="result-nombre">{{ liga.nombre }}</h2>
+            <div class="result-badges">
+              <span class="badge" [class.badge-apuesta]="liga.esDeApuestas" [class.badge-diversion]="!liga.esDeApuestas">
+                {{ getTipoLabel(liga) }}
+              </span>
+              <span *ngIf="liga._yaPertenezco" class="badge badge-member">✔ Ya eres miembro</span>
+            </div>
+          </div>
+        </div>
 
-        <p *ngIf="liga.torneoId">
-          Torneo ID: <strong>{{ liga.torneoId }}</strong>
-        </p>
+        <!-- Detalles -->
+        <div class="result-details">
+          <div class="detail-row">
+            <span class="detail-lbl">Torneo</span>
+            <span class="detail-val">{{ getTorneoNombre(liga.torneoId) }}</span>
+          </div>
+          <div class="detail-row" *ngIf="liga.esDeApuestas && liga.precioPorUnirse">
+            <span class="detail-lbl">Cuota de entrada</span>
+            <span class="detail-val price-val">Q {{ liga.precioPorUnirse | number:'1.2-2' }}</span>
+          </div>
+          <div class="detail-row" *ngIf="!liga.esDeApuestas">
+            <span class="detail-lbl">Cuota de entrada</span>
+            <span class="detail-val free-val">Gratis</span>
+          </div>
+          <div class="detail-row" *ngIf="liga._totalMiembros !== null">
+            <span class="detail-lbl">Miembros</span>
+            <span class="detail-val">{{ liga._totalMiembros }}</span>
+          </div>
+          <div class="detail-row" *ngIf="liga.esDeApuestas && liga._fondoTotal !== null">
+            <span class="detail-lbl">Fondo total</span>
+            <span class="detail-val fund-val">Q {{ liga._fondoTotal | number:'1.2-2' }}</span>
+          </div>
+        </div>
 
-        <div class="form-group join-group">
-          <label [for]="'equipo-' + liga.id">Nombre de tu equipo</label>
+        <!-- Estado: ya miembro -->
+        <div class="join-member" *ngIf="liga._yaPertenezco">
+          <span class="member-text">✔ Ya participas en esta liga</span>
+          <a [routerLink]="['/ligas', liga.id]" class="btn-view-liga">Ver liga →</a>
+        </div>
+
+        <!-- Estado: solicitud enviada -->
+        <div class="join-success" *ngIf="!liga._yaPertenezco && joinSuccess[liga.id]">
+          ✔ Solicitud enviada — pendiente de aprobación
+        </div>
+
+        <!-- Estado: formulario de solicitud activo (solo usuarios) -->
+        <div class="join-form" *ngIf="!isAdmin && !liga._yaPertenezco && !joinSuccess[liga.id] && joiningId === liga.id">
+          <label [for]="'equipo-' + liga.id" class="join-label">Nombre de tu equipo</label>
           <input
             [id]="'equipo-' + liga.id"
             type="text"
-            class="league-input"
+            class="join-input"
             [value]="teamNames[liga.id] || ''"
             (input)="teamNames[liga.id] = $any($event.target).value"
-            placeholder="Ingresa tu nombre de equipo"
+            placeholder="Ej: Los Cracks"
+            [disabled]="joinLoadingId === liga.id"
           />
+          <div class="join-btns">
+            <button type="button" class="btn-confirm"
+              (click)="unirseALiga(liga.id)"
+              [disabled]="joinLoadingId === liga.id">
+              {{ joinLoadingId === liga.id ? 'Enviando...' : '✔ Confirmar solicitud' }}
+            </button>
+            <button type="button" class="btn-cancel-join"
+              (click)="cancelJoin()"
+              [disabled]="joinLoadingId === liga.id">
+              Cancelar
+            </button>
+          </div>
         </div>
 
-        <button
-          type="button"
-          class="btn-join"
-          (click)="unirseALiga(liga.id)"
-          [disabled]="joinLoadingLeagueId === liga.id"
-        >
-          {{ joinLoadingLeagueId === liga.id ? 'Enviando...' : 'Solicitar unirme' }}
-        </button>
+        <!-- Botón inicial de solicitar (solo usuarios) -->
+        <div class="join-init" *ngIf="!isAdmin && !liga._yaPertenezco && !joinSuccess[liga.id] && joiningId !== liga.id">
+          <button type="button" class="btn-join-init" (click)="startJoin(liga.id)">
+            + Solicitar unirme
+          </button>
+        </div>
+
+        <!-- Miembros (solo admin) -->
+        <div class="admin-members" *ngIf="isAdmin">
+          <button type="button" class="btn-members-toggle"
+                  (click)="toggleMembers(liga.id)"
+                  [disabled]="loadingMembersId === liga.id">
+            <span *ngIf="loadingMembersId === liga.id">Cargando...</span>
+            <span *ngIf="loadingMembersId !== liga.id">
+              {{ expandedId === liga.id ? '▲ Ocultar miembros' : '▼ Ver miembros (' + (liga._totalMiembros ?? '?') + ')' }}
+            </span>
+          </button>
+
+          <div class="members-list" *ngIf="expandedId === liga.id && membersMap[liga.id]">
+            <div *ngIf="membersMap[liga.id].length === 0" class="members-empty">
+              Sin miembros todavía
+            </div>
+            <div class="member-row" *ngFor="let m of membersMap[liga.id]">
+              <span class="member-name">{{ m.fullName || m.nombreUsuario || '—' }}</span>
+              <span class="member-user">{{ m.email || '' }}</span>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
+
   </div>
 </div>

@@ -44,7 +44,7 @@ export class TorneoConfigComponent implements OnInit {
   isLoadingEstadios = false;
   isLoadingPartidos = false;
 
-  activeTab: 'fases' | 'grupos' | 'partidos' = 'fases';
+  activeTab: 'fases' | 'grupos' | 'partidos' | 'reglas' = 'fases';
 
   searchFase = '';
   searchGrupo = '';
@@ -484,6 +484,14 @@ export class TorneoConfigComponent implements OnInit {
       fechaHora: '',
       estadioId: null
     };
+  }
+
+  getEmptySlots(count: number): number[] {
+    return Array.from({ length: Math.max(0, 4 - count) });
+  }
+
+  getTorneoAnio(): number {
+    return (this.torneo as any)?.['año'] ?? 0;
   }
 
   getEquiposDeGrupoSeleccionado(): any[] {

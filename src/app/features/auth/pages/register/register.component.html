@@ -1,134 +1,88 @@
 <div class="auth-page">
-  <div class="auth-card">
-    <div class="auth-header">
-      <h1>Crear cuenta</h1>
-      <p>Regístrate para acceder a Quiniela </p>
+
+  <div class="auth-layout">
+
+    <!-- Info mundial -->
+    <div class="auth-brand">
+      <div class="brand-trophy">🏆</div>
+      <p class="brand-event">FIFA WORLD CUP</p>
+      <h1 class="brand-year">2026</h1>
+      <p class="brand-hosts">🇺🇸 Estados Unidos &nbsp;·&nbsp; 🇨🇦 Canadá &nbsp;·&nbsp; 🇲🇽 México</p>
+
+      <ul class="brand-list">
+        <li>✔ Crea o únete a ligas con tus amigos</li>
+        <li>✔ Predice resultados partido a partido</li>
+        <li>✔ Sigue el ranking en tiempo real</li>
+        <li>✔ Compite por premios en ligas de apuesta</li>
+      </ul>
     </div>
 
-    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
-      <div class="form-group">
-        <label for="firstName">Nombre</label>
-        <input
-          id="firstName"
-          type="text"
-          formControlName="firstName"
-          class="auth-input"
-          placeholder="Ingresa tu nombre"
-          autocomplete="given-name"
-        />
+    <!-- Tarjeta de registro -->
+    <div class="auth-card">
 
-        <small class="error-text" *ngIf="firstName.touched && firstName.hasError('required')">
-          El nombre es obligatorio.
-        </small>
+      <div class="card-logo">⚽</div>
+      <h2>Crear cuenta</h2>
+      <p class="card-sub">Regístrate gratis y empieza a predecir</p>
 
-        <small class="error-text" *ngIf="firstName.touched && firstName.hasError('minlength')">
-          El nombre debe tener al menos 2 caracteres.
-        </small>
-      </div>
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
 
-      <div class="form-group">
-        <label for="lastName">Apellido</label>
-        <input
-          id="lastName"
-          type="text"
-          formControlName="lastName"
-          class="auth-input"
-          placeholder="Ingresa tu apellido"
-          autocomplete="family-name"
-        />
+        <div class="fields-row">
+          <div class="field">
+            <label for="firstName">Nombre</label>
+            <input id="firstName" name="given-name" type="text" formControlName="firstName" class="auth-input"
+                   placeholder="Tu nombre" autocomplete="given-name" />
+            <small *ngIf="firstName.touched && firstName.hasError('required')">El nombre es obligatorio.</small>
+            <small *ngIf="firstName.touched && firstName.hasError('minlength')">Mínimo 2 caracteres.</small>
+          </div>
+          <div class="field">
+            <label for="lastName">Apellido</label>
+            <input id="lastName" name="family-name" type="text" formControlName="lastName" class="auth-input"
+                   placeholder="Tu apellido" autocomplete="family-name" />
+            <small *ngIf="lastName.touched && lastName.hasError('required')">El apellido es obligatorio.</small>
+            <small *ngIf="lastName.touched && lastName.hasError('minlength')">Mínimo 2 caracteres.</small>
+          </div>
+        </div>
 
-        <small class="error-text" *ngIf="lastName.touched && lastName.hasError('required')">
-          El apellido es obligatorio.
-        </small>
+        <div class="field">
+          <label for="email">Correo electrónico</label>
+          <input id="email" name="email" type="email" formControlName="email" class="auth-input"
+                 placeholder="tucorreo@ejemplo.com" autocomplete="email" />
+          <small *ngIf="email.touched && email.hasError('required')">El correo es obligatorio.</small>
+          <small *ngIf="email.touched && email.hasError('email')">Ingresa un correo válido.</small>
+        </div>
 
-        <small class="error-text" *ngIf="lastName.touched && lastName.hasError('minlength')">
-          El apellido debe tener al menos 2 caracteres.
-        </small>
-      </div>
+        <div class="field">
+          <label for="password">Contraseña</label>
+          <input id="password" name="new-password" type="password" formControlName="password" class="auth-input"
+                 placeholder="Mínimo 8 caracteres" autocomplete="new-password" />
+          <small *ngIf="password.touched && password.hasError('required')">La contraseña es obligatoria.</small>
+          <small *ngIf="password.touched && password.hasError('minlength')">Mínimo 8 caracteres.</small>
+          <small *ngIf="password.touched && password.hasError('pattern')">Debe incluir mayúscula, minúscula, número y carácter especial.</small>
+        </div>
 
-      <div class="form-group">
-        <label for="email">Correo electrónico</label>
-        <input
-          id="email"
-          type="email"
-          formControlName="email"
-          class="auth-input"
-          placeholder="Ingresa tu correo"
-          autocomplete="email"
-        />
+        <div class="field">
+          <label for="confirmPassword">Confirmar contraseña</label>
+          <input id="confirmPassword" name="confirm-password" type="password" formControlName="confirmPassword" class="auth-input"
+                 placeholder="Repite tu contraseña" autocomplete="new-password" />
+          <small *ngIf="confirmPassword.touched && confirmPassword.hasError('required')">Debes confirmar la contraseña.</small>
+          <small *ngIf="confirmPassword.touched && registerForm.hasError('passwordMismatch')">Las contraseñas no coinciden.</small>
+        </div>
 
-        <small class="error-text" *ngIf="email.touched && email.hasError('required')">
-          El correo es obligatorio.
-        </small>
+        <div class="auth-msg error-box"   *ngIf="errorMessage">{{ errorMessage }}</div>
+        <div class="auth-msg success-box" *ngIf="successMessage">{{ successMessage }}</div>
 
-        <small class="error-text" *ngIf="email.touched && email.hasError('email')">
-          Ingresa un correo válido.
-        </small>
-      </div>
+        <button type="submit" class="btn-submit" [disabled]="isLoading">
+          {{ isLoading ? 'Registrando...' : 'Crear cuenta' }}
+        </button>
 
-      <div class="form-group">
-        <label for="password">Contraseña</label>
-        <input
-          id="password"
-          type="password"
-          formControlName="password"
-          class="auth-input"
-          placeholder="Crea una contraseña"
-          autocomplete="new-password"
-        />
+      </form>
 
-        <small class="error-text" *ngIf="password.touched && password.hasError('required')">
-            La contraseña es obligatoria.
-        </small>
+      <div class="auth-divider"><span>¿Ya tienes cuenta?</span></div>
 
-        <small class="error-text" *ngIf="password.touched && password.hasError('minlength')">
-            La contraseña debe tener al menos 8 caracteres.
-        </small>
+      <a routerLink="/login" class="btn-outline">Iniciar sesión</a>
 
-        <small class="error-text" *ngIf="password.touched && password.hasError('pattern')">
-        Debe incluir mayúscula, minúscula, número y un carácter especial.
-        </small>
-      </div>
-
-      <div class="form-group">
-        <label for="confirmPassword">Confirmar contraseña</label>
-        <input
-          id="confirmPassword"
-          type="password"
-          formControlName="confirmPassword"
-          class="auth-input"
-          placeholder="Repite tu contraseña"
-          autocomplete="new-password"
-        />
-
-        <small class="error-text" *ngIf="confirmPassword.touched && confirmPassword.hasError('required')">
-          Debes confirmar la contraseña.
-        </small>
-
-        <small
-          class="error-text"
-          *ngIf="confirmPassword.touched && registerForm.hasError('passwordMismatch')"
-        >
-          Las contraseñas no coinciden.
-        </small>
-      </div>
-
-      <div class="message error-box" *ngIf="errorMessage">
-        {{ errorMessage }}
-      </div>
-
-      <div class="message success-box" *ngIf="successMessage">
-        {{ successMessage }}
-      </div>
-
-      <button type="submit" class="btn-auth" [disabled]="isLoading">
-        {{ isLoading ? 'Registrando...' : 'Crear cuenta' }}
-      </button>
-    </form>
-
-    <div class="auth-footer">
-      <span>¿Ya tienes cuenta?</span>
-      <a routerLink="/login">Iniciar sesión</a>
     </div>
+
   </div>
+
 </div>

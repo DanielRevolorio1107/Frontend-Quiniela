@@ -96,4 +96,19 @@ export class LeagueService {
     return this.http.post(`${environment.apiUrl}/invitacionliga/responder`, data);
   }
 
+  getTorneosSelect() {
+    return this.http.get<any[]>(`${environment.apiUrl}/torneo/select`);
+  }
+
+  getRankingGlobalUsuarios() {
+    return this.http.get<any[]>(`${environment.apiUrl}/ranking/global/usuarios`);
+  }
+
+  getRankingGlobalLigas() {
+    return this.http.get<any[]>(`${environment.apiUrl}/ranking/global/ligas`);
+  }
+
+  getPremiosLiga(ligaId: number) {
+    return this.http.get<any[]>(`${environment.apiUrl}/ranking/premios/liga/${ligaId}`);
+  }
 }

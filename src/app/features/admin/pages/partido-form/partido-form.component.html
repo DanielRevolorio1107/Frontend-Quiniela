@@ -1,116 +1,176 @@
-<div class="admin-page">
-  <div class="admin-card">
+<div class="pf-page">
+  <div class="pf-card">
 
-    <div class="top-bar">
-      <a routerLink="/admin/partidos" class="btn-secondary">← Volver</a>
-      <h1>{{ isEdit ? 'Editar partido' : 'Nuevo partido' }}</h1>
+    <!-- Header -->
+    <div class="pf-header">
+      <a routerLink="/admin/partidos" class="btn-back">← Volver</a>
+      <div class="pf-header-title">
+        <span class="pf-icon">⚽</span>
+        <h1>{{ isEdit ? 'Editar partido' : 'Nuevo partido' }}</h1>
+      </div>
     </div>
 
-    <div *ngIf="errorMessage" class="msg error-msg">{{ errorMessage }}</div>
-    <div *ngIf="isLoadingData" class="info-txt">Cargando datos...</div>
+    <div class="pf-body">
 
-    <form [formGroup]="form" (ngSubmit)="submit()" class="admin-form" *ngIf="!isLoadingData">
+      <div *ngIf="errorMessage" class="msg error-msg">{{ errorMessage }}</div>
 
-      <!-- Torneo -->
-      <div class="form-group">
-        <label>Torneo *</label>
-        <select formControlName="torneoId" class="form-input">
-          <option [value]="null">Seleccionar torneo...</option>
-          <option *ngFor="let t of torneos" [value]="t.id">{{ t.nombre }}</option>
-        </select>
+      <div *ngIf="isLoadingData" class="loading-state">
+        <div class="spinner"></div>
+        <p>Cargando datos...</p>
       </div>
 
-      <!-- Fase y Grupo -->
-      <div class="form-row">
-        <div class="form-group">
-          <label>Fase *</label>
-          <select formControlName="faseId" class="form-input" [attr.disabled]="isEdit ? true : null">
-            <option *ngFor="let f of fases" [value]="f.id">{{ f.nombre }}</option>
-          </select>
+      <form [formGroup]="form" (ngSubmit)="submit()" *ngIf="!isLoadingData">
+
+        <!-- ── Sección: Torneo / Fase / Grupo ── -->
+        <div class="section-block">
+          <div class="section-label">Configuración del partido</div>
+          <div class="form-grid-3">
+
+            <div class="form-group">
+              <label class="field-label">Torneo <span class="req">*</span></label>
+              <select formControlName="torneoId" class="field-select">
+                <option [value]="null">Seleccionar torneo...</option>
+                <option *ngFor="let t of torneos" [value]="t.id">{{ t.nombre }}</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="field-label">Fase <span class="req">*</span></label>
+              <select formControlName="faseId" class="field-select" [attr.disabled]="isEdit ? true : null">
+                <option *ngFor="let f of fases" [value]="f.id">{{ f.nombre }}</option>
+              </select>
+            </div>
+
+            <div class="form-group" *ngIf="esFaseGrupos">
+              <label class="field-label">Grupo</label>
+              <select formControlName="grupoId" class="field-select">
+                <option [value]="null">Sin grupo</option>
+                <option *ngFor="let g of grupos" [value]="g.id">{{ g.nombre }}</option>
+              </select>
+            </div>
+
+          </div>
         </div>
-        <div class="form-group" *ngIf="esFaseGrupos">
-          <label>Grupo</label>
-          <select formControlName="grupoId" class="form-input">
-            <option [value]="null">Sin grupo</option>
-            <option *ngFor="let g of grupos" [value]="g.id">{{ g.nombre }}</option>
-          </select>
+
+        <!-- ── Sección: Equipos (VS card) ── -->
+        <div class="section-block">
+          <div class="section-label">Equipos</div>
+          <p class="section-hint" *ngIf="!esFaseGrupos">
+            Para fases eliminatorias podés dejar sin asignar y usar la descripción placeholder ("1º Grupo A") cuando clasifique.
+          </p>
+
+          <div class="vs-card">
+
+            <!-- Local -->
+            <div class="team-picker">
+              <div class="team-preview">
+                <ng-container *ngIf="getEquipoById(form.value.equipoLocalId) as eq; else noTeamLocal">
+                  <img [src]="eq.banderaUrl" [alt]="eq.nombre" class="team-flag" loading="lazy"
+                       onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                  <span class="team-flag-fallback" style="display:none">🏳️</span>
+                  <div class="team-info">
+                    <span class="team-code">{{ eq.codigoFifa }}</span>
+                    <span class="team-name">{{ eq.nombre }}</span>
+                  </div>
+                </ng-container>
+                <ng-template #noTeamLocal>
+                  <div class="team-empty">
+                    <span class="team-empty-icon">🏳️</span>
+                    <span class="team-empty-lbl">Sin asignar</span>
+                  </div>
+                </ng-template>
+              </div>
+
+              <label class="field-label">Equipo local</label>
+              <select *ngIf="localEsTercero" formControlName="equipoLocalId" class="field-select">
+                <option [value]="null">Sin asignar</option>
+                <option *ngFor="let t of mejoresTerceros; let i = index" [value]="t.equipoId">
+                  {{ i + 1 }}. {{ formatTercero(t) }}{{ i < 8 ? ' ✓' : '' }}
+                </option>
+              </select>
+              <select *ngIf="!localEsTercero" formControlName="equipoLocalId" class="field-select">
+                <option [value]="null">Sin asignar</option>
+                <option *ngFor="let e of equipos" [value]="e.id">
+                  {{ e.codigoFifa }} — {{ e.nombre }}
+                </option>
+              </select>
+            </div>
+
+            <!-- VS separador -->
+            <div class="vs-sep">
+              <span class="vs-text">VS</span>
+            </div>
+
+            <!-- Visitante -->
+            <div class="team-picker">
+              <div class="team-preview">
+                <ng-container *ngIf="getEquipoById(form.value.equipoVisitanteId) as eq; else noTeamVisit">
+                  <img [src]="eq.banderaUrl" [alt]="eq.nombre" class="team-flag" loading="lazy"
+                       onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                  <span class="team-flag-fallback" style="display:none">🏳️</span>
+                  <div class="team-info">
+                    <span class="team-code">{{ eq.codigoFifa }}</span>
+                    <span class="team-name">{{ eq.nombre }}</span>
+                  </div>
+                </ng-container>
+                <ng-template #noTeamVisit>
+                  <div class="team-empty">
+                    <span class="team-empty-icon">🏳️</span>
+                    <span class="team-empty-lbl">Sin asignar</span>
+                  </div>
+                </ng-template>
+              </div>
+
+              <label class="field-label">Equipo visitante</label>
+              <select *ngIf="visitanteEsTercero" formControlName="equipoVisitanteId" class="field-select">
+                <option [value]="null">Sin asignar</option>
+                <option *ngFor="let t of mejoresTerceros; let i = index" [value]="t.equipoId">
+                  {{ i + 1 }}. {{ formatTercero(t) }}{{ i < 8 ? ' ✓' : '' }}
+                </option>
+              </select>
+              <select *ngIf="!visitanteEsTercero" formControlName="equipoVisitanteId" class="field-select">
+                <option [value]="null">Sin asignar</option>
+                <option *ngFor="let e of equipos" [value]="e.id">
+                  {{ e.codigoFifa }} — {{ e.nombre }}
+                </option>
+              </select>
+            </div>
+
+          </div>
         </div>
-      </div>
 
-      <!-- Equipos -->
-      <div class="section-title">Equipos</div>
-      <p class="section-hint" *ngIf="!esFaseGrupos">
-        Para fases eliminatorias podés usar descripciones placeholder ("1º Grupo A")
-        y asignar el equipo real cuando clasifique.
-      </p>
+        <!-- ── Sección: Horario y sede ── -->
+        <div class="section-block">
+          <div class="section-label">Horario y sede</div>
+          <div class="form-grid-2">
 
-      <div class="form-row">
-        <div class="form-group">
-          <label>Equipo local</label>
+            <div class="form-group">
+              <label class="field-label">Fecha y hora <span class="req">*</span></label>
+              <input formControlName="fechaHora" type="datetime-local" class="field-input" />
+            </div>
 
-          <!-- Si es slot de 3er lugar → mostrar mejores terceros -->
-          <select *ngIf="localEsTercero" formControlName="equipoLocalId" class="form-input">
-            <option [value]="null">Sin asignar</option>
-            <option *ngFor="let t of mejoresTerceros; let i = index" [value]="t.equipoId" [class.clasificado]="i < 8">
-              {{ i + 1 }}. {{ formatTercero(t) }}{{ i < 8 ? ' ✓' : '' }} </option>
-          </select>
+            <div class="form-group">
+              <label class="field-label">Estadio <span class="req">*</span></label>
+              <select formControlName="estadioId" class="field-select">
+                <option [value]="null">Seleccionar estadio...</option>
+                <option *ngFor="let e of estadios" [value]="e.id">
+                  {{ e.nombre }} — {{ e.ciudad }}
+                </option>
+              </select>
+            </div>
 
-          <!-- Caso normal → todos los equipos -->
-          <select *ngIf="!localEsTercero" formControlName="equipoLocalId" class="form-input">
-            <option [value]="null">Sin asignar</option>
-            <option *ngFor="let e of equipos" [value]="e.id">
-              {{ e.codigoFifa }} — {{ e.nombre }}
-            </option>
-          </select>
+          </div>
         </div>
-      </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label>Equipo visitante</label>
-
-          <!-- Si es slot de 3er lugar → mostrar mejores terceros -->
-          <select *ngIf="visitanteEsTercero" formControlName="equipoVisitanteId" class="form-input">
-            <option [value]="null">Sin asignar</option>
-            <option *ngFor="let t of mejoresTerceros; let i = index" [value]="t.equipoId">
-              {{ i + 1 }}. {{ formatTercero(t) }}{{ i < 8 ? ' ✓' : '' }} </option>
-          </select>
-
-          <!-- Caso normal → todos los equipos -->
-          <select *ngIf="!visitanteEsTercero" formControlName="equipoVisitanteId" class="form-input">
-            <option [value]="null">Sin asignar</option>
-            <option *ngFor="let e of equipos" [value]="e.id">
-              {{ e.codigoFifa }} — {{ e.nombre }}
-            </option>
-          </select>
+        <!-- Acciones -->
+        <div class="form-actions">
+          <a routerLink="/admin/partidos" class="btn-cancel">Cancelar</a>
+          <button type="submit" class="btn-submit" [disabled]="isLoading">
+            {{ isLoading ? 'Guardando...' : (isEdit ? '✔ Actualizar partido' : '✔ Crear partido') }}
+          </button>
         </div>
-      </div>
 
-      <!-- Horario y sede -->
-      <div class="section-title">Horario y sede</div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Fecha y hora *</label>
-          <input formControlName="fechaHora" type="datetime-local" class="form-input" />
-        </div>
-        <div class="form-group">
-          <label>Estadio *</label>
-          <select formControlName="estadioId" class="form-input">
-            <option [value]="null">Seleccionar estadio...</option>
-            <option *ngFor="let e of estadios" [value]="e.id">
-              {{ e.nombre }} — {{ e.ciudad }}
-            </option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-actions">
-        <a routerLink="/admin/partidos" class="btn-secondary">Cancelar</a>
-        <button type="submit" class="btn-primary" [disabled]="isLoading">
-          {{ isLoading ? 'Guardando...' : (isEdit ? 'Actualizar' : 'Crear partido') }}
-        </button>
-      </div>
-
-    </form>
+      </form>
+    </div>
   </div>
 </div>

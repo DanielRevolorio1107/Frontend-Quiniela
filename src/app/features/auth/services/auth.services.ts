@@ -41,5 +41,11 @@ export class AuthService {
         return this.http.post<MessageResponse>(`${this.apiUrl}/auth/recuperar-contraseña`, data);
     }
 
-    
+    logoutApi() {
+        return this.http.post(`${this.apiUrl}/auth/logout`, {});
+    }
+
+    changeOwnPassword(userId: number, newPassword: string) {
+        return this.http.put(`${this.apiUrl}/auth/reset/${userId}`, { newPassword });
+    }
 }

@@ -1,77 +1,115 @@
-<div class="pred-page">
-  <div class="pred-card">
-    <div class="top-bar">
-      <a routerLink="/partidos" class="btn-secondary">← Volver a partidos</a>
+<div class="pf-page">
+  <div class="pf-card">
+
+    <!-- Header -->
+    <div class="pf-header">
+      <a routerLink="/partidos" class="btn-back">← Partidos</a>
+      <span class="pf-header-title">Nueva predicción</span>
     </div>
 
-    <div *ngIf="errorMessage" class="message error-box">
-      {{ errorMessage }}
+    <!-- Messages -->
+    <div *ngIf="errorMessage"   class="msg error-box">{{ errorMessage }}</div>
+    <div *ngIf="successMessage" class="msg success-box">{{ successMessage }}</div>
+
+    <!-- Loading -->
+    <div *ngIf="isLoadingPartido" class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando partido...</p>
     </div>
 
-    <div *ngIf="successMessage" class="message success-box">
-      {{ successMessage }}
-    </div>
+    <!-- Content -->
+    <div *ngIf="!isLoadingPartido && partido" class="pf-body">
 
-    <section *ngIf="isLoadingPartido" class="info-box">
-      Cargando información del partido...
-    </section>
-
-    <section *ngIf="!isLoadingPartido && partido" class="match-summary">
-      <h1>Registrar predicción</h1>
-      <p class="match-title">{{ getEquipoLocal() }} vs {{ getEquipoVisitante() }}</p>
-      <p><strong>Fecha:</strong> {{ getFecha() }}</p>
-    </section>
-
-    <form [formGroup]="predictionForm" (ngSubmit)="onSubmit()" novalidate>
-      <div class="form-group">
-        <label for="ligaId">Liga</label>
-        <select id="ligaId" formControlName="ligaId" class="pred-input">
-          <option value="">Selecciona una liga</option>
-          <option *ngFor="let liga of ligas" [value]="liga.id">
-            {{ liga.nombre }}
-          </option>
-        </select>
-
-        <small class="error-text" *ngIf="ligaId.touched && ligaId.hasError('required')">
-          Debes seleccionar una liga.
-        </small>
-      </div>
-
-      <div class="score-grid">
-        <div class="form-group">
-          <label for="golesLocal">Goles local</label>
-          <input
-            id="golesLocal"
-            type="number"
-            formControlName="golesLocal"
-            class="pred-input"
-            min="0"
-          />
-
-          <small class="error-text" *ngIf="golesLocal.touched && golesLocal.hasError('required')">
-            El marcador local es obligatorio.
-          </small>
+      <!-- Match card — se muestra UNA sola vez -->
+      <div class="match-card">
+        <div class="match-meta">
+          <span class="match-fase">{{ getFase() }}</span>
+          <span class="match-date">{{ getFecha() }}</span>
         </div>
 
-        <div class="form-group">
-          <label for="golesVisitante">Goles visitante</label>
-          <input
-            id="golesVisitante"
-            type="number"
-            formControlName="golesVisitante"
-            class="pred-input"
-            min="0"
-          />
+        <div class="match-teams">
 
-          <small class="error-text" *ngIf="golesVisitante.touched && golesVisitante.hasError('required')">
-            El marcador visitante es obligatorio.
-          </small>
+          <!-- Local -->
+          <div class="match-team">
+            <img *ngIf="localFlag()" [src]="localFlag()" [alt]="localCode()" class="team-flag"
+                 onerror="this.style.display='none'">
+            <span *ngIf="!localFlag()" class="team-flag-ph">🏳️</span>
+            <span class="team-code">{{ localCode() }}</span>
+            <span class="team-name">{{ getEquipoLocal() }}</span>
+          </div>
+
+          <div class="match-vs">VS</div>
+
+          <!-- Visitante — mismo orden que local -->
+          <div class="match-team">
+            <img *ngIf="visitanteFlag()" [src]="visitanteFlag()" [alt]="visitanteCode()" class="team-flag"
+                 onerror="this.style.display='none'">
+            <span *ngIf="!visitanteFlag()" class="team-flag-ph">🏳️</span>
+            <span class="team-code">{{ visitanteCode() }}</span>
+            <span class="team-name">{{ getEquipoVisitante() }}</span>
+          </div>
+
+        </div>
+
+        <div class="match-stadium" *ngIf="getEstadio()">
+          🏟️ {{ getEstadio() }}
         </div>
       </div>
 
-      <button type="submit" class="btn-primary" [disabled]="isSubmitting || isLoadingLigas">
-        {{ isSubmitting ? 'Guardando...' : 'Guardar predicción' }}
-      </button>
-    </form>
+      <!-- Form -->
+      <form [formGroup]="predictionForm" (ngSubmit)="onSubmit()" novalidate class="pred-form">
+
+        <!-- Liga selector -->
+        <div class="field-group">
+          <label class="field-label">Selecciona tu liga <span class="req">*</span></label>
+          <div *ngIf="isLoadingLigas" class="loading-inline">Cargando ligas...</div>
+          <select *ngIf="!isLoadingLigas" formControlName="ligaId" class="field-select">
+            <option value="">-- Elegir liga --</option>
+            <option *ngFor="let liga of ligas" [value]="liga.id">
+              {{ liga.nombre }}{{ liga.esDeApuestas ? ' 💰' : ' 🎮' }}
+            </option>
+          </select>
+          <small class="error-text" *ngIf="ligaId.touched && ligaId.hasError('required')">
+            Debes seleccionar una liga.
+          </small>
+          <div *ngIf="!isLoadingLigas && ligas.length === 0" class="no-ligas">
+            No estás en ninguna liga. <a routerLink="/ligas/buscar">Buscar ligas →</a>
+          </div>
+        </div>
+
+        <!-- Score picker — sin repetir banderas -->
+        <div class="field-group">
+          <label class="field-label">Tu predicción de marcador</label>
+          <div class="score-picker">
+
+            <div class="score-side">
+              <span class="score-code">{{ localCode() || getEquipoLocal() }}</span>
+              <input type="number" formControlName="golesLocal"
+                     class="score-input" min="0" max="20" />
+            </div>
+
+            <span class="score-sep">—</span>
+
+            <div class="score-side">
+              <span class="score-code">{{ visitanteCode() || getEquipoVisitante() }}</span>
+              <input type="number" formControlName="golesVisitante"
+                     class="score-input" min="0" max="20" />
+            </div>
+
+          </div>
+          <small class="error-text"
+                 *ngIf="(golesLocal.touched && golesLocal.invalid) || (golesVisitante.touched && golesVisitante.invalid)">
+            El marcador es obligatorio y no puede ser negativo.
+          </small>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn-submit" [disabled]="isSubmitting || isLoadingLigas">
+          {{ isSubmitting ? 'Guardando...' : '✔ Guardar predicción' }}
+        </button>
+
+      </form>
+    </div>
+
   </div>
 </div>

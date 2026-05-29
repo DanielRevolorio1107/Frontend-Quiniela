@@ -1,0 +1,18 @@
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.app-main {
+  flex: 1;
+  min-width: 0;
+  background: #f4f9ff;
+}
+
+/* En móvil la sidebar desaparece y el hamburger (40×40px fixed a top:12px)
+   ocuparía los primeros ~52px. Desplazamos el contenido para no solapar. */
+@media (max-width: 767px) {
+  .app-main {
+    padding-top: 58px;
+  }
+}

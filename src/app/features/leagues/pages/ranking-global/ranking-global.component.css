@@ -1,0 +1,175 @@
+/* Ranking Global — Quiniela 2026 */
+.page { min-height: 100vh; background: var(--p-bg, #f4f9ff); display: flex; flex-direction: column; }
+
+/* ── Header ── */
+.page-header {
+  background: white;
+  border-bottom: 2px solid var(--p-blue-bdr, #ccefff);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 1px 6px rgba(0,183,255,0.07);
+}
+
+.header-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 16px 24px 10px;
+}
+.header-main h1 { margin: 0 0 2px; color: var(--p-blue-900); font-size: 20px; font-weight: 700; }
+.header-main p  { margin: 0; color: var(--p-text-muted, #888); font-size: 13px; }
+.header-actions { display: flex; gap: 8px; align-items: center; }
+
+/* Tabs */
+.tabs { display: flex; gap: 0; padding: 0 24px; border-top: 1px solid #f0f4f8; }
+.tab {
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--p-text-muted, #888);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+  margin-bottom: -2px;
+}
+.tab:hover { color: var(--p-blue-900); }
+.tab-active { color: var(--p-blue-900); border-bottom-color: var(--p-blue, #00b7ff); }
+
+/* ── Body ── */
+.page-body { padding: 20px 24px; flex: 1; }
+
+.error-box { background: var(--p-error-bg); color: var(--p-error-cl); border: 1px solid var(--p-error-bdr); border-radius: var(--radius, 8px); padding: 12px 16px; margin-bottom: 16px; font-size: 14px; }
+
+.loading-state { text-align: center; padding: 60px 20px; }
+.spinner { width: 36px; height: 36px; border: 3px solid var(--p-blue-bdr, #ccefff); border-top-color: var(--p-blue, #00b7ff); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-state p { color: var(--p-text-muted, #888); font-size: 14px; margin: 0; }
+
+.empty-state { text-align: center; padding: 60px 20px; }
+.empty-icon  { font-size: 48px; display: block; margin-bottom: 12px; }
+.empty-state p { font-size: 15px; color: var(--p-text-muted, #888); margin: 0; }
+
+/* ── Table ── */
+.ranking-table { background: white; border-radius: var(--radius-lg, 12px); border: 1px solid #e4ecf5; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+
+/* Usuarios: # | ± | Jugador | Liga | Pts | Premio */
+.table-header.rk-usuarios,
+.table-row.rk-usuarios {
+  display: grid;
+  grid-template-columns: 48px 44px 1fr 150px 80px 110px;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Ligas: # | ± | Liga | Prom pts | Miembros | Premio total */
+.table-header.rk-ligas,
+.table-row.rk-ligas {
+  display: grid;
+  grid-template-columns: 48px 44px 1fr 90px 80px 110px;
+  gap: 8px;
+  align-items: center;
+}
+
+.table-header {
+  padding: 10px 16px;
+  background: var(--p-blue-tbl, #e8f7ff);
+  border-bottom: 1px solid var(--p-blue-bdr, #ccefff);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--p-text-muted, #888);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.table-row {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f2f6fa;
+  transition: background 0.15s;
+}
+.table-row:last-child { border-bottom: none; }
+.table-row:hover { background: var(--p-blue-light); }
+.row-top1 { background: linear-gradient(90deg, #fff9e6 0%, white 100%); }
+.row-top2 { background: linear-gradient(90deg, #f5f5f5 0%, white 100%); }
+.row-top3 { background: linear-gradient(90deg, #fff4ee 0%, white 100%); }
+
+/* Columnas */
+.col-pos { display: flex; align-items: center; justify-content: center; }
+.pos-medal { font-size: 18px; font-weight: 800; }
+
+.col-var { font-size: 11px; font-weight: 700; text-align: center; white-space: nowrap; }
+.var-up      { color: #16a34a; }
+.var-down    { color: var(--p-red); }
+.var-neutral { color: var(--p-text-muted, #bbb); }
+
+.col-nombre { overflow: hidden; }
+.col-liga, .col-pts, .col-miem, .col-premio { text-align: center; }
+
+.player-name { font-size: 14px; font-weight: 700; color: var(--p-text, #333); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
+.liga-name   { font-size: 12px; color: var(--p-text-muted, #888); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
+.liga-link   { font-size: 14px; font-weight: 700; color: var(--p-blue-900); text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
+.liga-link:hover { text-decoration: underline; }
+
+.pts-val   { font-size: 16px; font-weight: 800; color: var(--p-blue-900); }
+.premio-val { font-size: 13px; font-weight: 700; color: var(--p-green, #27ae60); }
+.premio-nd  { font-size: 11px; color: var(--p-text-muted, #bbb); font-style: italic; cursor: help; }
+
+/* Live badge */
+.live-badge {
+  font-size: 11px; font-weight: 700;
+  color: white; background: var(--p-red);
+  border-radius: 20px; padding: 3px 10px;
+  animation: pulse-live 1.5s infinite;
+}
+@keyframes pulse-live {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.6; }
+}
+
+.btn-outline {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: transparent; color: var(--p-blue-900);
+  border: 1px solid var(--p-blue-bdr, #ccefff); border-radius: var(--radius, 8px);
+  padding: 8px 12px; font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: background 0.15s;
+}
+.btn-outline:hover { background: var(--p-blue-light); }
+
+/* ── Móvil ── */
+@media (max-width: 767px) {
+  .page-header  { top: 58px; }
+  .header-main  { padding: 14px 16px 8px; }
+  .header-main h1 { font-size: 17px; }
+  .tabs         { padding: 0 16px; overflow-x: auto; }
+  .page-body    { padding: 14px 12px; }
+
+  .table-header.rk-usuarios,
+  .table-row.rk-usuarios {
+    grid-template-columns: 36px 36px 1fr 70px 80px;
+  }
+  .table-header.rk-ligas,
+  .table-row.rk-ligas {
+    grid-template-columns: 36px 36px 1fr 70px 80px;
+  }
+  .col-liga, .col-miem { display: none; }
+  .player-name, .liga-link { font-size: 13px; }
+}
+
+/* ── 360px ── */
+@media (max-width: 400px) {
+  .table-header.rk-usuarios,
+  .table-row.rk-usuarios,
+  .table-header.rk-ligas,
+  .table-row.rk-ligas {
+    grid-template-columns: 32px 1fr 65px 70px;
+    gap: 4px;
+  }
+  .col-var    { display: none; }
+  .pts-val    { font-size: 14px; }
+  .page-body  { padding: 10px 8px; }
+  .header-main h1 { font-size: 15px; }
+}

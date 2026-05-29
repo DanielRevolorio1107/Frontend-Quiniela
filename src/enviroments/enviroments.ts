@@ -1,4 +1,5 @@
 export const environment = {
-    production: false,
-    apiUrl: 'http://localhost:8080/api/v1'
+    production: true,
+    apiUrl: 'https://quiniela-production-62e5.up.railway.app/api/v1',
+    hubUrl: 'https://quiniela-production-62e5.up.railway.app/hubs/quiniela'
 };

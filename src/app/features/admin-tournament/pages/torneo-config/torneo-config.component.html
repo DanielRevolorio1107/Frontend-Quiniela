@@ -6,385 +6,499 @@
 
     <div *ngIf="torneo" class="header-block">
       <h1>{{ torneo.nombre }}</h1>
-      <p class="subtitle">{{ torneo.paisSede }}</p>
+      <div class="header-meta">
+        <span class="header-meta-chip">📍 {{ torneo.paisSede }}</span>
+        <span class="header-meta-chip">📅 {{ getTorneoAnio() }}</span>
+        <span class="header-meta-chip">⚽ {{ grupos.length }} grupos · {{ fases.length }} fases · {{ partidos.length }} partidos</span>
+      </div>
     </div>
 
-    <div *ngIf="errorMessage" class="message error-box">
-      {{ errorMessage }}
-    </div>
-
-    <div *ngIf="successMessage" class="message success-box">
-      {{ successMessage }}
-    </div>
-
-    <div *ngIf="isLoadingTorneo" class="info-box">
-      Cargando configuración...
-    </div>
+    <div *ngIf="errorMessage" class="message error-box">{{ errorMessage }}</div>
+    <div *ngIf="successMessage" class="message success-box">{{ successMessage }}</div>
+    <div *ngIf="isLoadingTorneo" class="info-box" style="margin:20px">Cargando configuración...</div>
 
     <div *ngIf="!isLoadingTorneo">
       <div class="tabs">
-        <button
-          type="button"
-          class="tab-button"
-          [class.active]="activeTab === 'fases'"
-          (click)="activeTab = 'fases'"
-        >
+        <button type="button" class="tab-button" [class.active]="activeTab === 'fases'" (click)="activeTab = 'fases'">
           Fases <span class="badge">{{ fases.length }}</span>
         </button>
-
-        <button
-          type="button"
-          class="tab-button"
-          [class.active]="activeTab === 'grupos'"
-          (click)="activeTab = 'grupos'"
-        >
+        <button type="button" class="tab-button" [class.active]="activeTab === 'grupos'" (click)="activeTab = 'grupos'">
           Grupos <span class="badge">{{ grupos.length }}</span>
         </button>
-
-        <button
-          type="button"
-          class="tab-button"
-          [class.active]="activeTab === 'partidos'"
-          (click)="activeTab = 'partidos'"
-        >
+        <button type="button" class="tab-button" [class.active]="activeTab === 'partidos'" (click)="activeTab = 'partidos'">
           Partidos <span class="badge">{{ partidos.length }}</span>
+        </button>
+        <button type="button" class="tab-button tab-rules" [class.active]="activeTab === 'reglas'" (click)="activeTab = 'reglas'">
+          Reglas de Clasificación
         </button>
       </div>
 
-      <!-- FASES -->
+      <!-- ═══════════════════════════════════════════════════════
+           TAB: FASES
+      ═══════════════════════════════════════════════════════ -->
       <section *ngIf="activeTab === 'fases'" class="section-block">
-        <div class="form-inline">
-          <input
-            type="text"
-            [(ngModel)]="searchFase"
-            placeholder="Buscar fase..."
-            class="admin-input"
-          />
 
+        <div class="fase-pipeline" *ngIf="fases.length > 0">
+          <div class="pipeline-step" *ngFor="let f of fases; let last = last">
+            <div class="pipeline-node">
+              <div class="pipeline-dot">{{ f.orden }}</div>
+              <div class="pipeline-label">{{ f.nombre }}</div>
+            </div>
+            <div class="pipeline-arrow" *ngIf="!last">›</div>
+          </div>
+        </div>
+        <div *ngIf="fases.length === 0 && !isLoadingFases" class="pipeline-empty">
+          No hay fases — agrega la primera fase para definir el formato del torneo.
+        </div>
+
+        <div class="form-inline">
+          <input type="text" [(ngModel)]="searchFase" placeholder="Buscar fase..." class="admin-input" />
           <button type="button" class="btn-primary" (click)="toggleNuevaFase()">
             {{ showNuevaFase ? 'Cancelar' : '+ Nueva fase' }}
           </button>
         </div>
 
         <div class="form-inline" *ngIf="showNuevaFase">
-          <input
-            type="text"
-            [(ngModel)]="nuevaFase.nombre"
-            placeholder="Nombre de la fase"
-            class="admin-input"
-          />
-
-          <input
-            type="number"
-            [(ngModel)]="nuevaFase.orden"
-            placeholder="Orden"
-            class="admin-input small-input"
-          />
-
-          <button
-            type="button"
-            class="btn-primary"
-            (click)="crearFase()"
-            [disabled]="isSubmittingFase"
-          >
+          <input type="text" [(ngModel)]="nuevaFase.nombre" placeholder="Nombre de la fase (ej: Fase de Grupos)" class="admin-input" />
+          <input type="number" [(ngModel)]="nuevaFase.orden" placeholder="Orden" class="admin-input small-input" />
+          <button type="button" class="btn-primary" (click)="crearFase()" [disabled]="isSubmittingFase">
             {{ isSubmittingFase ? 'Guardando...' : 'Guardar fase' }}
           </button>
         </div>
 
-        <div *ngIf="isLoadingFases" class="info-box">
-          Cargando fases...
-        </div>
-
-        <div *ngIf="!isLoadingFases && filteredFases.length === 0" class="info-box">
-          No hay fases registradas.
-        </div>
+        <div *ngIf="isLoadingFases" class="info-box">Cargando fases...</div>
+        <div *ngIf="!isLoadingFases && filteredFases.length === 0 && searchFase" class="info-box">Sin resultados para "{{ searchFase }}".</div>
 
         <div class="list-wrapper" *ngIf="!isLoadingFases && filteredFases.length > 0">
           <div class="list-item" *ngFor="let fase of filteredFases">
             <div class="grupo-content" *ngIf="editingFaseId !== fase.id">
-              <strong>{{ fase.nombre }}</strong>
+              <div class="fase-item-name">{{ fase.nombre }}</div>
               <div class="muted">Orden: {{ fase.orden }}</div>
             </div>
-
             <div class="form-inline" *ngIf="editingFaseId === fase.id">
-              <input
-                type="text"
-                [(ngModel)]="editFase.nombre"
-                class="admin-input"
-                placeholder="Nombre"
-              />
-
-              <input
-                type="number"
-                [(ngModel)]="editFase.orden"
-                class="admin-input small-input"
-                placeholder="Orden"
-              />
-
-              <button type="button" class="btn-primary" (click)="saveEditFase(fase.id)">
-                Guardar
-              </button>
-
-              <button type="button" class="btn-secondary" (click)="cancelEditFase()">
-                Cancelar
-              </button>
+              <input type="text" [(ngModel)]="editFase.nombre" class="admin-input" placeholder="Nombre" />
+              <input type="number" [(ngModel)]="editFase.orden" class="admin-input small-input" placeholder="Orden" />
+              <button type="button" class="btn-primary" (click)="saveEditFase(fase.id)">Guardar</button>
+              <button type="button" class="btn-secondary" (click)="cancelEditFase()">Cancelar</button>
             </div>
-
             <div class="action-buttons" *ngIf="editingFaseId !== fase.id">
-              <button type="button" class="btn-secondary" (click)="startEditFase(fase)">
-                Editar
-              </button>
-
-              <button type="button" class="btn-danger" (click)="deleteFase(fase.id, fase.nombre)">
-                Eliminar
-              </button>
+              <button type="button" class="btn-secondary" (click)="startEditFase(fase)">Editar</button>
+              <button type="button" class="btn-danger" (click)="deleteFase(fase.id, fase.nombre)">Eliminar</button>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- GRUPOS -->
+      <!-- ═══════════════════════════════════════════════════════
+           TAB: GRUPOS
+      ═══════════════════════════════════════════════════════ -->
       <section *ngIf="activeTab === 'grupos'" class="section-block">
-        <div class="form-inline">
-          <input
-            type="text"
-            [(ngModel)]="searchGrupo"
-            placeholder="Buscar grupo..."
-            class="admin-input"
-          />
 
+        <div class="grupos-legend">
+          <span class="legend-item green">1° — 2° Clasifica directo</span>
+          <span class="legend-item amber">3° Posible clasificado</span>
+          <span class="legend-item red">4° Eliminado</span>
+          <a class="legend-link" (click)="activeTab = 'reglas'" style="cursor:pointer">Ver reglas completas →</a>
+        </div>
+
+        <div class="form-inline">
+          <input type="text" [(ngModel)]="searchGrupo" placeholder="Buscar grupo..." class="admin-input" />
           <button type="button" class="btn-primary" (click)="toggleNuevoGrupo()">
             {{ showNuevoGrupo ? 'Cancelar' : '+ Nuevo grupo' }}
           </button>
         </div>
 
         <div class="form-inline" *ngIf="showNuevoGrupo">
-          <input
-            type="text"
-            [(ngModel)]="nuevoGrupoNombre"
-            placeholder="Nombre del grupo"
-            class="admin-input"
-          />
-
-          <button
-            type="button"
-            class="btn-primary"
-            (click)="crearGrupo()"
-            [disabled]="isSubmittingGrupo"
-          >
+          <input type="text" [(ngModel)]="nuevoGrupoNombre" placeholder="Nombre del grupo (ej: Grupo A)" class="admin-input" />
+          <button type="button" class="btn-primary" (click)="crearGrupo()" [disabled]="isSubmittingGrupo">
             {{ isSubmittingGrupo ? 'Guardando...' : 'Guardar grupo' }}
           </button>
         </div>
 
-        <div *ngIf="isLoadingGrupos" class="info-box">
-          Cargando grupos...
-        </div>
+        <div *ngIf="isLoadingGrupos" class="info-box">Cargando grupos...</div>
+        <div *ngIf="!isLoadingGrupos && filteredGrupos.length === 0" class="info-box">No hay grupos registrados.</div>
 
-        <div *ngIf="!isLoadingGrupos && filteredGrupos.length === 0" class="info-box">
-          No hay grupos registrados.
-        </div>
+        <div class="grupos-grid" *ngIf="!isLoadingGrupos && filteredGrupos.length > 0">
+          <div class="grupo-card" *ngFor="let grupo of filteredGrupos">
 
-        <div class="list-wrapper" *ngIf="!isLoadingGrupos && filteredGrupos.length > 0">
-          <div class="list-item" *ngFor="let grupo of filteredGrupos">
-            <div class="grupo-content">
-              <div *ngIf="editingGrupoId !== grupo.id">
-                <strong>{{ grupo.nombre }}</strong>
-              </div>
-
-              <div class="form-inline" *ngIf="editingGrupoId === grupo.id">
-                <input
-                  type="text"
-                  [(ngModel)]="editGrupoNombre"
-                  class="admin-input"
-                  placeholder="Nombre del grupo"
-                />
-
-                <button type="button" class="btn-primary" (click)="saveEditGrupo(grupo.id)">
-                  Guardar
-                </button>
-
-                <button type="button" class="btn-secondary" (click)="cancelEditGrupo()">
-                  Cancelar
-                </button>
-              </div>
-
-              <div *ngIf="grupo.equipos && grupo.equipos.length > 0" class="equipos-list">
-                <div *ngFor="let equipo of grupo.equipos" class="equipo-row">
-                  <span>{{ equipo.codigoFifa }} — {{ equipo.nombre }}</span>
-                  <button
-                    type="button"
-                    class="btn-danger"
-                    (click)="removerEquipoDeGrupo(grupo.id, equipo.id, equipo.nombre)"
-                  >
-                    Quitar
-                  </button>
+            <!-- Card header -->
+            <div class="grupo-card-header">
+              <div class="grupo-card-title">
+                <span class="grupo-card-name" *ngIf="editingGrupoId !== grupo.id">{{ grupo.nombre }}</span>
+                <div class="form-inline" *ngIf="editingGrupoId === grupo.id" style="gap:6px">
+                  <input type="text" [(ngModel)]="editGrupoNombre" class="admin-input" placeholder="Nombre del grupo" style="min-width:120px" />
+                  <button type="button" class="btn-primary btn-sm" (click)="saveEditGrupo(grupo.id)">OK</button>
+                  <button type="button" class="btn-secondary btn-sm" (click)="cancelEditGrupo()">✕</button>
                 </div>
               </div>
+              <span class="slot-badge" [class.slot-full]="grupo.equipos.length >= 4">
+                {{ grupo.equipos.length }}/4
+              </span>
+            </div>
 
-              <div *ngIf="!grupo.equipos || grupo.equipos.length === 0" class="muted">
-                Sin equipos asignados
+            <!-- Standing rows -->
+            <div class="grupo-standing">
+              <div class="standing-row" *ngFor="let equipo of grupo.equipos; let i = index">
+                <span class="standing-pos" [class.pos-clasifica]="i < 2" [class.pos-tercero]="i === 2" [class.pos-out]="i >= 3">{{ i + 1 }}</span>
+                <img [src]="equipo.banderaUrl" [alt]="equipo.codigoFifa" class="equipo-flag" />
+                <span class="standing-code">{{ equipo.codigoFifa }}</span>
+                <span class="standing-name">{{ equipo.nombre }}</span>
+                <button type="button" class="btn-quitar" (click)="removerEquipoDeGrupo(grupo.id, equipo.id, equipo.nombre)" title="Quitar">×</button>
               </div>
-
-              <div *ngIf="managingEquiposGrupoId === grupo.id" class="assign-block">
-                <div class="form-inline">
-                  <input
-                    type="text"
-                    [(ngModel)]="searchEquipoDisponible"
-                    class="admin-input"
-                    placeholder="Buscar por nombre o código FIFA..."
-                  />
-                </div>
-
-                <div class="form-inline">
-                  <select [(ngModel)]="equipoParaAsignar" class="admin-input">
-                    <option [ngValue]="null">Selecciona un equipo</option>
-                    <option
-                      *ngFor="let equipo of equiposDisponiblesParaGrupo(grupo.id)"
-                      [ngValue]="equipo.id"
-                    >
-                      {{ equipo.codigoFifa }} — {{ equipo.nombre }}
-                    </option>
-                  </select>
-
-                  <button
-                    type="button"
-                    class="btn-primary"
-                    (click)="asignarEquipoAGrupo(grupo.id)"
-                    [disabled]="isAsignando"
-                  >
-                    {{ isAsignando ? 'Asignando...' : 'Asignar' }}
-                  </button>
-                </div>
+              <div class="standing-row slot-empty" *ngFor="let slot of getEmptySlots(grupo.equipos.length); let si = index">
+                <span class="standing-pos muted">{{ grupo.equipos.length + si + 1 }}</span>
+                <span class="slot-placeholder">Slot disponible</span>
               </div>
             </div>
 
-            <div class="action-buttons" *ngIf="editingGrupoId !== grupo.id">
-              <button type="button" class="btn-secondary" (click)="startEditGrupo(grupo)">
-                Editar
-              </button>
+            <!-- Assign block -->
+            <div *ngIf="managingEquiposGrupoId === grupo.id" class="assign-block">
+              <input type="text" [(ngModel)]="searchEquipoDisponible" class="admin-input" placeholder="Buscar por nombre o código FIFA..." style="margin-bottom:8px" />
+              <div class="form-inline" style="gap:6px">
+                <select [(ngModel)]="equipoParaAsignar" class="admin-input">
+                  <option [ngValue]="null">Selecciona un equipo</option>
+                  <option *ngFor="let equipo of equiposDisponiblesParaGrupo(grupo.id)" [ngValue]="equipo.id">
+                    {{ equipo.codigoFifa }} — {{ equipo.nombre }}
+                  </option>
+                </select>
+                <button type="button" class="btn-primary btn-sm" (click)="asignarEquipoAGrupo(grupo.id)" [disabled]="isAsignando">
+                  {{ isAsignando ? '...' : 'Asignar' }}
+                </button>
+              </div>
+            </div>
 
-              <button type="button" class="btn-secondary" (click)="toggleEquiposGrupo(grupo.id)">
-                Equipos
+            <!-- Card footer -->
+            <div class="grupo-card-footer" *ngIf="editingGrupoId !== grupo.id">
+              <button type="button" class="btn-secondary btn-sm" (click)="toggleEquiposGrupo(grupo.id)">
+                {{ managingEquiposGrupoId === grupo.id ? 'Cerrar' : '+ Equipo' }}
               </button>
+              <button type="button" class="btn-secondary btn-sm" (click)="startEditGrupo(grupo)">Editar</button>
+              <button type="button" class="btn-danger btn-sm" (click)="deleteGrupo(grupo.id, grupo.nombre)">Eliminar</button>
+            </div>
 
-              <button type="button" class="btn-danger" (click)="deleteGrupo(grupo.id, grupo.nombre)">
-                Eliminar grupo
-              </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════════════════
+           TAB: PARTIDOS
+      ═══════════════════════════════════════════════════════ -->
+      <section *ngIf="activeTab === 'partidos'" class="section-block">
+
+        <div class="partido-form-card">
+          <div class="partido-form-title">{{ partidoEditId ? '✏️ Editar partido' : '+ Nuevo partido' }}</div>
+
+          <div class="form-inline">
+            <select [(ngModel)]="partidoForm.faseId" class="admin-input">
+              <option [ngValue]="null">Selecciona una fase</option>
+              <option *ngFor="let fase of fases" [ngValue]="fase.id">{{ fase.nombre }}</option>
+            </select>
+            <select [(ngModel)]="partidoForm.grupoId" class="admin-input">
+              <option [ngValue]="null">Sin grupo (eliminatoria)</option>
+              <option *ngFor="let grupo of grupos" [ngValue]="grupo.id">{{ grupo.nombre }}</option>
+            </select>
+          </div>
+
+          <div class="vs-row">
+            <select [(ngModel)]="partidoForm.equipoLocalId" class="admin-input">
+              <option [ngValue]="null">Equipo local</option>
+              <option *ngFor="let equipo of getEquiposDeGrupoSeleccionado()" [ngValue]="equipo.id">
+                {{ equipo.codigoFifa }} — {{ equipo.nombre }}
+              </option>
+            </select>
+            <span class="vs-label">VS</span>
+            <select [(ngModel)]="partidoForm.equipoVisitanteId" class="admin-input">
+              <option [ngValue]="null">Equipo visitante</option>
+              <option *ngFor="let equipo of getEquiposDeGrupoSeleccionado()" [ngValue]="equipo.id">
+                {{ equipo.codigoFifa }} — {{ equipo.nombre }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-inline">
+            <input type="text" [(ngModel)]="partidoForm.descripcionLocal" placeholder="Descripción local (opcional)" class="admin-input" />
+            <input type="text" [(ngModel)]="partidoForm.descripcionVisitante" placeholder="Descripción visitante (opcional)" class="admin-input" />
+          </div>
+
+          <div class="form-inline">
+            <input type="datetime-local" [(ngModel)]="partidoForm.fechaHora" class="admin-input" />
+            <select [(ngModel)]="partidoForm.estadioId" class="admin-input">
+              <option [ngValue]="null">Selecciona estadio</option>
+              <option *ngFor="let estadio of estadiosDisponibles" [ngValue]="estadio.id">{{ estadio.nombre }}</option>
+            </select>
+          </div>
+
+          <div class="form-inline">
+            <button type="button" class="btn-primary" (click)="savePartido()">
+              {{ partidoEditId ? 'Actualizar partido' : 'Guardar partido' }}
+            </button>
+            <button type="button" class="btn-secondary" (click)="resetPartidoForm()">Limpiar</button>
+          </div>
+        </div>
+
+        <div *ngIf="isLoadingPartidos" class="info-box">Cargando partidos...</div>
+        <div *ngIf="!isLoadingPartidos && partidos.length === 0" class="info-box">No hay partidos registrados.</div>
+
+        <div class="partidos-list" *ngIf="!isLoadingPartidos && partidos.length > 0">
+          <div class="partido-card" *ngFor="let partido of partidos">
+            <div class="partido-card-meta">
+              <span class="partido-fase-badge">{{ partido.fase?.nombre || 'N/D' }}</span>
+              <span *ngIf="partido.grupoNombre" class="partido-grupo-badge">{{ partido.grupoNombre }}</span>
+              <span class="partido-fecha">{{ getFechaPartido(partido.fechaHora) }}</span>
+              <span *ngIf="partido.finalizado" class="partido-fin-badge">Finalizado</span>
+            </div>
+            <div class="partido-card-body">
+              <div class="partido-team local">
+                <img *ngIf="partido.equipoLocal?.banderaUrl" [src]="partido.equipoLocal.banderaUrl" [alt]="partido.equipoLocal.codigoFifa" class="partido-flag" />
+                <span class="partido-team-name">{{ partido.equipoLocal?.nombre || partido.descripcionLocal || 'Pendiente' }}</span>
+              </div>
+              <span class="partido-vs">VS</span>
+              <div class="partido-team visitante">
+                <span class="partido-team-name">{{ partido.equipoVisitante?.nombre || partido.descripcionVisitante || 'Pendiente' }}</span>
+                <img *ngIf="partido.equipoVisitante?.banderaUrl" [src]="partido.equipoVisitante.banderaUrl" [alt]="partido.equipoVisitante.codigoFifa" class="partido-flag" />
+              </div>
+            </div>
+            <div class="partido-card-footer">
+              <span class="partido-estadio">🏟 {{ partido.estadio?.nombre || 'N/D' }}</span>
+              <div class="action-buttons">
+                <button type="button" class="btn-secondary btn-sm" (click)="editPartido(partido)">Editar</button>
+                <button type="button" class="btn-danger btn-sm" (click)="deletePartido(partido.id)">Eliminar</button>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- PARTIDOS -->
-      <section *ngIf="activeTab === 'partidos'" class="section-block">
-        <div class="form-inline">
-          <select [(ngModel)]="partidoForm.faseId" class="admin-input">
-            <option [ngValue]="null">Selecciona una fase</option>
-            <option *ngFor="let fase of fases" [ngValue]="fase.id">
-              {{ fase.nombre }}
-            </option>
-          </select>
+      <!-- ═══════════════════════════════════════════════════════
+           TAB: REGLAS DE CLASIFICACIÓN
+      ═══════════════════════════════════════════════════════ -->
+      <section *ngIf="activeTab === 'reglas'" class="section-block">
 
-          <select [(ngModel)]="partidoForm.grupoId" class="admin-input">
-            <option [ngValue]="null">Sin grupo</option>
-            <option *ngFor="let grupo of grupos" [ngValue]="grupo.id">
-              {{ grupo.nombre }}
-            </option>
-          </select>
+        <div class="info-banner">
+          <span class="info-banner-icon">ℹ️</span>
+          <div class="info-banner-text">
+            <strong>Reglas de referencia</strong>
+            <span>Esta sección es informativa y refleja el formato estándar del torneo. La configuración de reglas se administra desde el sistema backend.</span>
+          </div>
         </div>
 
-        <div class="form-inline">
-          <select [(ngModel)]="partidoForm.equipoLocalId" class="admin-input">
-            <option [ngValue]="null">Selecciona equipo local</option>
-            <option *ngFor="let equipo of getEquiposDeGrupoSeleccionado()" [ngValue]="equipo.id">
-              {{ equipo.codigoFifa }} — {{ equipo.nombre }}
-            </option>
-          </select>
-
-          <select [(ngModel)]="partidoForm.equipoVisitanteId" class="admin-input">
-            <option [ngValue]="null">Selecciona equipo visitante</option>
-            <option *ngFor="let equipo of getEquiposDeGrupoSeleccionado()" [ngValue]="equipo.id">
-              {{ equipo.codigoFifa }} — {{ equipo.nombre }}
-            </option>
-          </select>
-        </div>
-
-        <div class="form-inline">
-          <input
-            type="text"
-            [(ngModel)]="partidoForm.descripcionLocal"
-            placeholder="Descripción local opcional"
-            class="admin-input"
-          />
-
-          <input
-            type="text"
-            [(ngModel)]="partidoForm.descripcionVisitante"
-            placeholder="Descripción visitante opcional"
-            class="admin-input"
-          />
-        </div>
-
-        <div class="form-inline">
-          <input
-            type="datetime-local"
-            [(ngModel)]="partidoForm.fechaHora"
-            class="admin-input"
-          />
-
-          <select [(ngModel)]="partidoForm.estadioId" class="admin-input">
-            <option [ngValue]="null">Selecciona un estadio</option>
-            <option *ngFor="let estadio of estadiosDisponibles" [ngValue]="estadio.id">
-              {{ estadio.nombre }}
-            </option>
-          </select>
-        </div>
-
-        <div class="form-inline">
-          <button type="button" class="btn-primary" (click)="savePartido()">
-            {{ partidoEditId ? 'Actualizar partido' : 'Guardar partido' }}
-          </button>
-
-          <button type="button" class="btn-secondary" (click)="resetPartidoForm()">
-            Limpiar
-          </button>
-        </div>
-
-        <div *ngIf="isLoadingPartidos" class="info-box">
-          Cargando partidos...
-        </div>
-
-        <div *ngIf="!isLoadingPartidos && partidos.length === 0" class="info-box">
-          No hay partidos registrados.
-        </div>
-
-        <div class="list-wrapper" *ngIf="!isLoadingPartidos && partidos.length > 0">
-          <div class="list-item" *ngFor="let partido of partidos">
-            <div class="grupo-content">
-              <strong>
-                {{ partido.equipoLocal?.nombre || partido.descripcionLocal || 'Pendiente' }}
-                vs
-                {{ partido.equipoVisitante?.nombre || partido.descripcionVisitante || 'Pendiente' }}
-              </strong>
-
-              <div class="muted">Fase: {{ partido.fase?.nombre || 'N/D' }}</div>
-              <div class="muted">Grupo: {{ partido.grupoNombre || 'Sin grupo' }}</div>
-              <div class="muted">Fecha: {{ getFechaPartido(partido.fechaHora) }}</div>
-              <div class="muted">Estadio: {{ partido.estadio?.nombre || 'N/D' }}</div>
-              <div class="muted">Finalizado: {{ partido.finalizado ? 'Sí' : 'No' }}</div>
+        <!-- Formato visual del torneo -->
+        <div class="rule-card">
+          <div class="rule-card-header">📊 Formato del Torneo</div>
+          <div class="rule-card-body">
+            <div class="bracket-flow">
+              <div class="bracket-step step-groups">
+                <div class="bracket-step-icon">👥</div>
+                <div class="bracket-step-count">{{ grupos.length || 12 }}</div>
+                <div class="bracket-step-label">Grupos</div>
+                <div class="bracket-step-teams">{{ (grupos.length || 12) * 4 }} equipos</div>
+              </div>
+              <div class="bracket-arrow">›</div>
+              <div class="bracket-step step-r32">
+                <div class="bracket-step-icon">⚡</div>
+                <div class="bracket-step-count">32</div>
+                <div class="bracket-step-label">Dieciseisavos</div>
+                <div class="bracket-step-teams">16 partidos</div>
+              </div>
+              <div class="bracket-arrow">›</div>
+              <div class="bracket-step step-r16">
+                <div class="bracket-step-icon">⚡</div>
+                <div class="bracket-step-count">16</div>
+                <div class="bracket-step-label">Octavos</div>
+                <div class="bracket-step-teams">8 partidos</div>
+              </div>
+              <div class="bracket-arrow">›</div>
+              <div class="bracket-step step-qf">
+                <div class="bracket-step-icon">🔥</div>
+                <div class="bracket-step-count">8</div>
+                <div class="bracket-step-label">Cuartos</div>
+                <div class="bracket-step-teams">4 partidos</div>
+              </div>
+              <div class="bracket-arrow">›</div>
+              <div class="bracket-step step-sf">
+                <div class="bracket-step-icon">🔥</div>
+                <div class="bracket-step-count">4</div>
+                <div class="bracket-step-label">Semifinales</div>
+                <div class="bracket-step-teams">2 partidos</div>
+              </div>
+              <div class="bracket-arrow">›</div>
+              <div class="bracket-step step-final">
+                <div class="bracket-step-icon">🏆</div>
+                <div class="bracket-step-count">2</div>
+                <div class="bracket-step-label">Final</div>
+                <div class="bracket-step-teams">+ 3er lugar</div>
+              </div>
             </div>
-
-            <div class="action-buttons">
-              <button type="button" class="btn-secondary" (click)="editPartido(partido)">
-                Editar
-              </button>
-
-              <button type="button" class="btn-danger" (click)="deletePartido(partido.id)">
-                Eliminar
-              </button>
+            <div *ngIf="grupos.length > 0" class="bracket-summary">
+              Con <strong>{{ grupos.length }} grupos</strong> clasifican
+              <strong>{{ grupos.length * 2 }}</strong> equipos directos +
+              <strong>{{ grupos.length >= 8 ? 8 : grupos.length }}</strong> mejores terceros =
+              <strong>{{ grupos.length * 2 + (grupos.length >= 8 ? 8 : grupos.length) }}</strong> equipos a Dieciseisavos.
             </div>
           </div>
         </div>
+
+        <!-- Puntuación -->
+        <div class="rule-card">
+          <div class="rule-card-header">⚽ Sistema de Puntuación — Fase de Grupos</div>
+          <div class="rule-card-body">
+            <div class="points-row">
+              <div class="points-chip win">
+                <div class="points-num">3</div>
+                <div class="points-label">Victoria</div>
+              </div>
+              <div class="points-chip draw">
+                <div class="points-num">1</div>
+                <div class="points-label">Empate</div>
+              </div>
+              <div class="points-chip loss">
+                <div class="points-num">0</div>
+                <div class="points-label">Derrota</div>
+              </div>
+            </div>
+            <p class="rule-note">Cada equipo disputa <strong>3 partidos</strong> dentro de su grupo (todos contra todos — round-robin).</p>
+          </div>
+        </div>
+
+        <!-- Clasificación -->
+        <div class="rule-card">
+          <div class="rule-card-header">🏅 ¿Quiénes Clasifican a la Siguiente Ronda?</div>
+          <div class="rule-card-body">
+            <div class="qualify-grid">
+              <div class="qualify-slot slot-green">
+                <div class="qualify-pos-label">1° lugar</div>
+                <div class="qualify-verdict">Clasifica</div>
+                <div class="qualify-detail">Pasa directamente a Dieciseisavos de Final</div>
+              </div>
+              <div class="qualify-slot slot-green">
+                <div class="qualify-pos-label">2° lugar</div>
+                <div class="qualify-verdict">Clasifica</div>
+                <div class="qualify-detail">Pasa directamente a Dieciseisavos de Final</div>
+              </div>
+              <div class="qualify-slot slot-amber">
+                <div class="qualify-pos-label">3° lugar</div>
+                <div class="qualify-verdict">Posible</div>
+                <div class="qualify-detail">Los 8 mejores terceros de los {{ grupos.length || 12 }} grupos también avanzan</div>
+              </div>
+              <div class="qualify-slot slot-red">
+                <div class="qualify-pos-label">4° lugar</div>
+                <div class="qualify-verdict">Eliminado</div>
+                <div class="qualify-detail">Queda fuera del torneo sin más partidos</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Desempate -->
+        <div class="rule-card">
+          <div class="rule-card-header">⚖️ Criterios de Desempate (en orden de prioridad)</div>
+          <div class="rule-card-body">
+            <div class="tiebreak-list">
+              <div class="tiebreak-item">
+                <span class="tb-num">1</span>
+                <div class="tb-content">
+                  <strong>Mayor número de puntos</strong>
+                  <span class="muted">Puntos acumulados en todos los partidos del grupo</span>
+                </div>
+              </div>
+              <div class="tiebreak-item">
+                <span class="tb-num">2</span>
+                <div class="tb-content">
+                  <strong>Diferencia de goles</strong>
+                  <span class="muted">Goles a favor menos goles en contra en la fase de grupos</span>
+                </div>
+              </div>
+              <div class="tiebreak-item">
+                <span class="tb-num">3</span>
+                <div class="tb-content">
+                  <strong>Mayor número de goles a favor</strong>
+                  <span class="muted">Total de goles marcados en los 3 partidos del grupo</span>
+                </div>
+              </div>
+              <div class="tiebreak-item">
+                <span class="tb-num">4</span>
+                <div class="tb-content">
+                  <strong>Resultado directo entre los equipos empatados</strong>
+                  <span class="muted">Solo se evalúan los partidos entre los equipos con igual puntuación</span>
+                </div>
+              </div>
+              <div class="tiebreak-item">
+                <span class="tb-num">5</span>
+                <div class="tb-content">
+                  <strong>Sorteo oficial</strong>
+                  <span class="muted">Si persiste el empate tras todos los criterios anteriores</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mejores Terceros -->
+        <div class="rule-card">
+          <div class="rule-card-header">🥉 Ranking de los Mejores Terceros</div>
+          <div class="rule-card-body">
+            <p class="rule-note" style="margin-bottom:12px">
+              Los equipos que queden en <strong>3° lugar</strong> de cada grupo compiten entre sí por un lugar en Dieciseisavos.
+              Se toma a los <strong>8 mejores</strong> de los {{ grupos.length || 12 }} grupos.
+            </p>
+            <div class="tiebreak-list">
+              <div class="tiebreak-item">
+                <span class="tb-num">1</span>
+                <div class="tb-content">
+                  <strong>Mayor número de puntos</strong>
+                  <span class="muted">Entre todos los terceros de los diferentes grupos</span>
+                </div>
+              </div>
+              <div class="tiebreak-item">
+                <span class="tb-num">2</span>
+                <div class="tb-content">
+                  <strong>Diferencia de goles</strong>
+                  <span class="muted">En la fase de grupos</span>
+                </div>
+              </div>
+              <div class="tiebreak-item">
+                <span class="tb-num">3</span>
+                <div class="tb-content">
+                  <strong>Goles a favor</strong>
+                  <span class="muted">En la fase de grupos</span>
+                </div>
+              </div>
+              <div class="tiebreak-item">
+                <span class="tb-num">4</span>
+                <div class="tb-content">
+                  <strong>Sorteo</strong>
+                  <span class="muted">Si persiste el empate entre terceros de distintos grupos</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Eliminatorias -->
+        <div class="rule-card">
+          <div class="rule-card-header">⚡ Reglas de la Fase Eliminatoria</div>
+          <div class="rule-card-body">
+            <div class="elim-rules">
+              <div class="elim-rule-row">
+                <div class="elim-rule-label">Dieciseisavos a Cuartos</div>
+                <div class="elim-rule-detail">Si empate al 90': <strong>tanda de penales directamente</strong> (sin prórroga)</div>
+              </div>
+              <div class="elim-rule-row">
+                <div class="elim-rule-label">Semifinales</div>
+                <div class="elim-rule-detail">Si empate al 90': <strong>tanda de penales directamente</strong> (sin prórroga)</div>
+              </div>
+              <div class="elim-rule-row">
+                <div class="elim-rule-label">Partido de 3er Lugar</div>
+                <div class="elim-rule-detail">Los dos perdedores de semis disputan el <strong>bronce</strong>. Si empate: penales.</div>
+              </div>
+              <div class="elim-rule-row">
+                <div class="elim-rule-label">La Gran Final</div>
+                <div class="elim-rule-detail">Si empate al 90': <strong>prórroga de 2 × 15 min</strong>. Si persiste: tanda de penales.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </section>
     </div>
   </div>

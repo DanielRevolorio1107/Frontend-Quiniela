@@ -1,82 +1,32 @@
-.admin-page {
-  padding: 24px;
-  max-width: 1100px;
-  margin: 0 auto;
-}
+/* Admin Reportes — Quiniela 2026 */
+.admin-page { padding: 20px; max-width: 1100px; margin: 0 auto; background: var(--p-bg, #f4f9ff); min-height: 100vh; }
+.admin-card { background: white; border: 2px solid var(--p-blue, #00b7ff); border-radius: var(--radius-lg, 12px); overflow: hidden; box-shadow: var(--shadow-card); }
+.top-bar { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; background: var(--p-blue-tbl, #e8f7ff); border-bottom: 1px solid var(--p-blue-bdr, #ccefff); gap: 10px; }
+.top-bar h1 { margin: 0; font-size: 18px; color: var(--p-blue-900); font-weight: 700; }
 
-.admin-card {
-  background: #fff;
-  border: 1px solid #e5e5e5;
-  border-radius: 8px;
-  padding: 24px;
-}
+.card-body { padding: 16px 20px; }
 
-.top-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-  gap: 16px;
-}
+.section { margin-bottom: 28px; }
+.section h2 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--p-blue-900); margin: 0 0 14px; }
 
-.top-bar h1 {
-  margin: 0;
-  font-size: 20px;
-}
-
-.section {
-  margin-bottom: 32px;
-}
-
-.section h2 {
-  font-size: 15px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  color: #6b7280;
-  margin: 0 0 16px;
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-@media (max-width: 700px) {
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 14px; }
 
 .stat-card {
-  background: #fafafa;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
+  background: var(--p-blue-light);
+  border: 1px solid var(--p-blue-bdr, #ccefff);
+  border-radius: var(--radius, 8px);
   padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
-
-.stat-label {
-  font-size: 12px;
-  color: #6b7280;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
-
-.stat-value {
-  font-size: 28px;
-  font-weight: 600;
-  color: #1f2937;
-}
+.stat-label { font-size: 12px; color: var(--p-text-muted, #888); text-transform: uppercase; letter-spacing: 0.3px; }
+.stat-value { font-size: 28px; font-weight: 700; color: var(--p-text, #333); }
 
 .total-recaudado {
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  border-radius: 8px;
+  background: var(--p-blue-tbl, #e8f7ff);
+  border: 1px solid var(--p-blue, #00b7ff);
+  border-radius: var(--radius, 8px);
   padding: 16px 20px;
   display: flex;
   justify-content: space-between;
@@ -84,101 +34,64 @@
   flex-wrap: wrap;
   gap: 8px;
 }
+.total-label  { font-size: 14px; color: var(--p-blue-900); font-weight: 600; }
+.total-amount { font-size: 24px; font-weight: 700; color: var(--p-blue-900); }
 
-.total-label {
-  font-size: 14px;
-  color: #1e40af;
-  font-weight: 500;
-}
-
-.total-amount {
-  font-size: 24px;
-  font-weight: 700;
-  color: #1e40af;
-}
-
-.download-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-@media (max-width: 600px) {
-  .download-grid {
-    grid-template-columns: 1fr;
-  }
-}
+.download-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
 .download-card {
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
+  border: 1px solid var(--p-blue-bdr, #ccefff);
+  border-radius: var(--radius, 8px);
   padding: 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
   flex-wrap: wrap;
+  background: white;
 }
-
-.download-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.download-info strong {
-  font-size: 15px;
-  color: #1f2937;
-}
-
-.download-info span {
-  font-size: 13px;
-  color: #6b7280;
-}
+.download-info { display: flex; flex-direction: column; gap: 4px; }
+.download-info strong { font-size: 14px; color: var(--p-text, #333); }
+.download-info span  { font-size: 13px; color: var(--p-text-muted, #888); }
 
 .btn-download {
-  background: #1f2937;
-  color: #fff;
+  background: var(--p-blue, #00b7ff);
+  color: white;
   padding: 9px 16px;
   border: none;
-  border-radius: 6px;
-  font-size: 14px;
+  border-radius: var(--radius, 8px);
+  font-size: 13px;
+  font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
+  transition: background 0.15s;
 }
+.btn-download:hover:not(:disabled) { background: var(--p-blue-dark, #0099dd); }
+.btn-download:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.btn-download:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.message {
-  padding: 10px 14px;
-  border-radius: 6px;
-  margin-bottom: 16px;
-  font-size: 14px;
-}
-
-.error-box {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.info-box {
-  padding: 16px;
-  background: #f5f5f5;
-  border-radius: 6px;
-  text-align: center;
-  color: #6b7280;
-}
+.message { padding: 10px 14px; border-radius: var(--radius, 8px); margin-bottom: 14px; font-size: 14px; }
+.error-box { background: var(--p-error-bg); color: var(--p-error-cl); }
+.info-box { padding: 16px; background: var(--p-blue-light); border-radius: var(--radius, 8px); text-align: center; color: var(--p-blue-900); }
 
 .btn-secondary {
-  background: #fff;
-  color: #374151;
-  padding: 8px 14px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 14px;
-  cursor: pointer;
+  background: white; color: var(--p-blue-900); padding: 8px 14px;
+  border: 1px solid var(--p-blue-bdr, #ccefff); border-radius: var(--radius, 8px);
+  font-size: 13px; font-weight: 700; cursor: pointer; transition: background 0.15s;
+}
+.btn-secondary:hover { background: var(--p-blue-light); }
+
+@media (max-width: 767px) {
+  .admin-page    { padding: 12px 8px; }
+  .stats-grid    { grid-template-columns: repeat(2, 1fr); }
+  .download-grid { grid-template-columns: 1fr; }
+  .top-bar       { flex-direction: column; align-items: flex-start; }
+  .top-bar h1    { font-size: 16px; }
+  .total-recaudado { flex-direction: column; gap: 4px; }
+}
+
+@media (max-width: 400px) {
+  .admin-page { padding: 10px 8px; }
+  .stats-grid { grid-template-columns: 1fr; }
+  .card-body  { padding: 12px 10px; }
 }

@@ -8,7 +8,18 @@
       </div>
     </div>
 
-    <div class="fase-tabs">
+    <!-- Selector de torneo -->
+    <div class="torneo-selector" *ngIf="!isLoadingTorneos && torneos.length > 1">
+      <label class="torneo-lbl">Torneo</label>
+      <select class="torneo-select" (change)="onTorneoChange(+$any($event.target).value)" [value]="selectedTorneoId || ''">
+        <option value="">-- Seleccionar torneo --</option>
+        <option *ngFor="let t of torneos" [value]="t.id">{{ t.nombre }}</option>
+      </select>
+    </div>
+    <div *ngIf="isLoadingTorneos" class="info-box">Cargando torneos...</div>
+    <div *ngIf="!isLoadingTorneos && !selectedTorneoId && torneos.length > 1" class="info-box">Selecciona un torneo para ver los partidos.</div>
+
+    <div class="fase-tabs" *ngIf="selectedTorneoId">
       <button *ngFor="let f of fases"
         class="fase-tab" [class.active]="faseActiva === f.id"
         (click)="cambiarFase(f.id)">

@@ -1,56 +1,91 @@
-<div class="league-page">
-  <div class="league-card">
-    <div class="league-header">
+<div class="page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-main">
       <div>
-        <h1>Mis ligas</h1>
-        <p>Aquí puedes ver y administrar las ligas en las que participas.</p>
+        <h1>🏅 Mis Ligas</h1>
+        <p>Las ligas en las que participas</p>
       </div>
-
-      <div class="actions">
-        <a routerLink="/ligas/crear" class="btn-primary">Crear liga</a>
-        <a routerLink="/ligas/buscar" class="btn-secondary">Buscar ligas</a>
-        <a routerLink="/partidos" class="btn-secondary">Partidos</a>
-        <a routerLink="/predicciones/mias" class="btn-secondary">Mis predicciones</a>
-        <a routerLink="/bracket" class="btn-secondary">Bracket</a>
-        <a *ngIf="isSystemAdmin" routerLink="/admin" class="btn-secondary">Admin</a>
-        <button type="button" class="btn-secondary" (click)="loadMisLigas()">Actualizar</button>
-        <button type="button" class="btn-secondary" (click)="goToProfile()">Mi perfil</button>
-        <button type="button" class="btn-danger" (click)="logout()">Cerrar sesión</button>
+      <div class="header-actions">
+        <a routerLink="/ligas/crear"  class="btn-primary">+ Crear liga</a>
+        <a routerLink="/ligas/buscar" class="btn-secondary">🔍 Buscar ligas</a>
+        <a routerLink="/ranking"      class="btn-secondary">🏆 Ranking</a>
+        <button type="button" class="btn-outline" (click)="loadData()" title="Actualizar">↻</button>
       </div>
     </div>
+  </div>
 
-    <div *ngIf="isLoading" class="info-box">
-      Cargando ligas...
+  <!-- Body -->
+  <div class="page-body">
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando ligas...</p>
     </div>
 
-    <div *ngIf="errorMessage" class="message error-box">
-      {{ errorMessage }}
+    <!-- Error -->
+    <div *ngIf="errorMessage" class="error-box">{{ errorMessage }}</div>
+
+    <!-- Empty state -->
+    <div *ngIf="!isLoading && !errorMessage && ligas.length === 0" class="empty-state">
+      <span class="empty-icon">🏆</span>
+      <p class="empty-title">Aún no tienes ligas</p>
+      <p class="empty-desc">Crea una liga o únete a una existente para comenzar a predecir.</p>
+      <div class="empty-actions">
+        <a routerLink="/ligas/crear"  class="btn-primary">+ Crear mi primera liga</a>
+        <a routerLink="/ligas/buscar" class="btn-secondary">🔍 Buscar ligas</a>
+      </div>
     </div>
 
-    <div *ngIf="!isLoading && !errorMessage && ligas.length === 0" class="info-box">
-      Aún no tienes ligas registradas.
-    </div>
+    <!-- Grid de ligas -->
+    <div class="ligas-grid" *ngIf="!isLoading && ligas.length > 0">
+      <div class="liga-card" *ngFor="let liga of ligas">
 
-    <div class="league-grid" *ngIf="!isLoading && !errorMessage && ligas.length > 0">
-      <div class="league-item" *ngFor="let liga of ligas">
-        <h2>{{ liga.nombre }}</h2>
-
-        <p class="league-type">
-          Tipo: <strong>{{ getTipoLiga(liga) }}</strong>
-        </p>
-
-        <p *ngIf="liga.precioPorUnirse !== null && liga.precioPorUnirse !== undefined">
-          Precio por unirse: <strong>{{ liga.precioPorUnirse }}</strong>
-        </p>
-
-        <p *ngIf="liga.torneoId">
-          Torneo ID: <strong>{{ liga.torneoId }}</strong>
-        </p>
-
-        <div class="card-actions">
-          <a [routerLink]="['/ligas', liga.id]" class="btn-link">Ver detalle</a>
+        <!-- Header de tarjeta -->
+        <div class="liga-card-top">
+          <div class="liga-icon">🏅</div>
+          <div class="liga-title-wrap">
+            <h2 class="liga-nombre">{{ liga.nombre }}</h2>
+            <div class="liga-badges">
+              <span class="badge" [class.badge-apuesta]="liga.esDeApuestas" [class.badge-diversion]="!liga.esDeApuestas">
+                {{ getTipoLabel(liga) }}
+              </span>
+              <span class="badge badge-precio" *ngIf="liga.esDeApuestas && liga.precioPorUnirse">
+                {{ getPrecioLabel(liga) }}
+              </span>
+            </div>
+          </div>
         </div>
+
+        <!-- Info -->
+        <div class="liga-info">
+          <div class="info-row">
+            <span class="info-lbl">Torneo</span>
+            <span class="info-val">{{ getTorneoNombre(liga.torneoId) }}</span>
+          </div>
+          <div class="info-row" *ngIf="liga.nombreEquipo">
+            <span class="info-lbl">Mi equipo</span>
+            <span class="info-val">{{ liga.nombreEquipo }}</span>
+          </div>
+        </div>
+
+        <!-- Acciones -->
+        <div class="liga-actions">
+          <a [routerLink]="['/ligas', liga.id]" class="btn-detail">
+            📊 Ver ranking y detalles
+          </a>
+          <button type="button" class="btn-predict" (click)="goToPredict(liga.torneoId)">
+            ⚽ Predecir partidos
+          </button>
+          <a routerLink="/predicciones/mias" class="btn-mispred">
+            📋 Mis predicciones
+          </a>
+        </div>
+
       </div>
     </div>
+
   </div>
 </div>

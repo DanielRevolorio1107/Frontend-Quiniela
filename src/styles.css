@@ -1,1 +1,164 @@
-/* You can add global styles to this file, and also import other style files */
+/* ===================================================
+   Quiniela Mundial 2026 — Design System
+   Paleta basada en el prototipo: azul cielo #00b7ff
+   =================================================== */
+
+:root {
+  --p-blue:       #00b7ff;
+  --p-blue-dark:  #0099dd;
+  --p-blue-light: #eaf6ff;
+  --p-blue-tbl:   #e8f7ff;
+  --p-blue-bdr:   #ccefff;
+  --p-bg:         #f4f9ff;
+  --p-surface:    #ffffff;
+  --p-border:     #00b7ff;
+  --p-text:       #333333;
+  --p-text-mid:   #555555;
+  --p-text-muted: #888888;
+
+  --p-green:      #2ecc71;
+  --p-green-dark: #27ae60;
+  --p-red:        #e74c3c;
+  --p-red-dark:   #c0392b;
+  --p-btn-blue:   #3498db;
+  --p-btn-blue-dk:#2980b9;
+  --p-gold:       #f39c12;
+
+  --p-blue-900:   #0056b3;   /* azul oscuro — títulos, links, estados activos */
+
+  --p-success-bg: #d4edda;
+  --p-success-cl: #155724;
+  --p-success-bdr:#c3e6cb;
+  --p-error-bg:   #f8d7da;
+  --p-error-cl:   #721c24;
+  --p-error-bdr:  #f5c6cb;
+
+  --sidebar-w:    220px;
+  --sidebar-wm:   200px;
+  --radius:       8px;
+  --radius-lg:    12px;
+  --shadow:       0 4px 12px rgba(0,183,255,0.12);
+  --shadow-card:  0 4px 6px rgba(0,0,0,0.05);
+}
+
+/* ===== Reset ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: var(--p-bg);
+  color: var(--p-text);
+  line-height: 1.5;
+}
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; }
+input, select, textarea { font-family: inherit; }
+
+/* ===== Layout shell (sidebar + main) ===== */
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.app-main {
+  flex: 1;
+  min-width: 0;
+  background: var(--p-bg);
+}
+
+/* ===== Card base ===== */
+.wc-card {
+  background: var(--p-surface);
+  border: 2px solid var(--p-blue);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-card);
+  margin-bottom: 20px;
+}
+
+/* ===== Tablas base ===== */
+.wc-table { width: 100%; border-collapse: collapse; background: white; }
+.wc-table th {
+  background: var(--p-blue-tbl);
+  color: #0056b3;
+  padding: 12px;
+  border: 1px solid var(--p-blue-bdr);
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+}
+.wc-table td {
+  padding: 11px 12px;
+  border: 1px solid var(--p-blue-bdr);
+  text-align: center;
+  font-size: 13px;
+  color: var(--p-text-mid);
+}
+.wc-table tbody tr:hover { background: #f0faff; }
+
+/* ===== Botones base ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 9px 18px;
+  border: none;
+  border-radius: var(--radius);
+  color: white;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.btn:active { transform: scale(0.97); }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-azul  { background: var(--p-btn-blue); }
+.btn-azul:hover  { background: var(--p-btn-blue-dk); }
+.btn-verde { background: var(--p-green); }
+.btn-verde:hover { background: var(--p-green-dark); }
+.btn-rojo  { background: var(--p-red); }
+.btn-rojo:hover  { background: var(--p-red-dark); }
+.btn-primary { background: var(--p-blue); }
+.btn-primary:hover { background: var(--p-blue-dark); }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-full { width: 100%; }
+
+/* ===== Inputs base ===== */
+.wc-input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  font-size: 14px;
+  background: white;
+  color: var(--p-text);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.wc-input:focus {
+  outline: none;
+  border-color: var(--p-blue);
+  box-shadow: 0 0 0 3px rgba(0,183,255,0.15);
+}
+
+/* ===== Mensajes ===== */
+.msg-error   { background: var(--p-error-bg); color: var(--p-error-cl); border: 1px solid var(--p-error-bdr); border-radius: var(--radius); padding: 12px 14px; font-size: 14px; margin-bottom: 14px; }
+.msg-success { background: var(--p-success-bg); color: var(--p-success-cl); border: 1px solid var(--p-success-bdr); border-radius: var(--radius); padding: 12px 14px; font-size: 14px; margin-bottom: 14px; }
+.msg-info    { background: var(--p-blue-light); color: var(--p-blue-900); border: 1px solid var(--p-blue-bdr); border-radius: var(--radius); padding: 12px 14px; font-size: 14px; margin-bottom: 14px; }
+
+/* ===== Tabla scroll en móvil ===== */
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* ===== Page wrapper ===== */
+.page-wrap { padding: 20px; max-width: 1200px; }
+
+/* ===== Responsive ===== */
+@media (max-width: 767px) {
+  .page-wrap { padding: 12px 10px; }
+  .wc-card   { padding: 14px; }
+}

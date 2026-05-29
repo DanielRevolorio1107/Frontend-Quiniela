@@ -1,9 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-
+import { forkJoin } from 'rxjs';
 import { LeagueService } from '../../services/league.service';
-import { SessionService } from '../../../../core/services/session.service';
 
 @Component({
   selector: 'app-league-list',
@@ -14,67 +13,61 @@ import { SessionService } from '../../../../core/services/session.service';
 })
 export class LeagueListComponent implements OnInit {
   private leagueService = inject(LeagueService);
-  private sessionService = inject(SessionService);
   private router = inject(Router);
 
   ligas: any[] = [];
+  torneos: any[] = [];
   isLoading = true;
   errorMessage = '';
-  isSystemAdmin = false;
 
   ngOnInit(): void {
-    this.isSystemAdmin = localStorage.getItem('role') === 'Administrador';
-    this.loadMisLigas();
+    this.loadData();
   }
 
-  loadMisLigas(): void {
+  loadData(): void {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.leagueService.getMisLigas(1, 10).subscribe({
-      next: (response: any) => {
-        this.ligas = this.extractLigas(response);
+    forkJoin({
+      ligas:   this.leagueService.getMisLigas(1, 50),
+      torneos: this.leagueService.getTorneosSelect()
+    }).subscribe({
+      next: ({ ligas, torneos }) => {
+        this.ligas   = this.toArray(ligas);
+        this.torneos = Array.isArray(torneos) ? torneos : [];
         this.isLoading = false;
       },
       error: (error) => {
         this.isLoading = false;
-
-        if (error.status === 0) {
-          this.errorMessage = 'No se pudo conectar con el servidor.';
-          return;
-        }
-
-        this.errorMessage = error?.error?.error || 'No se pudieron cargar tus ligas.';
+        this.errorMessage = error?.status === 0
+          ? 'No se pudo conectar con el servidor.'
+          : (error?.error?.error || 'No se pudieron cargar tus ligas.');
       }
     });
   }
 
-  goToProfile(): void {
-    this.router.navigate(['/profile']);
+  getTorneoNombre(torneoId: number): string {
+    const t = this.torneos.find(t => t.id === torneoId);
+    return t?.nombre || `Torneo #${torneoId}`;
   }
 
-  logout(): void {
-    this.sessionService.clearSession();
-    this.router.navigate(['/login']);
+  getTipoLabel(liga: any): string {
+    return liga.esDeApuestas ? '💰 Apuestas' : '🎮 Diversión';
   }
 
-  private extractLigas(response: any): any[] {
-    if (Array.isArray(response)) {
-      return response;
-    }
+  getPrecioLabel(liga: any): string {
+    if (!liga.esDeApuestas || !liga.precioPorUnirse) return '';
+    return `Q ${Number(liga.precioPorUnirse).toFixed(2)} por miembro`;
+  }
 
-    if (Array.isArray(response?.items)) {
-      return response.items;
-    }
+  goToPredict(torneoId: number): void {
+    this.router.navigate(['/partidos'], { queryParams: { torneo: torneoId } });
+  }
 
-    if (Array.isArray(response?.data)) {
-      return response.data;
-    }
-
+  private toArray(response: any): any[] {
+    if (Array.isArray(response)) return response;
+    if (Array.isArray(response?.items)) return response.items;
+    if (Array.isArray(response?.data)) return response.data;
     return [];
-  }
-
-  getTipoLiga(liga: any): string {
-    return liga?.esDeApuestas ? 'Apuestas' : 'Diversión';
   }
 }
