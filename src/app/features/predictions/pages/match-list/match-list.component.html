@@ -1,56 +1,118 @@
-<div class="pred-page">
-  <div class="pred-card">
-    <div class="pred-header">
+<div class="page">
+
+  <!-- Header fijo -->
+  <div class="page-header">
+    <div class="header-main">
       <div>
-        <h1>Partidos pendientes</h1>
-        <p>Aquí puedes consultar los partidos disponibles para registrar predicciones.</p>
+        <h1>⚽ Partidos del torneo</h1>
+        <p>Predice el marcador de cada partido antes de que comience</p>
+      </div>
+      <div class="header-actions">
+        <span *ngIf="isLive" class="live-badge">● En vivo</span>
+        <a routerLink="/predicciones/mias" class="btn-secondary">📋 Mis predicciones</a>
+      </div>
+    </div>
+
+    <div class="torneo-bar">
+      <div *ngIf="isLoadingTorneos" class="loading-inline">Cargando torneos...</div>
+      <ng-container *ngIf="!isLoadingTorneos">
+        <label class="torneo-label">Torneo</label>
+        <select class="select-torneo" (change)="onTorneoChange($event)" [value]="selectedTorneoId || ''">
+          <option value="">-- Seleccionar torneo --</option>
+          <option *ngFor="let t of torneos" [value]="t.id">{{ t.nombre }}</option>
+        </select>
+      </ng-container>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="page-body">
+
+    <div *ngIf="errorMessage" class="error-box">{{ errorMessage }}</div>
+
+    <div *ngIf="isLoadingPartidos" class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando partidos...</p>
+    </div>
+
+    <div *ngIf="!isLoadingPartidos && !isLoadingTorneos && !selectedTorneoId && torneos.length > 1" class="empty-state">
+      <span class="empty-icon">⚽</span>
+      <p>Selecciona un torneo para ver los partidos</p>
+    </div>
+
+    <div *ngIf="!isLoadingPartidos && selectedTorneoId && partidosByFase.length === 0 && !errorMessage" class="empty-state">
+      <span class="empty-icon">📅</span>
+      <p>No hay partidos registrados en este torneo</p>
+    </div>
+
+    <!-- Fases y partidos -->
+    <div *ngFor="let fase of partidosByFase" class="fase-section">
+
+      <div class="fase-header">
+        <span class="fase-emoji">{{ fase.emoji }}</span>
+        <h2>{{ fase.nombre }}</h2>
+        <span class="fase-count">{{ fase.partidos.length }} partidos</span>
       </div>
 
-      <div class="top-actions">
-        <a routerLink="/predicciones/mias" class="btn-secondary">Mis predicciones</a>
+      <div class="matches-grid">
+        <div class="match-card" *ngFor="let p of fase.partidos"
+             [class.match-finalizado]="getStatus(p)==='finalizado'"
+             [class.match-en-curso]="getStatus(p)==='en-curso'">
+
+          <!-- Equipos y marcador -->
+          <div class="match-teams">
+
+            <div class="team">
+              <img *ngIf="localFlag(p)" [src]="localFlag(p)" [alt]="localNombre(p)" class="flag-img" loading="lazy">
+              <span *ngIf="!localFlag(p)" class="flag-placeholder">🏳️</span>
+              <span class="team-name">{{ localNombre(p) }}</span>
+              <span class="team-code" *ngIf="localCode(p)">{{ localCode(p) }}</span>
+            </div>
+
+            <div class="match-center">
+              <div class="score" [class.score-live]="getStatus(p)==='en-curso'">
+                {{ getScore(p) }}
+              </div>
+              <span class="status-badge" [ngClass]="'badge-'+getStatus(p)">
+                {{ getStatus(p) === 'finalizado' ? 'Finalizado' : getStatus(p) === 'en-curso' ? '🔴 En vivo' : 'Pendiente' }}
+              </span>
+            </div>
+
+            <div class="team">
+              <img *ngIf="visitanteFlag(p)" [src]="visitanteFlag(p)" [alt]="visitanteNombre(p)" class="flag-img" loading="lazy">
+              <span *ngIf="!visitanteFlag(p)" class="flag-placeholder">🏳️</span>
+              <span class="team-name">{{ visitanteNombre(p) }}</span>
+              <span class="team-code" *ngIf="visitanteCode(p)">{{ visitanteCode(p) }}</span>
+            </div>
+
+          </div>
+
+          <!-- Info del partido -->
+          <div class="match-info">
+            <span class="info-item">📅 {{ formatDate(p.fechaHora) }}</span>
+            <span class="info-item" *ngIf="p.estadio?.nombre">🏟️ {{ p.estadio.nombre }}, {{ p.estadio.ciudad }}</span>
+            <span class="info-item" *ngIf="p.grupoNombre">{{ p.grupoNombre }}</span>
+          </div>
+
+          <!-- Acción -->
+          <div class="match-action">
+            <a *ngIf="canPredict(p)" [routerLink]="['/predicciones/nueva', p.id]" class="btn-predecir">
+              ⚽ Predecir marcador
+            </a>
+            <span *ngIf="!canPredict(p) && getStatus(p)==='pendiente'" class="pred-note pred-closed">
+              🔒 Predicción cerrada
+            </span>
+            <span *ngIf="getStatus(p)==='finalizado'" class="pred-note pred-done">
+              ✔ Partido finalizado
+            </span>
+            <span *ngIf="getStatus(p)==='en-curso'" class="pred-note pred-live">
+              🔴 Partido en curso
+            </span>
+          </div>
+
+        </div>
       </div>
     </div>
 
-    <form [formGroup]="filtroForm" (ngSubmit)="buscarPartidos()" class="filter-form" novalidate>
-      <div class="form-group">
-        <label for="torneoId">Torneo ID</label>
-        <input
-          id="torneoId"
-          type="number"
-          formControlName="torneoId"
-          class="pred-input"
-          min="1"
-        />
-
-        <small class="error-text" *ngIf="torneoId.touched && torneoId.hasError('required')">
-          El torneo es obligatorio.
-        </small>
-      </div>
-
-      <button type="submit" class="btn-primary" [disabled]="isLoading">
-        {{ isLoading ? 'Cargando...' : 'Buscar partidos' }}
-      </button>
-    </form>
-
-    <div *ngIf="errorMessage" class="message error-box">
-      {{ errorMessage }}
-    </div>
-
-    <div *ngIf="!isLoading && partidos.length === 0" class="info-box">
-      No hay partidos cargados todavía. Haz una búsqueda por torneo.
-    </div>
-
-    <div class="match-grid" *ngIf="!isLoading && partidos.length > 0">
-      <div class="match-item" *ngFor="let partido of partidos">
-        <h2>{{ getEquipoLocal(partido) }} vs {{ getEquipoVisitante(partido) }}</h2>
-
-        <p><strong>Fecha:</strong> {{ getFecha(partido) }}</p>
-        <p><strong>Estado:</strong> {{ getEstado(partido) }}</p>
-
-        <a [routerLink]="['/predicciones/nueva', partido.id]" class="btn-link">
-          Predecir partido
-        </a>
-      </div>
-    </div>
   </div>
 </div>

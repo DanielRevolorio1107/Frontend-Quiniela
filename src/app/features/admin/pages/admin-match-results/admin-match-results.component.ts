@@ -14,10 +14,12 @@ import { PartidoAdminService } from '../../services/partido-admin.service';
 export class AdminMatchResultsComponent implements OnInit {
   private partidoService = inject(PartidoAdminService);
 
-  readonly TORNEO_ID = 1;
+  torneos: any[] = [];
+  selectedTorneoId: number | null = null;
+  isLoadingTorneos = true;
 
   partidos: any[] = [];
-  isLoading = true;
+  isLoading = false;
   errorMessage = '';
   successMessage = '';
   faseActiva = 1;
@@ -48,14 +50,39 @@ export class AdminMatchResultsComponent implements OnInit {
   partidoTerceroId: number | null = null;
   esTerceroLocal = false;
 
-  ngOnInit(): void { this.loadPartidos(); }
+  ngOnInit(): void { this.loadTorneos(); }
+
+  loadTorneos(): void {
+    this.isLoadingTorneos = true;
+    this.partidoService.getTorneosSelect().subscribe({
+      next: (ts: any[]) => {
+        this.torneos = ts || [];
+        this.isLoadingTorneos = false;
+        if (this.torneos.length === 1) {
+          this.selectedTorneoId = this.torneos[0].id;
+          this.loadPartidos();
+        }
+      },
+      error: () => { this.isLoadingTorneos = false; }
+    });
+  }
+
+  onTorneoChange(id: number): void {
+    this.selectedTorneoId = id || null;
+    this.partidos = [];
+    this.marcadores = {};
+    this.errorMessage = '';
+    this.successMessage = '';
+    if (this.selectedTorneoId) this.loadPartidos();
+  }
 
   loadPartidos(): void {
+    if (!this.selectedTorneoId) return;
     this.isLoading = true;
     this.errorMessage = '';
     this.successMessage = '';
 
-    this.partidoService.getByTorneo(this.TORNEO_ID).subscribe({
+    this.partidoService.getByTorneo(this.selectedTorneoId!).subscribe({
       next: (res: any) => {
         this.partidos = this.toArray(res).sort((a, b) => a.id - b.id);
         for (const p of this.partidos) {
@@ -176,7 +203,7 @@ export class AdminMatchResultsComponent implements OnInit {
     this.isLoadingTerceros = true;
     this.showTercerosModal = true;
 
-    this.partidoService.getMejoresTerceros(this.TORNEO_ID).subscribe({
+    this.partidoService.getMejoresTerceros(this.selectedTorneoId!).subscribe({
       next: (res: any) => {
         this.terceros = this.toArray(res);
         this.isLoadingTerceros = false;

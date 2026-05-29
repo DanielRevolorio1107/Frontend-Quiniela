@@ -157,6 +157,11 @@ export class PartidoFormComponent implements OnInit {
     }
   }
 
+  getEquipoById(id: number | null | undefined): any {
+    if (!id) return null;
+    return this.equipos.find(e => e.id === Number(id)) ?? null;
+  }
+
   get localEsTercero(): boolean {
     const desc = this.form.value.descripcionLocal;
     return !!(desc?.includes('3º') || desc?.includes('3°'));

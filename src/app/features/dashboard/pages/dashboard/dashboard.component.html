@@ -1,10 +1,52 @@
 <div class="dashboard-page">
 
-    
+    <!-- Selector de torneo (solo si hay más de uno) -->
+    <div class="torneo-bar" *ngIf="!isLoadingTorneos && torneos.length > 1">
+        <label class="torneo-lbl">Torneo</label>
+        <select class="torneo-sel" (change)="onTorneoChange(+$any($event.target).value)" [value]="torneoId">
+            <option *ngFor="let t of torneos" [value]="t.id">{{ t.nombre }}</option>
+        </select>
+    </div>
 
+    <!-- Rankings móvil (solo se muestran en <768px) -->
+    <div class="ranking-mobile-row">
+
+        <!-- Top 10 Jugadores -->
+        <div class="ranking-mobile-card">
+            <div class="ranking-header">🥇 Top 10 Jugadores</div>
+            <div class="ranking-empty" *ngIf="isLoadingRanking">Cargando...</div>
+            <div class="ranking-empty" *ngIf="!isLoadingRanking && topUsuarios.length === 0">Sin datos aún</div>
+            <div class="ranking-row" *ngFor="let u of topUsuarios">
+                <span class="ranking-pos" [class.gold]="u.posicion===1" [class.silver]="u.posicion===2" [class.bronze]="u.posicion===3">{{ u.posicion }}</span>
+                <div class="ranking-info-row">
+                    <span class="ranking-name">{{ u.fullName }}</span>
+                    <span class="ranking-liga-tag">{{ u.nombreLiga || '—' }}</span>
+                </div>
+                <span class="ranking-pts">{{ u.totalPuntos }}<small> pts</small></span>
+            </div>
+        </div>
+
+        <!-- Top 10 Ligas -->
+        <div class="ranking-mobile-card">
+            <div class="ranking-header">🏆 Top 10 Ligas</div>
+            <div class="ranking-empty" *ngIf="isLoadingRanking">Cargando...</div>
+            <div class="ranking-empty" *ngIf="!isLoadingRanking && topLigas.length === 0">Sin datos aún</div>
+            <div class="ranking-row" *ngFor="let l of topLigas">
+                <span class="ranking-pos" [class.gold]="l.posicion===1" [class.silver]="l.posicion===2" [class.bronze]="l.posicion===3">{{ l.posicion }}</span>
+                <div class="ranking-info-row">
+                    <span class="ranking-name">{{ l.nombreLiga }}</span>
+                    <span class="ranking-liga-tag">{{ l.totalMiembros }} miembros</span>
+                </div>
+                <span class="ranking-pts">{{ l.promedioPuntos | number:'1.0-1' }}<small> pts</small></span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Layout principal -->
     <div class="dashboard-main">
 
-        <!-- TOP 10 JUGADORES -->
+        <!-- TOP 10 JUGADORES (desktop/tablet) -->
         <aside class="ranking-side">
             <div class="ranking-card">
                 <div class="ranking-header">🥇 Top 10 Jugadores</div>
@@ -23,6 +65,8 @@
 
         <!-- BRACKET -->
         <div class="bracket-scroll">
+            <p class="bracket-scroll-hint">← Desliza para ver el bracket completo →</p>
+
             <div *ngIf="isLoading" class="loading-state">Cargando torneo...</div>
             <div *ngIf="errorMessage" class="error-state">{{ errorMessage }}</div>
 
@@ -57,7 +101,11 @@
                             <table class="group-table">
                                 <thead><tr><th>#</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>DG</th><th>Pts</th></tr></thead>
                                 <tbody>
-                                    <tr *ngFor="let row of g.clasificacion; let i = index" [class.classified]="i < 2">
+                                    <tr *ngFor="let row of g.clasificacion; let i = index"
+                                        [class.pos-1]="i === 0"
+                                        [class.pos-2]="i === 1"
+                                        [class.pos-3]="i === 2"
+                                        [class.mejor-tercero]="i === 2 && mejoresTercerosSet.has(row.equipo?.id ?? 0)">
                                         <td>{{ i + 1 }}</td>
                                         <td class="team-cell"><img [src]="row.equipo.banderaUrl" [alt]="row.equipo.codigoFifa" class="flag-xs"><span>{{ row.equipo.codigoFifa }}</span></td>
                                         <td>{{ row.partidosJugados }}</td><td>{{ row.ganados }}</td><td>{{ row.empatados }}</td>
@@ -150,7 +198,11 @@
                             <table class="group-table">
                                 <thead><tr><th>#</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>DG</th><th>Pts</th></tr></thead>
                                 <tbody>
-                                    <tr *ngFor="let row of g.clasificacion; let i = index" [class.classified]="i < 2">
+                                    <tr *ngFor="let row of g.clasificacion; let i = index"
+                                        [class.pos-1]="i === 0"
+                                        [class.pos-2]="i === 1"
+                                        [class.pos-3]="i === 2"
+                                        [class.mejor-tercero]="i === 2 && mejoresTercerosSet.has(row.equipo?.id ?? 0)">
                                         <td>{{ i + 1 }}</td>
                                         <td class="team-cell"><img [src]="row.equipo.banderaUrl" [alt]="row.equipo.codigoFifa" class="flag-xs"><span>{{ row.equipo.codigoFifa }}</span></td>
                                         <td>{{ row.partidosJugados }}</td><td>{{ row.ganados }}</td><td>{{ row.empatados }}</td>
@@ -165,7 +217,7 @@
             </div>
         </div>
 
-        <!-- TOP 10 LIGAS -->
+        <!-- TOP 10 LIGAS (desktop/tablet) -->
         <aside class="ranking-side">
             <div class="ranking-card">
                 <div class="ranking-header">🏆 Top 10 Ligas</div>
@@ -184,9 +236,23 @@
 
     </div>
 
+    <!-- Mejores Terceros que Avanzan -->
+    <div class="terceros-section" *ngIf="mejoresTerceros.length > 0">
+        <div class="terceros-header">Mejores Terceros que Avanzan ({{ mejoresTerceros.length }}/8)</div>
+        <div class="terceros-chips">
+            <div class="tercero-chip" *ngFor="let t of mejoresTerceros; let i = index">
+                <span class="chip-pos">{{ i + 1 }}</span>
+                <img *ngIf="t.banderaUrl" [src]="t.banderaUrl" [alt]="t.equipoNombre" class="chip-flag">
+                <span class="chip-nombre">{{ t.equipoNombre }}</span>
+                <span class="chip-grupo">{{ t.grupoNombre }}</span>
+                <span class="chip-pts">{{ t.puntos }} pts</span>
+            </div>
+        </div>
+    </div>
+
     <ng-template #matchCard let-p="p">
         <div class="match-card" [class.finalizado]="p?.finalizado"
-            [class.in-progress]="p && !p.finalizado && p.equipoLocal && p.equipoVisitante">
+            [class.in-progress]="p && !p.finalizado && p.golesLocal !== null && p.golesLocal !== undefined">
 
             <div class="team-row" [class.winner]="isWinner(p, 'local')">
                 <ng-container *ngIf="p?.equipoLocal">
@@ -194,7 +260,7 @@
                     <span class="team-name">{{ p.equipoLocal.codigoFifa }}</span>
                 </ng-container>
                 <span *ngIf="!p?.equipoLocal" class="placeholder-text">{{ p?.descripcionLocal || '—' }}</span>
-                <span class="score" *ngIf="p?.finalizado">{{ p.golesLocal }}<small *ngIf="p.golesLocalPenales != null"> ({{ p.golesLocalPenales }})</small></span>
+                <span class="score" *ngIf="p?.golesLocal !== null && p?.golesLocal !== undefined">{{ p.golesLocal }}<small *ngIf="p.golesLocalPenales != null"> ({{ p.golesLocalPenales }})</small></span>
             </div>
 
             <div class="card-divider"></div>
@@ -205,7 +271,7 @@
                     <span class="team-name">{{ p.equipoVisitante.codigoFifa }}</span>
                 </ng-container>
                 <span *ngIf="!p?.equipoVisitante" class="placeholder-text">{{ p?.descripcionVisitante || '—' }}</span>
-                <span class="score" *ngIf="p?.finalizado">{{ p.golesVisitante }}<small *ngIf="p.golesVisitantePenales != null"> ({{ p.golesVisitantePenales }})</small></span>
+                <span class="score" *ngIf="p?.golesVisitante !== null && p?.golesVisitante !== undefined">{{ p.golesVisitante }}<small *ngIf="p.golesVisitantePenales != null"> ({{ p.golesVisitantePenales }})</small></span>
             </div>
 
         </div>

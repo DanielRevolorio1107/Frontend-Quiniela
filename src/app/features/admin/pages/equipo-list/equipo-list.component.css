@@ -1,23 +1,52 @@
-.admin-page { padding: 24px; max-width: 1100px; margin: 0 auto; }
-.admin-card { background: #fff; border: 1px solid #e5e5e5; border-radius: 10px; padding: 24px; }
-.top-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
-.top-bar h1 { margin: 0; font-size: 20px; color: #1f2937; flex: 1; }
-.btn-primary { background: #1f2937; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; }
-.btn-secondary { background: #fff; color: #374151; border: 1px solid #d1d5db; padding: 7px 14px; border-radius: 6px; font-size: 13px; text-decoration: none; }
-.msg { padding: 10px 14px; border-radius: 6px; font-size: 14px; margin-bottom: 16px; }
-.error-msg { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
-.success-msg { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
-.info-txt { color: #6b7280; font-size: 14px; text-align: center; padding: 20px; }
-.filters { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-.filter-input { padding: 7px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; min-width: 200px; }
-.admin-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-.admin-table th { padding: 10px 12px; text-align: left; background: #fafafa; color: #6b7280; font-weight: 600; border-bottom: 1px solid #e5e5e5; font-size: 12px; text-transform: uppercase; }
-.admin-table td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; color: #374151; vertical-align: middle; }
-.td-bold { font-weight: 600; color: #1f2937; }
+/* Admin Equipos — Quiniela 2026 */
+.admin-page { padding: 20px; background: var(--p-bg, #f4f9ff); min-height: 100vh; }
+.admin-card { background: white; border: 2px solid var(--p-blue, #00b7ff); border-radius: var(--radius-lg, 12px); overflow: hidden; box-shadow: var(--shadow-card); }
+.top-bar { display: flex; align-items: center; gap: 10px; padding: 14px 20px; background: var(--p-blue-tbl, #e8f7ff); border-bottom: 1px solid var(--p-blue-bdr, #ccefff); }
+.top-bar h1 { margin: 0; font-size: 18px; color: var(--p-blue-900); font-weight: 700; flex: 1; }
+
+.btn-primary   { background: var(--p-blue, #00b7ff); color: white; border: none; padding: 8px 16px; border-radius: var(--radius, 8px); cursor: pointer; font-size: 13px; font-weight: 700; transition: background 0.15s; }
+.btn-primary:hover { background: var(--p-blue-dark, #0099dd); }
+.btn-secondary { background: white; color: var(--p-blue-900); border: 1px solid var(--p-blue-bdr, #ccefff); padding: 7px 14px; border-radius: var(--radius, 8px); font-size: 13px; font-weight: 700; text-decoration: none; cursor: pointer; transition: background 0.15s; }
+.btn-secondary:hover { background: var(--p-blue-light); }
+
+.card-body { padding: 16px 20px; }
+
+.msg { padding: 10px 14px; border-radius: var(--radius, 8px); font-size: 14px; margin-bottom: 14px; }
+.error-msg   { background: var(--p-error-bg); color: var(--p-error-cl); border: 1px solid var(--p-error-bdr); }
+.success-msg { background: var(--p-success-bg); color: var(--p-success-cl); border: 1px solid var(--p-success-bdr); }
+.info-txt { color: var(--p-text-muted, #888); font-size: 14px; text-align: center; padding: 20px; }
+
+.filters { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.filter-input {
+  padding: 8px 11px;
+  border: 1px solid var(--p-blue-bdr, #ccefff);
+  border-radius: var(--radius, 8px);
+  font-size: 13px;
+  min-width: 200px;
+  background: white;
+  color: var(--p-text, #333);
+  transition: border-color 0.15s;
+}
+.filter-input:focus { outline: none; border-color: var(--p-blue, #00b7ff); }
+
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.admin-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 500px; }
+.admin-table th { padding: 10px 12px; text-align: left; background: var(--p-blue-tbl, #e8f7ff); color: var(--p-blue-900); font-weight: 700; border-bottom: 1px solid var(--p-blue-bdr, #ccefff); font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; }
+.admin-table td { padding: 10px 12px; border-bottom: 1px solid var(--p-blue-bdr, #ccefff); color: var(--p-text-mid, #555); vertical-align: middle; }
+.td-bold { font-weight: 600; color: var(--p-text, #333); }
 .flag-img { width: 32px; height: 22px; object-fit: cover; border-radius: 3px; display: block; }
-.no-flag { color: #9ca3af; }
-.badge-codigo { background: #f3f4f6; color: #374151; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; font-family: monospace; }
-.empty-cell { text-align: center; color: #9ca3af; padding: 32px; }
+.no-flag { color: var(--p-text-muted, #888); }
+.badge-codigo { background: var(--p-blue-light); color: var(--p-blue-900); padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; font-family: monospace; }
+.empty-cell { text-align: center; color: var(--p-text-muted, #888); padding: 32px; }
 .td-actions { display: flex; gap: 6px; }
-.btn-edit { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 4px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
-.btn-delete { background: #fff; color: #dc2626; border: 1px solid #fca5a5; padding: 4px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
+.btn-edit   { background: var(--p-blue-light); color: var(--p-blue-900); border: 1px solid var(--p-blue-bdr, #ccefff); padding: 4px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: 700; text-decoration: none; }
+.btn-edit:hover { background: #d9f0ff; }
+.btn-delete { background: white; color: var(--p-red); border: 1px solid var(--p-error-bdr); padding: 4px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: 700; }
+.btn-delete:hover { background: var(--p-error-bg); }
+.btn-delete:disabled { opacity: 0.4; cursor: not-allowed; }
+
+@media (max-width: 767px) {
+  .admin-page { padding: 12px 8px; }
+  .filters { flex-direction: column; }
+  .filter-input { min-width: unset; }
+}

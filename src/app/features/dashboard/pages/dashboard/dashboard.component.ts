@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, inject, OnDestroy, OnInit } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import * as signalR from '@microsoft/signalr';
+import { environment } from '../../../../../enviroments/enviroments';
 
 import { SessionService } from '../../../../core/services/session.service';
 import { DashboardService } from '../../services/dashboard.service';
@@ -20,49 +21,76 @@ import { GrupoConClasificacion } from '../../interfaces/grupo-clasificacion.inte
 export class DashboardComponent implements OnInit, OnDestroy {
   private dashboardService = inject(DashboardService);
   private sessionService = inject(SessionService);
-  private router = inject(Router);
   private hubConnection: signalR.HubConnection | null = null;
 
+  torneos: any[] = [];
+  torneoId = 1;
+  isLoadingTorneos = true;
 
-  readonly TORNEO_ID = 1;
-
-  // Datos del bracket
   partidos: Partido[] = [];
   grupos: GrupoConClasificacion[] = [];
-  isLoading = true;
+  isLoading = false;
   errorMessage = '';
   topUsuarios: any[] = [];
   topLigas: any[] = [];
   isLoadingRanking = false;
 
-  // Nav
   isAdmin = false;
-  
 
- 
+  mejoresTerceros: any[] = [];
+  mejoresTercerosSet = new Set<number>();
 
   ngOnInit(): void {
     this.isAdmin = this.sessionService.getRole() === 'Administrador';
-    this.loadAll();
+    this.loadTorneos();
     this.loadRanking();
     this.connectSignalR();
   }
 
+  ngOnDestroy(): void {
+    this.hubConnection?.stop();
+  }
 
+  loadTorneos(): void {
+    this.isLoadingTorneos = true;
+    this.dashboardService.getTorneosSelect().subscribe({
+      next: (ts: any[]) => {
+        this.torneos = ts || [];
+        this.isLoadingTorneos = false;
+        if (this.torneos.length > 0) {
+          this.torneoId = this.torneos[0].id;
+        }
+        this.loadAll();
+      },
+      error: () => {
+        this.isLoadingTorneos = false;
+        this.loadAll();
+      }
+    });
+  }
 
-
-  
-
-
-
+  onTorneoChange(id: number): void {
+    if (this.hubConnection?.state === signalR.HubConnectionState.Connected) {
+      this.hubConnection.invoke('SalirDeTorneo', this.torneoId).catch(() => {});
+    }
+    this.torneoId = id;
+    this.partidos = [];
+    this.grupos = [];
+    this.loadAll();
+    if (this.hubConnection?.state === signalR.HubConnectionState.Connected) {
+      this.hubConnection.invoke('UnirseATorneo', this.torneoId).catch(() => {});
+    }
+  }
 
   loadAll(): void {
     this.isLoading = true;
     this.errorMessage = '';
+    this.mejoresTerceros = [];
+    this.mejoresTercerosSet = new Set();
 
     forkJoin({
-      partidos: this.dashboardService.getPartidos(this.TORNEO_ID),
-      grupos: this.dashboardService.getGrupos(this.TORNEO_ID),
+      partidos: this.dashboardService.getPartidos(this.torneoId),
+      grupos: this.dashboardService.getGrupos(this.torneoId),
     }).subscribe({
       next: ({ partidos, grupos }) => {
         this.partidos = partidos.sort((a, b) => a.id - b.id);
@@ -76,7 +104,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
           );
 
         forkJoin(clasif$).subscribe({
-          next: gruposClasif => { this.grupos = gruposClasif; this.isLoading = false; },
+          next: gruposClasif => {
+            this.grupos = gruposClasif;
+            this.isLoading = false;
+            this.loadMejoresTerceros();
+          },
           error: () => { this.isLoading = false; this.errorMessage = 'No se pudieron cargar las clasificaciones.'; }
         });
       },
@@ -86,6 +118,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
           ? 'No se pudo conectar con el servidor.'
           : 'No se pudo cargar el torneo.';
       }
+    });
+  }
+
+  loadMejoresTerceros(): void {
+    this.dashboardService.getMejoresTerceros(this.torneoId).subscribe({
+      next: (terceros: any[]) => {
+        this.mejoresTerceros = terceros || [];
+        this.mejoresTercerosSet = new Set(this.mejoresTerceros.map((t: any) => t.equipoId));
+      },
+      error: () => { /* non-critical — silently ignore */ }
     });
   }
 
@@ -140,7 +182,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (p.golesLocal !== p.golesVisitante) {
       return lado === 'local' ? p.golesLocal > p.golesVisitante : p.golesVisitante > p.golesLocal;
     }
-    // Empate en tiempo normal → mirar penales
     if (p.golesLocalPenales !== null && p.golesVisitantePenales !== null) {
       return lado === 'local'
         ? p.golesLocalPenales > p.golesVisitantePenales
@@ -164,40 +205,29 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy(): void {
-    this.hubConnection?.stop();
-  }
-
   private connectSignalR(): void {
     const token = localStorage.getItem('token') || '';
 
     this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl('http://localhost:8080/hubs/quiniela', {
+      .withUrl(environment.hubUrl, {
         accessTokenFactory: () => token
       })
       .withAutomaticReconnect()
       .build();
 
+    this.hubConnection.onreconnected(() => {
+      this.hubConnection!.invoke('UnirseATorneo', this.torneoId).catch(() => {});
+    });
+
     this.hubConnection.start()
       .then(() => {
-        this.hubConnection!.invoke('UnirseATorneo', this.TORNEO_ID)
+        this.hubConnection!.invoke('UnirseATorneo', this.torneoId)
           .catch((err: unknown) => console.warn('UnirseATorneo error:', err));
       })
       .catch((err: unknown) => console.warn('SignalR connection failed:', err));
 
-    // Resultado de partido ingresado → actualizar bracket
-    this.hubConnection.on('ResultadoActualizado', () => {
-      this.loadAll();
-    });
-
-    // Clasificación de grupo actualizada → actualizar bracket
-    this.hubConnection.on('ClasificacionActualizada', () => {
-      this.loadAll();
-    });
-
-    // Ranking de liga actualizado → actualizar top 10
-    this.hubConnection.on('RankingActualizado', () => {
-      this.loadRanking();
-    });
+    this.hubConnection.on('ResultadoActualizado', () => { this.loadAll(); });
+    this.hubConnection.on('ClasificacionActualizada', () => { this.loadAll(); });
+    this.hubConnection.on('RankingActualizado', () => { this.loadRanking(); });
   }
 }

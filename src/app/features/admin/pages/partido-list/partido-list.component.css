@@ -1,32 +1,127 @@
-.admin-page { padding: 24px; max-width: 1200px; margin: 0 auto; }
-.admin-card { background: #fff; border: 1px solid #e5e5e5; border-radius: 10px; padding: 24px; }
-.top-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
-.top-bar h1 { margin: 0; font-size: 20px; color: #1f2937; flex: 1; }
-.top-actions { display: flex; gap: 8px; }
-.btn-primary { background: #1f2937; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; }
-.btn-secondary { background: #fff; color: #374151; border: 1px solid #d1d5db; padding: 7px 14px; border-radius: 6px; font-size: 13px; text-decoration: none; white-space: nowrap; }
-.btn-results { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 7px 14px; border-radius: 6px; font-size: 13px; text-decoration: none; white-space: nowrap; }
-.msg { padding: 10px 14px; border-radius: 6px; font-size: 14px; margin-bottom: 16px; }
-.error-msg { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
-.success-msg { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
-.info-txt { color: #6b7280; font-size: 14px; text-align: center; padding: 20px; }
-.fase-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
-.fase-tab { background: #f5f5f5; border: 1px solid #e5e5e5; border-radius: 6px; padding: 5px 12px; font-size: 12px; color: #6b7280; cursor: pointer; }
-.fase-tab.active { background: #1f2937; color: #fff; border-color: #1f2937; }
-.admin-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.admin-table th { padding: 10px 12px; text-align: left; background: #fafafa; color: #6b7280; font-weight: 600; border-bottom: 1px solid #e5e5e5; font-size: 11px; text-transform: uppercase; }
-.admin-table td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; color: #374151; vertical-align: middle; }
-.td-id { color: #9ca3af; font-size: 12px; }
-.td-fase { font-size: 12px; color: #6b7280; }
+/* Admin Partidos — Quiniela 2026 */
+
+.admin-page { padding: 20px; background: var(--p-bg, #f4f9ff); min-height: 100vh; }
+
+.admin-card {
+  background: white;
+  border: 2px solid var(--p-blue, #00b7ff);
+  border-radius: var(--radius-lg, 12px);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  margin-bottom: 16px;
+}
+
+.top-bar {
+  background: var(--p-blue-tbl, #e8f7ff);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--p-blue-bdr, #ccefff);
+  flex-wrap: wrap;
+}
+.top-bar h1 { margin: 0; font-size: 18px; color: var(--p-blue-900); font-weight: 700; flex: 1; }
+
+.top-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.btn-primary, .btn-secondary, .btn-results, .btn-edit, .btn-delete {
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: var(--radius, 8px); font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: background 0.15s; text-decoration: none; white-space: nowrap;
+}
+.btn-primary   { background: var(--p-blue, #00b7ff); color: white; border: none; padding: 8px 16px; }
+.btn-primary:hover { background: var(--p-blue-dark, #0099dd); }
+.btn-secondary { background: white; color: var(--p-blue-900); border: 1px solid var(--p-blue-bdr, #ccefff); padding: 7px 14px; }
+.btn-secondary:hover { background: var(--p-blue-light); }
+.btn-results   { background: var(--p-blue-light); color: var(--p-blue-900); border: 1px solid var(--p-blue-bdr, #ccefff); padding: 7px 14px; }
+.btn-results:hover { background: #d9f0ff; }
+
+.card-body { padding: 16px 20px; }
+
+.msg { padding: 10px 14px; border-radius: var(--radius, 8px); font-size: 14px; margin-bottom: 14px; }
+.error-msg   { background: var(--p-error-bg); color: var(--p-error-cl); border: 1px solid var(--p-error-bdr); }
+.success-msg { background: var(--p-success-bg); color: var(--p-success-cl); border: 1px solid var(--p-success-bdr); }
+.info-txt    { color: var(--p-text-muted, #888); font-size: 14px; text-align: center; padding: 20px; }
+
+/* Tabs de fase */
+.fase-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.fase-tab {
+  background: white;
+  border: 1px solid var(--p-blue-bdr, #ccefff);
+  border-radius: var(--radius, 8px);
+  padding: 5px 12px;
+  font-size: 12px;
+  color: var(--p-text-muted, #888);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  font-weight: 600;
+}
+.fase-tab.active {
+  background: var(--p-blue, #00b7ff);
+  color: white;
+  border-color: var(--p-blue, #00b7ff);
+}
+
+/* Tabla */
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+.admin-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 560px; }
+.admin-table th {
+  padding: 10px 12px;
+  text-align: left;
+  background: var(--p-blue-tbl, #e8f7ff);
+  color: var(--p-blue-900);
+  font-weight: 700;
+  border-bottom: 1px solid var(--p-blue-bdr, #ccefff);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+}
+.admin-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--p-blue-bdr, #ccefff);
+  color: var(--p-text-mid, #555);
+  vertical-align: middle;
+}
+
+.td-id    { color: var(--p-text-muted, #888); font-size: 12px; }
+.td-fase  { font-size: 12px; color: var(--p-text-muted, #888); }
 .td-fecha { font-size: 12px; white-space: nowrap; }
+
 .equipo-cell { display: flex; align-items: center; gap: 6px; }
-.flag-mini { width: 20px; height: 14px; object-fit: cover; border-radius: 2px; flex-shrink: 0; }
-.empty-cell { text-align: center; color: #9ca3af; padding: 32px; }
+.flag-mini   { width: 20px; height: 14px; object-fit: cover; border-radius: 2px; flex-shrink: 0; }
+
+.empty-cell { text-align: center; color: var(--p-text-muted, #888); padding: 32px; }
+
 .badge { padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
-.badge.pendiente { background: #f3f4f6; color: #6b7280; }
-.badge.en-vivo { background: #dbeafe; color: #1d4ed8; }
-.badge.finalizado { background: #d1fae5; color: #065f46; }
+.badge.pendiente  { background: var(--p-blue-light); color: var(--p-blue-900); }
+.badge.en-vivo    { background: #fff3cd; color: #856404; border: 1px solid #ffd875; }
+.badge.finalizado { background: var(--p-success-bg); color: var(--p-success-cl); border: 1px solid var(--p-success-bdr); }
+
 .td-actions { display: flex; gap: 6px; }
-.btn-edit { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 4px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
-.btn-delete { background: #fff; color: #dc2626; border: 1px solid #fca5a5; padding: 4px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
+.btn-edit   { background: var(--p-blue-light); color: var(--p-blue-900); border: 1px solid var(--p-blue-bdr, #ccefff); padding: 4px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; text-decoration: none; }
+.btn-edit:hover { background: #d9f0ff; }
+.btn-delete { background: white; color: var(--p-red); border: 1px solid var(--p-error-bdr); padding: 4px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
+.btn-delete:hover { background: var(--p-error-bg); }
 .btn-delete:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Móvil */
+@media (max-width: 767px) {
+  .admin-page  { padding: 12px 8px; }
+  .top-bar     { flex-wrap: wrap; gap: 8px; }
+  .top-bar h1  { font-size: 16px; }
+  .top-actions { width: 100%; }
+  .top-actions a, .top-actions button { flex: 1; text-align: center; }
+  .fase-tabs { gap: 4px; overflow-x: auto; }
+  .fase-tab  { font-size: 11px; padding: 4px 9px; white-space: nowrap; }
+}
+
+@media (max-width: 400px) {
+  .admin-page { padding: 10px 6px; }
+}

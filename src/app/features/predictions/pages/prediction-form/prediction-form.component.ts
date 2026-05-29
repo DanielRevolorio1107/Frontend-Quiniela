@@ -160,6 +160,40 @@ export class PredictionFormComponent implements OnInit {
     return this.partido?.equipoVisitante?.nombre || this.partido?.equipoVisitante || this.partido?.visitante || 'Equipo visitante';
   }
 
+  localFlag(): string {
+    return this.partido?.equipoLocal?.banderaUrl || this.partido?.equipoLocal?.flagUrl || '';
+  }
+
+  visitanteFlag(): string {
+    return this.partido?.equipoVisitante?.banderaUrl || this.partido?.equipoVisitante?.flagUrl || '';
+  }
+
+  localCode(): string {
+    return this.partido?.equipoLocal?.codigoFifa || this.partido?.equipoLocal?.codigo || '';
+  }
+
+  visitanteCode(): string {
+    return this.partido?.equipoVisitante?.codigoFifa || this.partido?.equipoVisitante?.codigo || '';
+  }
+
+  getEstadio(): string {
+    const est = this.partido?.estadio;
+    if (!est) return '';
+    if (typeof est === 'string') return est;
+    return est.nombre || est.name || '';
+  }
+
+  getFase(): string {
+    const fase = this.partido?.fase;
+    if (!fase) return '';
+    if (typeof fase === 'string') return fase;
+    const nombres: Record<number, string> = {
+      1: 'Fase de Grupos', 2: 'Dieciseisavos', 3: 'Octavos de Final',
+      4: 'Cuartos de Final', 5: 'Semifinal', 6: 'Tercer Puesto', 7: 'Final'
+    };
+    return nombres[fase.id] || fase.nombre || `Fase ${fase.id}`;
+  }
+
   getFecha(): string {
     const fecha = this.partido?.fechaHora || this.partido?.fecha || this.partido?.fechaPartido;
 

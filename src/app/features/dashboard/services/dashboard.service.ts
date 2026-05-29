@@ -29,4 +29,12 @@ export class DashboardService {
   getRankingLigas(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/ranking/global/ligas`);
   }
+
+  getTorneosSelect(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/torneo/select`);
+  }
+
+  getMejoresTerceros(torneoId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/grupo/torneo/${torneoId}/mejores-terceros`);
+  }
 }

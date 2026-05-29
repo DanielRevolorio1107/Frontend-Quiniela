@@ -1,54 +1,153 @@
-<nav class="main-nav" *ngIf="isAuthenticated" (click)="$event.stopPropagation()">
-  <div class="nav-brand" (click)="goToDashboard()" style="cursor:pointer">
-    ⚽ Copa Mundial FIFA 2026
+<!-- Botón hamburger (solo móvil) -->
+<button class="hamburger-btn" *ngIf="isAuthenticated" (click)="toggleMobileMenu($event)" [class.is-open]="isMobileMenuOpen" aria-label="Menú">
+  <span></span><span></span><span></span>
+</button>
+
+<!-- Overlay móvil -->
+<div class="sidebar-overlay" *ngIf="isAuthenticated && isMobileMenuOpen" (click)="closeMobileMenu()"></div>
+
+<!-- Sidebar -->
+<aside class="sidebar" *ngIf="isAuthenticated"
+  [class.mobile-open]="isMobileMenuOpen"
+  [class.collapsed]="isSidebarCollapsed"
+  (click)="$event.stopPropagation()">
+
+  <!-- Brand -->
+  <div class="sidebar-brand" (click)="goToDashboard()" title="Ir al Dashboard">
+    <span class="brand-icon">⚽</span>
+    <span class="brand-text">Quiniela 2026</span>
   </div>
 
-  <div class="nav-links">
+  <!-- Botón colapsar (solo desktop) -->
+  <button class="collapse-btn" (click)="toggleSidebar($event)" [title]="isSidebarCollapsed ? 'Expandir menú' : 'Colapsar menú'">
+    <span class="collapse-arrow">‹</span>
+  </button>
 
-    <div class="nav-dropdown" *ngIf="isAdmin">
-      <button class="nav-btn" (click)="toggleDropdown('admin', $event)">
-        Administración <span class="caret">▾</span>
-      </button>
-      <div class="dropdown-menu" [class.open]="activeDropdown === 'admin'">
-        <a routerLink="/admin/usuarios" class="dropdown-item" (click)="closeDropdowns()">Usuarios</a>
-        <a routerLink="/admin/premios" class="dropdown-item" (click)="closeDropdowns()">Premios</a>
-        <a routerLink="/admin/torneo" class="dropdown-item" (click)="closeDropdowns()">Torneos</a>
-        <a routerLink="/admin/reportes" class="dropdown-item" (click)="closeDropdowns()">Reportes</a>
-      </div>
+  <nav class="sidebar-nav">
+
+    <!-- Dashboard -->
+    <a routerLink="/dashboard" class="nav-link" routerLinkActive="active"
+       data-tooltip="Dashboard" (click)="closeMobileMenu()">
+      <span class="nav-icon">📊</span>
+      <span class="nav-text">Dashboard</span>
+    </a>
+
+    <!-- ── Ligas ── -->
+    <button class="nav-section-btn" (click)="toggleSection('ligas', $event)"
+      [class.section-active]="isSectionActive('ligas')"
+      [class.section-open]="openSections['ligas']">
+      <span class="section-icon">🏅</span>
+      <span class="section-text">Ligas</span>
+      <span class="chevron" [class.open]="openSections['ligas']">›</span>
+    </button>
+    <div class="nav-section-items" [class.open]="openSections['ligas']">
+      <a *ngIf="!isAdmin" routerLink="/ligas" class="nav-link sub-link" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}"
+         data-tooltip="Mis Ligas" (click)="closeMobileMenu()">
+        <span class="nav-icon">🏅</span><span class="nav-text">Mis Ligas</span>
+      </a>
+      <a *ngIf="!isAdmin" routerLink="/ligas/crear" class="nav-link sub-link" routerLinkActive="active"
+         data-tooltip="Crear Liga" (click)="closeMobileMenu()">
+        <span class="nav-icon">＋</span><span class="nav-text">Crear Liga</span>
+      </a>
+      <a routerLink="/ligas/buscar" class="nav-link sub-link" routerLinkActive="active"
+         data-tooltip="Buscar Ligas" (click)="closeMobileMenu()">
+        <span class="nav-icon">🔍</span><span class="nav-text">Buscar Ligas</span>
+      </a>
     </div>
 
-    <div class="nav-dropdown" *ngIf="isAdmin">
-      <button class="nav-btn" (click)="toggleDropdown('mundial', $event)">
-        Admin Mundial <span class="caret">▾</span>
+    <!-- ── Predicciones (solo usuarios) ── -->
+    <ng-container *ngIf="!isAdmin">
+      <button class="nav-section-btn" (click)="toggleSection('predicciones', $event)"
+        [class.section-active]="isSectionActive('predicciones')"
+        [class.section-open]="openSections['predicciones']">
+        <span class="section-icon">⚽</span>
+        <span class="section-text">Predicciones</span>
+        <span class="chevron" [class.open]="openSections['predicciones']">›</span>
       </button>
-      <div class="dropdown-menu" [class.open]="activeDropdown === 'mundial'">
-        <a routerLink="/admin/partidos" class="dropdown-item" (click)="closeDropdowns()">Gestión partidos</a>
-        <a routerLink="/admin/partidos/resultados" class="dropdown-item" (click)="closeDropdowns()">Resultados en vivo</a>
-        <a routerLink="/admin/estadios" class="dropdown-item" (click)="closeDropdowns()">Estadios</a>
-        <a routerLink="/admin/equipos" class="dropdown-item" (click)="closeDropdowns()">Equipos</a>
+      <div class="nav-section-items" [class.open]="openSections['predicciones']">
+        <a routerLink="/partidos"          class="nav-link sub-link" routerLinkActive="active"
+           data-tooltip="Ver Partidos" (click)="closeMobileMenu()">
+          <span class="nav-icon">⚽</span><span class="nav-text">Ver Partidos</span>
+        </a>
+        <a routerLink="/predicciones/mias" class="nav-link sub-link" routerLinkActive="active"
+           data-tooltip="Mis Predicciones" (click)="closeMobileMenu()">
+          <span class="nav-icon">📋</span><span class="nav-text">Mis Predicciones</span>
+        </a>
+        <a routerLink="/ranking" class="nav-link sub-link" routerLinkActive="active"
+           data-tooltip="Ranking Global" (click)="closeMobileMenu()">
+          <span class="nav-icon">🏆</span><span class="nav-text">Ranking Global</span>
+        </a>
       </div>
-    </div>
+    </ng-container>
 
-    <div class="nav-dropdown">
-      <button class="nav-btn" (click)="toggleDropdown('ligas', $event)">
-        Gestión Ligas <span class="caret">▾</span>
+    <!-- ── Admin ── -->
+    <ng-container *ngIf="isAdmin">
+      <button class="nav-section-btn" (click)="toggleSection('admin', $event)"
+        [class.section-active]="isSectionActive('admin')"
+        [class.section-open]="openSections['admin']">
+        <span class="section-icon">⚙️</span>
+        <span class="section-text">Administración</span>
+        <span class="chevron" [class.open]="openSections['admin']">›</span>
       </button>
-      <div class="dropdown-menu" [class.open]="activeDropdown === 'ligas'">
-        <a routerLink="/ligas" class="dropdown-item" (click)="closeDropdowns()">Ligas</a>
-        <a routerLink="/predicciones/mias" class="dropdown-item" (click)="closeDropdowns()">Mis predicciones</a>
-        <a routerLink="/partidos" class="dropdown-item" (click)="closeDropdowns()">Ver partidos</a>
+      <div class="nav-section-items" [class.open]="openSections['admin']">
+        <a routerLink="/admin/usuarios" class="nav-link sub-link" routerLinkActive="active"
+           data-tooltip="Usuarios" (click)="closeMobileMenu()">
+          <span class="nav-icon">👥</span><span class="nav-text">Usuarios</span>
+        </a>
+        <a routerLink="/admin/torneo"   class="nav-link sub-link" routerLinkActive="active"
+           data-tooltip="Torneos" (click)="closeMobileMenu()">
+          <span class="nav-icon">🏆</span><span class="nav-text">Torneos</span>
+        </a>
+        <a routerLink="/admin/reportes" class="nav-link sub-link" routerLinkActive="active"
+           data-tooltip="Reportes" (click)="closeMobileMenu()">
+          <span class="nav-icon">📈</span><span class="nav-text">Reportes</span>
+        </a>
+        <a routerLink="/admin/premios"  class="nav-link sub-link" routerLinkActive="active"
+           data-tooltip="Premios" (click)="closeMobileMenu()">
+          <span class="nav-icon">🎁</span><span class="nav-text">Premios</span>
+        </a>
       </div>
-    </div>
 
-    <div class="nav-dropdown">
-      <button class="nav-btn nav-btn-user" (click)="toggleDropdown('perfil', $event)">
-        {{ userFullName }} <span class="caret">▾</span>
+      <button class="nav-section-btn" (click)="toggleSection('adminMundial', $event)"
+        [class.section-active]="isSectionActive('adminMundial')"
+        [class.section-open]="openSections['adminMundial']">
+        <span class="section-icon">🌐</span>
+        <span class="section-text">Admin Mundial</span>
+        <span class="chevron" [class.open]="openSections['adminMundial']">›</span>
       </button>
-      <div class="dropdown-menu dropdown-right" [class.open]="activeDropdown === 'perfil'">
-        <a routerLink="/profile" class="dropdown-item" (click)="closeDropdowns()">Mi perfil</a>
-        <button class="dropdown-item danger-item" (click)="logout()">Cerrar sesión</button>
+      <div class="nav-section-items" [class.open]="openSections['adminMundial']">
+        <a routerLink="/admin/partidos"            class="nav-link sub-link" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}"
+           data-tooltip="Gestión Partidos" (click)="closeMobileMenu()">
+          <span class="nav-icon">📋</span><span class="nav-text">Gestión Partidos</span>
+        </a>
+        <a routerLink="/admin/partidos/resultados" class="nav-link sub-link" routerLinkActive="active"
+           data-tooltip="Resultados en Vivo" (click)="closeMobileMenu()">
+          <span class="nav-icon">🔴</span><span class="nav-text">Resultados en Vivo</span>
+        </a>
+        <a routerLink="/admin/estadios"            class="nav-link sub-link" routerLinkActive="active"
+           data-tooltip="Estadios" (click)="closeMobileMenu()">
+          <span class="nav-icon">🏟️</span><span class="nav-text">Estadios</span>
+        </a>
+        <a routerLink="/admin/equipos"             class="nav-link sub-link" routerLinkActive="active"
+           data-tooltip="Equipos" (click)="closeMobileMenu()">
+          <span class="nav-icon">🌐</span><span class="nav-text">Equipos</span>
+        </a>
       </div>
-    </div>
+    </ng-container>
 
+  </nav>
+
+  <!-- Footer -->
+  <div class="sidebar-footer">
+    <a routerLink="/profile" class="nav-link profile-link" routerLinkActive="active"
+       data-tooltip="Mi Perfil" (click)="closeMobileMenu()">
+      <span class="nav-icon">👤</span>
+      <span class="nav-text">{{ userFullName }}</span>
+    </a>
+    <button class="nav-link logout-btn" (click)="logout()" data-tooltip="Cerrar sesión">
+      <span class="nav-icon">🚪</span>
+      <span class="nav-text">Cerrar sesión</span>
+    </button>
   </div>
-</nav>
+
+</aside>

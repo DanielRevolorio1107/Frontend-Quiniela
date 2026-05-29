@@ -1,65 +1,165 @@
-<div class="pred-page">
-  <div class="pred-card">
-    <div class="pred-header">
-      <div>
-        <h1>Mis predicciones</h1>
-        <p>Aquí puedes consultar tus predicciones registradas por liga.</p>
-      </div>
+<div class="page">
 
-      <div class="top-actions">
-        <a routerLink="/partidos" class="btn-secondary">Partidos</a>
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-main">
+      <div>
+        <h1>📋 Mis predicciones</h1>
+        <p>Consulta y edita tus predicciones por liga</p>
+      </div>
+      <div class="header-actions">
+        <a routerLink="/partidos" class="btn-secondary">⚽ Ver partidos</a>
       </div>
     </div>
 
-    <form [formGroup]="filtroForm" (ngSubmit)="buscarPredicciones()" class="filter-form" novalidate>
-      <div class="form-group">
-        <label for="ligaId">Liga</label>
-        <select id="ligaId" formControlName="ligaId" class="pred-input">
-          <option value="">Selecciona una liga</option>
+    <!-- Selector de liga -->
+    <div class="liga-bar">
+      <div *ngIf="isLoadingLigas" class="loading-inline">Cargando ligas...</div>
+      <ng-container *ngIf="!isLoadingLigas">
+        <label class="liga-label">Tu liga</label>
+        <select class="select-liga" (change)="onLigaChange(+$any($event.target).value)" [value]="selectedLigaId || ''">
+          <option value="">-- Seleccionar liga --</option>
           <option *ngFor="let liga of ligas" [value]="liga.id">
-            {{ liga.nombre }}
+            {{ liga.nombre }}{{ liga.esDeApuestas ? ' 💰' : ' 🎮' }}
           </option>
         </select>
+        <div *ngIf="ligas.length === 0" class="no-ligas">
+          No estás en ninguna liga. <a routerLink="/ligas/buscar">Buscar ligas →</a>
+        </div>
+      </ng-container>
+    </div>
 
-        <small class="error-text" *ngIf="ligaId.touched && ligaId.hasError('required')">
-          Debes seleccionar una liga.
-        </small>
+    <!-- Stats -->
+    <div class="stats-bar" *ngIf="selectedLiga && !isLoadingPredicciones && predicciones.length > 0">
+      <div class="stat-chip">
+        <span class="stat-num">{{ predicciones.length }}</span>
+        <span class="stat-lbl">predicciones</span>
       </div>
+      <div class="stat-chip">
+        <span class="stat-num">{{ getCountFinalizados() }}</span>
+        <span class="stat-lbl">jugados</span>
+      </div>
+      <div class="stat-chip stat-pts">
+        <span class="stat-num">{{ getTotalPuntos() }}</span>
+        <span class="stat-lbl">puntos</span>
+      </div>
+      <a [routerLink]="['/ligas', selectedLigaId]" class="link-ranking">Ver ranking →</a>
+    </div>
+  </div>
 
-      <button type="submit" class="btn-primary" [disabled]="isLoadingPredicciones || isLoadingLigas">
-        {{ isLoadingPredicciones ? 'Cargando...' : 'Ver mis predicciones' }}
-      </button>
-    </form>
+  <!-- Body -->
+  <div class="page-body">
 
-    <div *ngIf="errorMessage" class="message error-box">
-      {{ errorMessage }}
+    <div *ngIf="errorMessage" class="error-box">{{ errorMessage }}</div>
+
+    <div *ngIf="!selectedLigaId && !isLoadingLigas && ligas.length > 0" class="empty-state">
+      <span class="empty-icon">📋</span>
+      <p>Selecciona una liga para ver tus predicciones</p>
     </div>
 
-    <div *ngIf="!isLoadingPredicciones && predicciones.length === 0" class="info-box">
-      No hay predicciones cargadas todavía.
+    <div *ngIf="isLoadingPredicciones" class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando predicciones...</p>
     </div>
 
-    <div class="prediction-grid" *ngIf="!isLoadingPredicciones && predicciones.length > 0">
-      <div class="prediction-item" *ngFor="let prediccion of predicciones">
-        <h2>{{ getPartido(prediccion) }}</h2>
-        <p><strong>Fecha:</strong> {{ getFecha(prediccion) }}</p>
-        <p><strong>Mi marcador:</strong> {{ getMarcador(prediccion) }}</p>
+    <div *ngIf="!isLoadingPredicciones && selectedLigaId && predicciones.length === 0" class="empty-state">
+      <span class="empty-icon">⚽</span>
+      <p>Aún no tienes predicciones en esta liga</p>
+      <a routerLink="/partidos" class="btn-primary">Ver partidos y predecir →</a>
+    </div>
 
-        <p *ngIf="prediccion.puntosGanados !== undefined && prediccion.puntosGanados !== null">
-          <strong>Puntos ganados:</strong> {{ prediccion.puntosGanados }}
-        </p>
+    <!-- Lista de predicciones -->
+    <div class="predictions-list" *ngIf="!isLoadingPredicciones && predicciones.length > 0">
 
-        <a
-          *ngIf="canEdit(prediccion)"
-          [routerLink]="['/predicciones/editar', prediccion.id]"
-           class="btn-secondary btn-edit"
-        >
-          Editar predicción
-        </a>
+      <div class="pred-item" *ngFor="let pred of predicciones"
+           [class.pred-finalizado]="pred.finalizado"
+           [class.pred-editing]="editingId === pred.id">
 
-<span *ngIf="!canEdit(prediccion)" class="pred-locked">
-  Edición bloqueada
-</span>
+        <!-- Partido: banderas + nombres -->
+        <div class="pred-match">
+          <div class="pred-teams-row">
+            <div class="pred-team">
+              <img *ngIf="getLocalFlag(pred)" [src]="getLocalFlag(pred)" [alt]="getLocalCode(pred)" class="pred-flag">
+              <span class="pred-team-name">{{ pred.equipoLocal }}</span>
+            </div>
+            <span class="pred-vs">vs</span>
+            <div class="pred-team pred-team-right">
+              <span class="pred-team-name">{{ pred.equipoVisitante }}</span>
+              <img *ngIf="getVisitanteFlag(pred)" [src]="getVisitanteFlag(pred)" [alt]="getVisitanteCode(pred)" class="pred-flag">
+            </div>
+          </div>
+        </div>
+
+        <!-- Vista normal (no editando) -->
+        <ng-container *ngIf="editingId !== pred.id">
+
+          <div class="pred-info">
+            <div class="score-block">
+              <span class="score-lbl">Mi predicción</span>
+              <span class="score-val">{{ pred.golesLocal }} — {{ pred.golesVisitante }}</span>
+            </div>
+
+            <div class="pts-block" *ngIf="pred.finalizado">
+              <span class="score-lbl">Puntos</span>
+              <span class="pts-val" [class.pts-ok]="pred.puntosGanados > 0" [class.pts-zero]="pred.puntosGanados === 0">
+                +{{ pred.puntosGanados }}
+              </span>
+            </div>
+
+            <div class="pts-pending" *ngIf="!pred.finalizado">
+              <span class="badge-pending">⏳ Pendiente</span>
+            </div>
+          </div>
+
+          <div class="pred-match-date" *ngIf="getMatchFechaHora(pred)">
+            📅 {{ getMatchFechaHora(pred) }}
+          </div>
+
+          <div class="badge-soon" *ngIf="isMatchSoon(pred) && canEdit(pred)">
+            ⚠️ El partido inicia en {{ minutosParaPartido(pred) }} min — edición cierra pronto
+          </div>
+
+          <div class="pred-actions">
+            <button *ngIf="canEdit(pred)" type="button" class="btn-edit" (click)="startEdit(pred)">
+              ✏️ Editar predicción
+            </button>
+            <span *ngIf="!canEdit(pred)" class="pred-locked">🔒 Partido finalizado</span>
+          </div>
+
+        </ng-container>
+
+        <!-- Vista de edición inline -->
+        <div class="edit-inline" *ngIf="editingId === pred.id">
+          <p class="edit-hint">Cambia el marcador que predijiste:</p>
+
+          <div class="edit-scores">
+            <div class="edit-team">
+              <img *ngIf="getLocalFlag(pred)" [src]="getLocalFlag(pred)" [alt]="getLocalCode(pred)" class="edit-flag">
+              <label class="edit-team-lbl">{{ pred.equipoLocal }}</label>
+              <input type="number" [(ngModel)]="editGolesLocal"
+                class="score-input" min="0" max="20" [disabled]="editLoading">
+            </div>
+            <span class="edit-sep">—</span>
+            <div class="edit-team">
+              <img *ngIf="getVisitanteFlag(pred)" [src]="getVisitanteFlag(pred)" [alt]="getVisitanteCode(pred)" class="edit-flag">
+              <label class="edit-team-lbl">{{ pred.equipoVisitante }}</label>
+              <input type="number" [(ngModel)]="editGolesVisitante"
+                class="score-input" min="0" max="20" [disabled]="editLoading">
+            </div>
+          </div>
+
+          <div class="edit-error" *ngIf="editError">{{ editError }}</div>
+
+          <div class="edit-btns">
+            <button type="button" class="btn-save" (click)="saveEdit(pred.id)" [disabled]="editLoading">
+              {{ editLoading ? 'Guardando...' : '✔ Guardar cambio' }}
+            </button>
+            <button type="button" class="btn-cancel-edit" (click)="cancelEdit()" [disabled]="editLoading">
+              Cancelar
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>

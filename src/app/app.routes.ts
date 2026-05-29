@@ -13,6 +13,7 @@ import { LeagueCreateComponent } from './features/leagues/pages/league-create/le
 import { LeagueDetailComponent } from './features/leagues/pages/league-detail/league-detail.component';
 import { LeagueSearchComponent } from './features/leagues/pages/league-search/league-search.component';
 import { InvitationResponseComponent } from './features/leagues/pages/invitation-response/invitation-response.component';
+import { RankingGlobalComponent } from './features/leagues/pages/ranking-global/ranking-global.component';
 
 import { MyPredictionsComponent } from './features/predictions/pages/my-predictions/my-predictions.component';
 import { PredictionFormComponent } from './features/predictions/pages/prediction-form/prediction-form.component';
@@ -60,6 +61,7 @@ export const routes: Routes = [
     { path: 'ligas/buscar', component: LeagueSearchComponent, canActivate: [authGuard] },
     { path: 'ligas/:id', component: LeagueDetailComponent, canActivate: [authGuard] },
     { path: 'invitacion/responder', component: InvitationResponseComponent },
+    { path: 'ranking', component: RankingGlobalComponent, canActivate: [authGuard] },
 
     // Partidos y Predicciones
     { path: 'partidos', component: MatchListComponent, canActivate: [authGuard] },

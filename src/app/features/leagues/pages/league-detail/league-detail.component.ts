@@ -1,10 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import * as signalR from '@microsoft/signalr';
+import { environment } from '../../../../../enviroments/enviroments';
 
 import { LeagueService } from '../../services/league.service';
-import { QuinielaSignalrService } from '../../services/quiniela-signalr.service';
+import { SessionService } from '../../../../core/services/session.service';
+
+type Tab = 'ranking' | 'miembros' | 'pendientes' | 'invitaciones';
 
 @Component({
   selector: 'app-league-detail',
@@ -15,22 +19,31 @@ import { QuinielaSignalrService } from '../../services/quiniela-signalr.service'
 })
 export class LeagueDetailComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private leagueService = inject(LeagueService);
+  private sessionService = inject(SessionService);
   private fb = inject(FormBuilder);
-  private signalrService = inject(QuinielaSignalrService);
+  private hubConnection: signalR.HubConnection | null = null;
 
   ligaId = 0;
-
   liga: any = null;
+  torneoNombre = '';
   miembros: any[] = [];
   pendientes: any[] = [];
   ranking: any[] = [];
+  private rankingAnterior: any[] = [];
+  invitaciones: any[] = [];
+
+  activeTab: Tab = 'ranking';
+  esAdminDeLiga = false;
+  isLive = false;
 
   isLoadingLiga = true;
   isLoadingMiembros = true;
   isLoadingPendientes = true;
   isLoadingInvitaciones = true;
   isLoadingRanking = true;
+  isSaliendo = false;
 
   actionLoadingUserId: number | null = null;
   cancelLoadingInvitationId: number | null = null;
@@ -39,45 +52,38 @@ export class LeagueDetailComponent implements OnInit, OnDestroy {
   successMessage = '';
 
   invitationForm!: FormGroup;
-  invitaciones: any[] = [];
   isSendingInvitation = false;
 
   async ngOnInit(): Promise<void> {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-
     if (!id || id <= 0) {
       this.errorMessage = 'El identificador de la liga no es válido.';
-      this.isLoadingLiga = false;
-      this.isLoadingMiembros = false;
-      this.isLoadingPendientes = false;
-      this.isLoadingInvitaciones = false;
-      this.isLoadingRanking = false;
+      this.isLoadingLiga = this.isLoadingMiembros = this.isLoadingPendientes =
+        this.isLoadingInvitaciones = this.isLoadingRanking = false;
       return;
     }
 
     this.ligaId = id;
-
     this.invitationForm = this.fb.group({
       emailInvitado: ['', [Validators.required, Validators.email]]
     });
 
     this.loadAll();
-    await this.initSignalr();
+    await this.initSignalR();
   }
 
   async ngOnDestroy(): Promise<void> {
     try {
-      await this.signalrService.leaveLeague(this.ligaId);
-      await this.signalrService.stopConnection();
-    } catch {
-      // evita errores al destruir el componente
-    }
+      if (this.hubConnection) {
+        await this.hubConnection.invoke('SalirDeLiga', this.ligaId).catch(() => {});
+        await this.hubConnection.stop();
+      }
+    } catch { /* noop */ }
   }
 
-  get emailInvitado() {
-    return this.invitationForm.get('emailInvitado')!;
-  }
+  get emailInvitado() { return this.invitationForm.get('emailInvitado')!; }
 
+  // Carga inicial
   loadAll(): void {
     this.loadLiga();
     this.loadMiembros();
@@ -88,227 +94,216 @@ export class LeagueDetailComponent implements OnInit, OnDestroy {
 
   loadLiga(): void {
     this.isLoadingLiga = true;
-
     this.leagueService.getById(this.ligaId).subscribe({
-      next: (response: any) => {
-        this.liga = response;
+      next: (r: any) => {
+        this.liga = r;
         this.isLoadingLiga = false;
+        if (r?.torneoId) this.loadTorneoNombre(r.torneoId);
       },
-      error: (error) => {
+      error: (e) => {
         this.isLoadingLiga = false;
-        this.errorMessage = error?.error?.error || 'No se pudo cargar la información de la liga.';
+        this.errorMessage = e?.error?.error || 'No se pudo cargar la liga.';
       }
+    });
+  }
+
+  private loadTorneoNombre(torneoId: number): void {
+    this.leagueService.getTorneosSelect().subscribe({
+      next: (ts: any[]) => {
+        const t = ts.find(x => x.id === torneoId);
+        this.torneoNombre = t?.nombre || `Torneo #${torneoId}`;
+      },
+      error: () => { this.torneoNombre = `Torneo #${torneoId}`; }
     });
   }
 
   loadMiembros(): void {
     this.isLoadingMiembros = true;
-
     this.leagueService.getMiembros(this.ligaId).subscribe({
-      next: (response: any) => {
-        this.miembros = this.extractArray(response);
+      next: (r: any) => {
+        this.miembros = this.toArr(r);
+        const email = this.sessionService.getEmail();
+        this.esAdminDeLiga = this.miembros.some(m => m.email === email && m.esAdmin);
         this.isLoadingMiembros = false;
       },
-      error: () => {
-        this.isLoadingMiembros = false;
-      }
+      error: () => { this.isLoadingMiembros = false; }
     });
   }
 
   loadPendientes(): void {
     this.isLoadingPendientes = true;
-
     this.leagueService.getMiembrosPendientes(this.ligaId).subscribe({
-      next: (response: any) => {
-        this.pendientes = this.extractArray(response);
-        this.isLoadingPendientes = false;
-      },
-      error: (error) => {
-        this.isLoadingPendientes = false;
-        if (error.status === 403) return;
-      }
+      next: (r: any) => { this.pendientes = this.toArr(r); this.isLoadingPendientes = false; },
+      error: (e) => { this.isLoadingPendientes = false; if (e.status === 403) return; }
     });
   }
 
   loadInvitaciones(): void {
     this.isLoadingInvitaciones = true;
-
     this.leagueService.getInvitationsByLiga(this.ligaId).subscribe({
-      next: (response: any) => {
-        this.invitaciones = this.extractArray(response);
-        this.isLoadingInvitaciones = false;
-      },
-      error: (error) => {
-        this.isLoadingInvitaciones = false;
-        if (error.status === 403) return;
-      }
+      next: (r: any) => { this.invitaciones = this.toArr(r); this.isLoadingInvitaciones = false; },
+      error: (e) => { this.isLoadingInvitaciones = false; if (e.status === 403) return; }
     });
   }
 
   loadRanking(): void {
     this.isLoadingRanking = true;
-
-    this.leagueService.getRanking(this.ligaId).subscribe({
-      next: (response: any) => {
-        const nuevoRanking = this.extractArray(response);
-        this.ranking = this.applyRankingVariation(nuevoRanking);
+    this.leagueService.getPremiosLiga(this.ligaId).subscribe({
+      next: (r: any) => {
+        const nuevo = this.toArr(r);
+        this.ranking = this.applyVariation(nuevo);
+        this.rankingAnterior = this.ranking.map(f => ({ ...f }));
         this.isLoadingRanking = false;
       },
-      error: () => {
-        this.isLoadingRanking = false;
-      }
+      error: () => { this.isLoadingRanking = false; }
     });
   }
 
-  private applyRankingVariation(nuevoRanking: any[]): any[] {
-    const posicionesAnteriores: Record<number, number> = {};
-
-    for (const fila of this.ranking) {
-      posicionesAnteriores[fila.userId] = fila.posicion;
-    }
-
-    return nuevoRanking.map((fila: any) => {
-      const posicionAnterior = posicionesAnteriores[fila.userId];
-      let variacion = 0;
-
-      if (posicionAnterior !== undefined) {
-        variacion = posicionAnterior - fila.posicion;
-      }
-
-      return {
-        ...fila,
-        variacion
-      };
-    });
+  private applyVariation(nuevo: any[]): any[] {
+    const prev: Record<number, number> = {};
+    for (const f of this.rankingAnterior) prev[f.userId] = f.posicion;
+    return nuevo.map(f => ({
+      ...f,
+      variacion: prev[f.userId] !== undefined ? prev[f.userId] - f.posicion : 0
+    }));
   }
 
-  async initSignalr(): Promise<void> {
-    const token = localStorage.getItem('token');
+  // SignalR
+  private async initSignalR(): Promise<void> {
+    const token = this.sessionService.getToken();
     if (!token) return;
-
     try {
-      await this.signalrService.startConnection(token);
-      await this.signalrService.joinLeague(this.ligaId);
+      this.hubConnection = new signalR.HubConnectionBuilder()
+        .withUrl(environment.hubUrl, { accessTokenFactory: () => token })
+        .withAutomaticReconnect()
+        .build();
 
-      this.signalrService.onRankingUpdated((payload: any) => {
-        if (payload?.ligaId === this.ligaId) {
-          this.loadRanking();
-        }
+      this.hubConnection.onreconnected(() => {
+        this.isLive = true;
+        this.hubConnection?.invoke('UnirseALiga', this.ligaId).catch(() => {});
       });
-    } catch (error) {
-      console.error('Error conectando SignalR:', error);
-    }
+      this.hubConnection.onclose(() => { this.isLive = false; });
+
+      await this.hubConnection.start();
+      this.isLive = true;
+      await this.hubConnection.invoke('UnirseALiga', this.ligaId);
+
+      this.hubConnection.on('RankingActualizado', (payload: any) => {
+        if (payload?.ligaId === this.ligaId) this.loadRanking();
+      });
+    } catch { /* conexión opcional */ }
+  }
+
+  // Acciones
+  setTab(tab: Tab): void {
+    this.activeTab = tab;
+    this.errorMessage = '';
+    this.successMessage = '';
+  }
+
+  salirLiga(): void {
+    if (!confirm('¿Estás seguro de que deseas salir de esta liga?')) return;
+    this.isSaliendo = true;
+    this.leagueService.salir(this.ligaId).subscribe({
+      next: () => this.router.navigate(['/ligas']),
+      error: (e) => {
+        this.isSaliendo = false;
+        this.errorMessage = e?.error?.error || 'No se pudo salir de la liga.';
+      }
+    });
   }
 
   aprobarParticipante(userId: number): void {
-    this.errorMessage = '';
-    this.successMessage = '';
+    this.clearMessages();
     this.actionLoadingUserId = userId;
-
-    this.leagueService.aprobarMiembro(this.ligaId, {
-      userId,
-      aprobar: true
-    }).subscribe({
+    this.leagueService.aprobarMiembro(this.ligaId, { userId, aprobar: true }).subscribe({
       next: () => {
-        this.successMessage = 'Participante aprobado correctamente.';
         this.actionLoadingUserId = null;
+        this.successMessage = 'Participante aprobado correctamente.';
         this.loadMiembros();
         this.loadPendientes();
       },
-      error: (error) => {
+      error: (e) => {
         this.actionLoadingUserId = null;
-        this.errorMessage = error?.error?.error || 'No se pudo aprobar al participante.';
+        this.errorMessage = e?.error?.error || 'No se pudo aprobar al participante.';
       }
     });
   }
 
   rechazarParticipante(userId: number): void {
-    this.errorMessage = '';
-    this.successMessage = '';
+    this.clearMessages();
     this.actionLoadingUserId = userId;
-
-    this.leagueService.aprobarMiembro(this.ligaId, {
-      userId,
-      aprobar: false
-    }).subscribe({
+    this.leagueService.aprobarMiembro(this.ligaId, { userId, aprobar: false }).subscribe({
       next: () => {
-        this.successMessage = 'Solicitud rechazada correctamente.';
         this.actionLoadingUserId = null;
+        this.successMessage = 'Solicitud rechazada.';
         this.loadPendientes();
       },
-      error: (error) => {
+      error: (e) => {
         this.actionLoadingUserId = null;
-        this.errorMessage = error?.error?.error || 'No se pudo rechazar la solicitud.';
+        this.errorMessage = e?.error?.error || 'No se pudo rechazar la solicitud.';
       }
     });
   }
 
   enviarInvitacion(): void {
-    this.errorMessage = '';
-    this.successMessage = '';
-
-    if (this.invitationForm.invalid) {
-      this.invitationForm.markAllAsTouched();
-      return;
-    }
-
+    this.clearMessages();
+    if (this.invitationForm.invalid) { this.invitationForm.markAllAsTouched(); return; }
     this.isSendingInvitation = true;
-
-    const payload = {
-      emailInvitado: this.emailInvitado.value.trim()
-    };
-
-    this.leagueService.sendInvitation(this.ligaId, payload).subscribe({
+    this.leagueService.sendInvitation(this.ligaId, { emailInvitado: this.emailInvitado.value.trim() }).subscribe({
       next: () => {
         this.isSendingInvitation = false;
         this.successMessage = 'Invitación enviada correctamente.';
         this.invitationForm.reset();
         this.loadInvitaciones();
       },
-      error: (error) => {
+      error: (e) => {
         this.isSendingInvitation = false;
-        this.errorMessage = error?.error?.error || 'No se pudo enviar la invitación.';
+        this.errorMessage = e?.error?.error || 'No se pudo enviar la invitación.';
       }
     });
   }
 
-  cancelarInvitacion(invitacionId: number): void {
-    this.errorMessage = '';
-    this.successMessage = '';
-    this.cancelLoadingInvitationId = invitacionId;
-
-    this.leagueService.cancelInvitation(invitacionId).subscribe({
+  cancelarInvitacion(id: number): void {
+    this.clearMessages();
+    this.cancelLoadingInvitationId = id;
+    this.leagueService.cancelInvitation(id).subscribe({
       next: () => {
         this.cancelLoadingInvitationId = null;
-        this.successMessage = 'Invitación cancelada correctamente.';
+        this.successMessage = 'Invitación cancelada.';
         this.loadInvitaciones();
       },
-      error: (error) => {
+      error: (e) => {
         this.cancelLoadingInvitationId = null;
-        this.errorMessage = error?.error?.error || 'No se pudo cancelar la invitación.';
+        this.errorMessage = e?.error?.error || 'No se pudo cancelar la invitación.';
       }
     });
   }
 
-  extractArray(response: any): any[] {
-    if (Array.isArray(response)) return response;
-    if (Array.isArray(response?.items)) return response.items;
-    if (Array.isArray(response?.data)) return response.data;
-    return [];
-  }
+  // Helpers
+  getTipoLiga(): string { return this.liga?.esDeApuestas ? '💰 Apuestas' : '🎮 Diversión'; }
 
-  getTipoLiga(): string {
-    return this.liga?.esDeApuestas ? 'Apuestas' : 'Diversión';
-  }
-
-  getVariationLabel(fila: any): string {
+  variacionLabel(fila: any): string {
     if (!fila?.variacion) return '—';
-    if (fila.variacion > 0) return `▲ +${fila.variacion}`;
-    return `▼ ${fila.variacion}`;
+    return fila.variacion > 0 ? `▲ +${fila.variacion}` : `▼ ${fila.variacion}`;
   }
 
-  getVariationClass(fila: any): string {
-    if (!fila?.variacion) return 'variation-neutral';
-    return fila.variacion > 0 ? 'variation-up' : 'variation-down';
+  variacionClass(fila: any): string {
+    if (!fila?.variacion) return 'var-neutral';
+    return fila.variacion > 0 ? 'var-up' : 'var-down';
+  }
+
+  getMedal(pos: number): string {
+    if (pos === 1) return '🥇';
+    if (pos === 2) return '🥈';
+    if (pos === 3) return '🥉';
+    return `${pos}`;
+  }
+
+  private clearMessages(): void { this.errorMessage = ''; this.successMessage = ''; }
+
+  private toArr(r: any): any[] {
+    if (Array.isArray(r)) return r;
+    return r?.items ?? r?.data ?? [];
   }
 }

@@ -1,99 +1,91 @@
-<div class="league-page">
-  <div class="league-card">
-    <div class="league-header">
-      <h1>Crear liga</h1>
-      <p>Configura una nueva liga para el torneo</p>
+<div class="create-page">
+
+  <div class="create-card">
+
+    <div class="create-header">
+      <div class="header-top">
+        <a routerLink="/ligas" class="back-link">← Mis ligas</a>
+      </div>
+      <h1>➕ Crear nueva liga</h1>
+      <p>Configura tu liga y comienza a competir</p>
     </div>
 
-    <form [formGroup]="leagueForm" (ngSubmit)="onSubmit()" novalidate>
-      <div class="form-group">
-        <label for="nombre">Nombre de la liga</label>
-        <input
-          id="nombre"
-          type="text"
-          formControlName="nombre"
-          class="league-input"
-          placeholder="Ingresa el nombre de la liga"
-        />
+    <div class="create-body">
 
-        <small class="error-text" *ngIf="nombre.touched && nombre.hasError('required')">
-          El nombre es obligatorio.
-        </small>
+      <div *ngIf="isLoadingTorneos" class="loading-inline">Cargando torneos disponibles...</div>
 
-        <small class="error-text" *ngIf="nombre.touched && nombre.hasError('minlength')">
-          El nombre debe tener al menos 3 caracteres.
-        </small>
-      </div>
+      <form *ngIf="!isLoadingTorneos" [formGroup]="leagueForm" (ngSubmit)="onSubmit()" novalidate>
 
-      <div class="form-group">
-        <label for="tipo">Tipo de liga</label>
-        <select id="tipo" formControlName="esDeApuestas" class="league-input">
-          <option [ngValue]="false">Diversión</option>
-          <option [ngValue]="true">Apuestas</option>
-        </select>
-      </div>
+        <!-- Nombre de la liga -->
+        <div class="form-group">
+          <label for="nombre">Nombre de la liga *</label>
+          <input id="nombre" type="text" formControlName="nombre"
+            class="form-input" placeholder="Ej: Liga de los Amigos"/>
+          <small class="error-text" *ngIf="nombre.touched && nombre.hasError('required')">El nombre es obligatorio.</small>
+          <small class="error-text" *ngIf="nombre.touched && nombre.hasError('minlength')">Mínimo 3 caracteres.</small>
+        </div>
 
-      <div class="form-group">
-        <label for="precioPorUnirse">Precio por unirse</label>
-        <input
-          id="precioPorUnirse"
-          type="number"
-          formControlName="precioPorUnirse"
-          class="league-input"
-          placeholder="0.00"
-          min="0"
-          step="0.01"
-        />
-        <small class="hint-text">
-          Si la liga es de diversión, puedes dejar este campo vacío.
-        </small>
-      </div>
+        <!-- Torneo -->
+        <div class="form-group">
+          <label for="torneoId">Torneo *</label>
+          <select id="torneoId" formControlName="torneoId" class="form-input">
+            <option [value]="null">-- Selecciona un torneo --</option>
+            <option *ngFor="let t of torneos" [value]="t.id">{{ t.nombre }}</option>
+          </select>
+          <small class="error-text" *ngIf="torneoId.touched && torneoId.hasError('required')">Selecciona un torneo.</small>
+          <small class="hint-text" *ngIf="torneos.length === 0">No hay torneos disponibles.</small>
+        </div>
 
-      <div class="form-group">
-        <label for="torneoId">Torneo ID</label>
-        <input
-          id="torneoId"
-          type="number"
-          formControlName="torneoId"
-          class="league-input"
-          min="1"
-        />
+        <!-- Tipo de liga -->
+        <div class="form-group">
+          <label>Tipo de liga *</label>
+          <div class="tipo-selector">
+            <label class="tipo-option" [class.tipo-selected]="!esDeApuestas.value">
+              <input type="radio" formControlName="esDeApuestas" [value]="false">
+              <span class="tipo-icon">🎮</span>
+              <span class="tipo-label">Diversión</span>
+              <span class="tipo-desc">Gratis, sin apuestas</span>
+            </label>
+            <label class="tipo-option" [class.tipo-selected]="esDeApuestas.value">
+              <input type="radio" formControlName="esDeApuestas" [value]="true">
+              <span class="tipo-icon">💰</span>
+              <span class="tipo-label">Apuestas</span>
+              <span class="tipo-desc">Cada miembro paga una cuota</span>
+            </label>
+          </div>
+        </div>
 
-        <small class="error-text" *ngIf="torneoId.touched && torneoId.hasError('required')">
-          El torneo es obligatorio.
-        </small>
-      </div>
+        <!-- Precio (solo apuestas) -->
+        <div class="form-group" *ngIf="esDeApuestas.value">
+          <label for="precio">Precio por unirse (Q) *</label>
+          <input id="precio" type="number" formControlName="precioPorUnirse"
+            class="form-input" placeholder="0.00" min="0" step="0.01"/>
+          <small class="hint-text">Este es el monto que cada participante paga para unirse.</small>
+        </div>
 
-      <div class="form-group">
-        <label for="nombreEquipo">Nombre de tu equipo</label>
-        <input
-          id="nombreEquipo"
-          type="text"
-          formControlName="nombreEquipo"
-          class="league-input"
-          placeholder="Ingresa el nombre de tu equipo"
-        />
+        <!-- Nombre de tu equipo -->
+        <div class="form-group">
+          <label for="nombreEquipo">Nombre de tu equipo *</label>
+          <input id="nombreEquipo" type="text" formControlName="nombreEquipo"
+            class="form-input" placeholder="Ej: Los Cracks"/>
+          <small class="error-text" *ngIf="nombreEquipo.touched && nombreEquipo.hasError('required')">El nombre del equipo es obligatorio.</small>
+          <small class="error-text" *ngIf="nombreEquipo.touched && nombreEquipo.hasError('minlength')">Mínimo 2 caracteres.</small>
+        </div>
 
-        <small class="error-text" *ngIf="nombreEquipo.touched && nombreEquipo.hasError('required')">
-          El nombre del equipo es obligatorio.
-        </small>
+        <!-- Mensajes -->
+        <div class="message error-box" *ngIf="errorMessage">{{ errorMessage }}</div>
+        <div class="message success-box" *ngIf="successMessage">{{ successMessage }}</div>
 
-        <small class="error-text" *ngIf="nombreEquipo.touched && nombreEquipo.hasError('minlength')">
-          El nombre del equipo debe tener al menos 2 caracteres.
-        </small>
-      </div>
+        <!-- Acciones -->
+        <div class="form-actions">
+          <button type="submit" class="btn-primary" [disabled]="isLoading">
+            {{ isLoading ? 'Creando...' : '✔ Crear liga' }}
+          </button>
+          <a routerLink="/ligas" class="btn-cancel">Cancelar</a>
+        </div>
 
-      <div class="message error-box" *ngIf="errorMessage">
-        {{ errorMessage }}
-      </div>
+      </form>
 
-      <div class="message success-box" *ngIf="successMessage">
-        {{ successMessage }}
-      </div>
-
-      <button type="submit" class="btn-primary" [disabled]="isLoading">
-        {{ isLoading ? 'Creando...' : 'Crear liga' }}
-      </button>
-    </form>
+    </div>
   </div>
 </div>

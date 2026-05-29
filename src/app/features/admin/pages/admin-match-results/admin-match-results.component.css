@@ -1,119 +1,137 @@
-.admin-page { padding: 24px; max-width: 1100px; margin: 0 auto; }
+/* Admin Resultados — Quiniela 2026 */
+
+.admin-page { padding: 20px; max-width: 1100px; margin: 0 auto; background: var(--p-bg, #f4f9ff); min-height: 100vh; }
 
 .admin-card {
-  background: #fff;
-  border: 1px solid #e5e5e5;
-  border-radius: 10px;
-  padding: 24px;
+  background: white;
+  border: 2px solid var(--p-blue, #00b7ff);
+  border-radius: var(--radius-lg, 12px);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
 }
 
 .top-bar {
+  background: var(--p-blue-tbl, #e8f7ff);
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 20px;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--p-blue-bdr, #ccefff);
 }
+.top-bar-right h1 { margin: 0; font-size: 18px; color: var(--p-blue-900); font-weight: 700; }
 
-.top-bar-right h1 { margin: 0; font-size: 20px; color: #1f2937; }
+.card-body { padding: 16px 20px; }
+
+.torneo-selector {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 20px; border-bottom: 1px solid var(--p-blue-bdr,#ccefff);
+  background: white;
+}
+.torneo-lbl { font-size: 13px; font-weight: 700; color: var(--p-text-mid,#555); }
+.torneo-select {
+  border: 1px solid var(--p-blue-bdr,#ccefff); border-radius: 8px;
+  padding: 7px 12px; font-size: 14px; background: white; color: var(--p-text,#333); cursor: pointer;
+}
+.torneo-select:focus { outline: none; border-color: var(--p-blue,#00b7ff); }
 
 .btn-secondary {
-  background: #fff;
-  color: #374151;
-  border: 1px solid #d1d5db;
+  background: white;
+  color: var(--p-blue-900);
+  border: 1px solid var(--p-blue-bdr, #ccefff);
   padding: 7px 14px;
-  border-radius: 6px;
+  border-radius: var(--radius, 8px);
   font-size: 13px;
+  font-weight: 700;
   text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s;
   white-space: nowrap;
 }
+.btn-secondary:hover { background: var(--p-blue-light); }
 
 /* Tabs de fases */
 .fase-tabs {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-bottom: 20px;
-  border-bottom: 1px solid #e5e5e5;
-  padding-bottom: 16px;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--p-blue-bdr, #ccefff);
 }
-
 .fase-tab {
-  background: #f5f5f5;
-  border: 1px solid #e5e5e5;
-  border-radius: 6px;
-  padding: 6px 14px;
-  font-size: 13px;
-  color: #6b7280;
+  background: white;
+  border: 1px solid var(--p-blue-bdr, #ccefff);
+  border-radius: var(--radius, 8px);
+  padding: 5px 13px;
+  font-size: 12px;
+  color: var(--p-text-muted, #888);
   cursor: pointer;
+  font-weight: 600;
+  transition: background 0.15s, color 0.15s;
 }
-
 .fase-tab.active {
-  background: #1f2937;
-  color: #fff;
-  border-color: #1f2937;
+  background: var(--p-blue, #00b7ff);
+  color: white;
+  border-color: var(--p-blue, #00b7ff);
 }
 
 /* Mensajes */
-.message { padding: 10px 14px; border-radius: 6px; font-size: 14px; margin-bottom: 16px; }
-.error-box  { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
-.success-box { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
-.info-box { color: #6b7280; font-size: 14px; padding: 20px 0; text-align: center; }
+.message { padding: 10px 14px; border-radius: var(--radius, 8px); font-size: 14px; margin-bottom: 14px; }
+.error-box   { background: var(--p-error-bg); color: var(--p-error-cl); border: 1px solid var(--p-error-bdr); }
+.success-box { background: var(--p-success-bg); color: var(--p-success-cl); border: 1px solid var(--p-success-bdr); }
+.info-box    { color: var(--p-text-muted, #888); font-size: 14px; padding: 20px 0; text-align: center; }
 
 /* Grid de partidos */
 .partidos-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
   gap: 16px;
 }
 
 .empty-state {
   grid-column: 1 / -1;
   text-align: center;
-  color: #9ca3af;
+  color: var(--p-text-muted, #888);
   padding: 40px;
   font-size: 14px;
 }
 
 /* Tarjeta de partido */
 .partido-card {
-  border: 1px solid #e5e5e5;
-  border-radius: 8px;
-  padding: 16px;
-  background: #fff;
+  border: 2px solid var(--p-blue-bdr, #ccefff);
+  border-radius: var(--radius-lg, 12px);
+  overflow: hidden;
+  background: white;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0;
 }
-
-.partido-card.en-vivo  { border-color: #2563eb; }
-.partido-card.finalizado { background: #fafafa; border-color: #d1d5db; opacity: 0.85; }
+.partido-card.en-vivo   { border-color: var(--p-blue, #00b7ff); }
+.partido-card.finalizado { border-color: #ccc; opacity: 0.9; }
 
 .partido-header {
   display: flex;
   align-items: center;
   gap: 8px;
+  padding: 10px 14px;
+  background: var(--p-blue-tbl, #e8f7ff);
+  border-bottom: 1px solid var(--p-blue-bdr, #ccefff);
   font-size: 12px;
 }
+.partido-id { color: var(--p-text-muted, #888); }
 
-.partido-id { color: #9ca3af; }
+.partido-badge { padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+.partido-badge.pendiente  { background: var(--p-blue-light); color: var(--p-blue-900); }
+.partido-badge.en-vivo    { background: #fff3cd; color: #856404; border: 1px solid #ffd875; }
+.partido-badge.finalizado { background: var(--p-success-bg); color: var(--p-success-cl); border: 1px solid var(--p-success-bdr); }
 
-.partido-badge {
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 600;
-}
-
-.partido-badge.pendiente  { background: #f3f4f6; color: #6b7280; }
-.partido-badge.en-vivo    { background: #dbeafe; color: #1d4ed8; }
-.partido-badge.finalizado { background: #d1fae5; color: #065f46; }
-
-.partido-fecha { color: #6b7280; margin-left: auto; font-size: 11px; }
+.partido-fecha { color: var(--p-text-muted, #888); margin-left: auto; font-size: 11px; }
 
 .partido-body {
   display: flex;
   align-items: center;
   gap: 8px;
+  padding: 14px;
 }
 
 .equipo-col {
@@ -122,28 +140,12 @@
   align-items: center;
   gap: 6px;
 }
+.equipo-col.right { flex-direction: row-reverse; text-align: right; }
 
-.equipo-col.right {
-  flex-direction: row-reverse;
-  text-align: right;
-}
+.bandera { width: 24px; height: 17px; object-fit: cover; border-radius: 2px; flex-shrink: 0; }
+.equipo-nombre { font-size: 13px; font-weight: 600; color: var(--p-text, #333); }
 
-.bandera {
-  width: 24px;
-  height: 17px;
-  object-fit: cover;
-  border-radius: 2px;
-  flex-shrink: 0;
-}
-
-.equipo-nombre { font-size: 13px; font-weight: 600; color: #1f2937; }
-
-.score-col {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-}
+.score-col { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 
 .score-input {
   width: 48px;
@@ -151,106 +153,90 @@
   font-size: 20px;
   font-weight: 700;
   padding: 4px 6px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--p-blue-bdr, #ccefff);
   border-radius: 6px;
-  color: #1f2937;
+  color: var(--p-text, #333);
+}
+.score-input:focus {
+  outline: none;
+  border-color: var(--p-blue, #00b7ff);
+  box-shadow: 0 0 0 2px rgba(0,183,255,0.2);
 }
 
-.vs { font-size: 14px; color: #9ca3af; }
+.vs { font-size: 14px; color: var(--p-text-muted, #888); }
+.score-result { font-size: 22px; font-weight: 700; color: var(--p-text, #333); flex-shrink: 0; padding: 0 8px; }
+.partido-estadio { font-size: 11px; color: var(--p-text-muted, #888); padding: 0 14px 10px; }
 
-.score-result {
-  font-size: 22px;
-  font-weight: 700;
-  color: #1f2937;
-  flex-shrink: 0;
-  padding: 0 8px;
-}
-
-.partido-estadio { font-size: 11px; color: #6b7280; }
-
-/* Botones de acción */
-.partido-acciones {
-  display: flex;
-  gap: 8px;
-}
+/* Acciones */
+.partido-acciones { display: flex; gap: 8px; padding: 0 14px 14px; }
 
 .btn-live {
   flex: 1;
   padding: 7px 12px;
-  background: #eff6ff;
-  color: #1d4ed8;
-  border: 1px solid #bfdbfe;
-  border-radius: 6px;
+  background: var(--p-blue-light);
+  color: var(--p-blue-900);
+  border: 1px solid var(--p-blue-bdr, #ccefff);
+  border-radius: var(--radius, 8px);
   font-size: 13px;
+  font-weight: 700;
   cursor: pointer;
-  font-weight: 500;
+  transition: background 0.15s;
 }
-
-.btn-live:hover:not(:disabled) { background: #dbeafe; }
+.btn-live:hover:not(:disabled) { background: #d9f0ff; }
 
 .btn-finish {
   flex: 1;
   padding: 7px 12px;
-  background: #1f2937;
-  color: #fff;
+  background: var(--p-blue, #00b7ff);
+  color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius, 8px);
   font-size: 13px;
+  font-weight: 700;
   cursor: pointer;
-  font-weight: 500;
+  transition: background 0.15s;
 }
-
-.btn-finish:hover:not(:disabled) { background: #111827; }
-
-.btn-live:disabled,
-.btn-finish:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-finish:hover:not(:disabled) { background: var(--p-blue-dark, #0099dd); }
+.btn-live:disabled, .btn-finish:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .partido-finalizado-msg {
   font-size: 12px;
-  color: #065f46;
+  color: var(--p-success-cl);
   text-align: center;
-  background: #d1fae5;
+  background: var(--p-success-bg);
   border-radius: 4px;
   padding: 4px 8px;
+  margin: 0 14px 14px;
 }
 
-/* ── Penales ── */
+/* Penales */
 .penales-section {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  border-radius: 6px;
+  background: var(--p-blue-light);
+  border: 1px solid var(--p-blue-bdr, #ccefff);
+  border-radius: var(--radius, 8px);
   padding: 8px 12px;
+  margin: 0 14px 10px;
 }
-
 .penales-label {
   font-size: 11px;
   font-weight: 700;
-  color: #1d4ed8;
+  color: var(--p-blue-900);
   text-transform: uppercase;
   letter-spacing: 0.4px;
   white-space: nowrap;
 }
+.penales-inputs { display: flex; align-items: center; gap: 6px; }
+.penales-input { width: 44px !important; font-size: 16px !important; }
 
-.penales-inputs {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.penales-input {
-  width: 44px !important;
-  font-size: 16px !important;
-}
-
-/* ── Botón 3er lugar ── */
+/* Botón 3er lugar */
 .btn-tercero {
-  background: #fef3c7;
-  color: #92400e;
-  border: 1px solid #fcd34d;
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffd875;
   padding: 2px 8px;
   border-radius: 4px;
   font-size: 11px;
@@ -258,10 +244,9 @@
   white-space: nowrap;
   flex-shrink: 0;
 }
-
 .btn-tercero:hover { background: #fde68a; }
 
-/* ── Modal terceros ── */
+/* Modal terceros */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -271,11 +256,10 @@
   justify-content: center;
   z-index: 200;
 }
-
 .modal-terceros {
-  background: #fff;
-  border-radius: 10px;
-  border: 1px solid #e5e5e5;
+  background: white;
+  border: 2px solid var(--p-blue, #00b7ff);
+  border-radius: var(--radius-lg, 12px);
   width: 480px;
   max-width: 95vw;
   max-height: 90vh;
@@ -283,81 +267,43 @@
   flex-direction: column;
   overflow: hidden;
 }
-
 .modal-header { padding: 20px 20px 0; }
-.modal-header h3 { margin: 0 0 4px; font-size: 16px; color: #1f2937; }
-.modal-sub { font-size: 12px; color: #6b7280; margin: 0 0 12px; }
+.modal-header h3 { margin: 0 0 4px; font-size: 16px; color: var(--p-blue-900); }
+.modal-sub { font-size: 12px; color: var(--p-text-muted, #888); margin: 0 0 12px; }
 
-.terceros-list {
-  flex: 1;
-  overflow-y: auto;
-  border-top: 1px solid #e5e5e5;
-}
+.terceros-list { flex: 1; overflow-y: auto; border-top: 1px solid var(--p-blue-bdr, #ccefff); }
 
 .tercero-row {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 10px 20px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--p-blue-bdr, #ccefff);
   cursor: pointer;
 }
+.tercero-row:hover { background: var(--p-blue-light); }
+.tercero-row.clasificado { background: var(--p-success-bg); }
+.tercero-row.clasificado:hover { background: var(--p-success-bdr); }
 
-.tercero-row:hover { background: #f0f9ff; }
-.tercero-row.clasificado { background: #f0fdf4; }
-.tercero-row.clasificado:hover { background: #dcfce7; }
+.tercero-pos { width: 20px; font-size: 12px; font-weight: 700; color: var(--p-text-muted, #888); flex-shrink: 0; text-align: center; }
+.tercero-bandera { width: 28px; height: 20px; object-fit: cover; border-radius: 2px; flex-shrink: 0; }
+.tercero-info { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.tercero-nombre { font-size: 13px; font-weight: 600; color: var(--p-text, #333); }
+.tercero-grupo  { font-size: 11px; color: var(--p-text-muted, #888); }
+.tercero-stats  { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.tercero-pts { font-size: 12px; font-weight: 700; color: var(--p-text, #333); }
+.tercero-dg  { font-size: 11px; color: var(--p-text-muted, #888); }
+.tercero-badge { background: var(--p-success-bg); color: var(--p-success-cl); font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; flex-shrink: 0; }
 
-.tercero-pos {
-  width: 20px;
-  font-size: 12px;
-  font-weight: 700;
-  color: #9ca3af;
-  flex-shrink: 0;
-  text-align: center;
+.modal-footer { padding: 12px 20px; border-top: 1px solid var(--p-blue-bdr, #ccefff); display: flex; justify-content: flex-end; }
+
+@media (max-width: 767px) {
+  .admin-page    { padding: 12px 8px; }
+  .partidos-grid { grid-template-columns: 1fr; }
+  .top-bar       { flex-wrap: wrap; gap: 8px; }
+  .top-bar h1    { font-size: 16px; }
 }
 
-.tercero-bandera {
-  width: 28px;
-  height: 20px;
-  object-fit: cover;
-  border-radius: 2px;
-  flex-shrink: 0;
-}
-
-.tercero-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.tercero-nombre { font-size: 13px; font-weight: 600; color: #1f2937; }
-.tercero-grupo  { font-size: 11px; color: #6b7280; }
-
-.tercero-stats {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 2px;
-}
-
-.tercero-pts { font-size: 12px; font-weight: 700; color: #1f2937; }
-.tercero-dg  { font-size: 11px; color: #6b7280; }
-
-.tercero-badge {
-  background: #d1fae5;
-  color: #065f46;
-  font-size: 10px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 10px;
-  flex-shrink: 0;
-}
-
-.modal-footer {
-  padding: 12px 20px;
-  border-top: 1px solid #e5e5e5;
-  display: flex;
-  justify-content: flex-end;
+@media (max-width: 400px) {
+  .admin-page { padding: 10px 6px; }
 }

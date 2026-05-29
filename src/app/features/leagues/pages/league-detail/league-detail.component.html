@@ -1,258 +1,221 @@
-<div class="league-page">
-  <div class="league-card">
-    <div class="top-bar">
-      <a routerLink="/ligas" class="btn-secondary">← Volver a mis ligas</a>
+<div class="page">
+
+  <!-- Header sticky -->
+  <div class="page-header">
+    <div class="header-main">
+      <div class="header-title">
+        <div *ngIf="isLoadingLiga" class="loading-inline">Cargando...</div>
+        <ng-container *ngIf="!isLoadingLiga && liga">
+          <h1>{{ liga.nombre }}</h1>
+          <div class="header-meta">
+            <span class="badge" [class.badge-apuesta]="liga.esDeApuestas" [class.badge-diversion]="!liga.esDeApuestas">
+              {{ getTipoLiga() }}
+            </span>
+            <span class="meta-sep">·</span>
+            <span class="meta-torneo">{{ torneoNombre }}</span>
+            <span *ngIf="liga.esDeApuestas && liga.precioPorUnirse" class="meta-sep">·</span>
+            <span *ngIf="liga.esDeApuestas && liga.precioPorUnirse" class="meta-cuota">
+              Q {{ liga.precioPorUnirse | number:'1.2-2' }} entrada
+            </span>
+            <span *ngIf="isLive" class="live-badge">● En vivo</span>
+          </div>
+        </ng-container>
+      </div>
+      <div class="header-actions">
+        <a routerLink="/ligas" class="btn-outline">← Mis ligas</a>
+        <button *ngIf="!esAdminDeLiga && liga" type="button" class="btn-leave"
+                (click)="salirLiga()" [disabled]="isSaliendo">
+          {{ isSaliendo ? 'Saliendo...' : 'Salir de liga' }}
+        </button>
+      </div>
     </div>
 
-    <div *ngIf="errorMessage" class="message error-box">
-      {{ errorMessage }}
+    <!-- Stats chips -->
+    <div class="stats-bar" *ngIf="!isLoadingMiembros && miembros.length > 0">
+      <div class="stat-chip">
+        <span class="stat-num">{{ miembros.length }}</span>
+        <span class="stat-lbl">miembros</span>
+      </div>
+      <div class="stat-chip" *ngIf="pendientes.length > 0">
+        <span class="stat-num">{{ pendientes.length }}</span>
+        <span class="stat-lbl">pendientes</span>
+      </div>
+      <div class="stat-chip stat-pts" *ngIf="ranking.length > 0">
+        <span class="stat-num">{{ ranking[0]?.puntos ?? 0 }}</span>
+        <span class="stat-lbl">pts líder</span>
+      </div>
     </div>
 
-    <div *ngIf="successMessage" class="message success-box">
-      {{ successMessage }}
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab" [class.tab-active]="activeTab==='ranking'" (click)="setTab('ranking')">
+        🏆 Ranking
+      </button>
+      <button class="tab" [class.tab-active]="activeTab==='miembros'" (click)="setTab('miembros')">
+        👥 Miembros
+      </button>
+      <button *ngIf="esAdminDeLiga" class="tab" [class.tab-active]="activeTab==='pendientes'" (click)="setTab('pendientes')">
+        ⏳ Pendientes
+        <span *ngIf="pendientes.length > 0" class="tab-badge">{{ pendientes.length }}</span>
+      </button>
+      <button *ngIf="esAdminDeLiga" class="tab" [class.tab-active]="activeTab==='invitaciones'" (click)="setTab('invitaciones')">
+        ✉️ Invitaciones
+      </button>
     </div>
+  </div>
 
-    <section class="section" *ngIf="isLoadingLiga">
-      <div class="info-box">Cargando información de la liga...</div>
-    </section>
+  <!-- Body -->
+  <div class="page-body">
 
-    <section class="section" *ngIf="!isLoadingLiga && liga">
-      <h1>{{ liga.nombre }}</h1>
-      <p class="subtitle">Detalle general de la liga</p>
+    <div *ngIf="errorMessage" class="error-box">{{ errorMessage }}</div>
+    <div *ngIf="successMessage" class="success-box">{{ successMessage }}</div>
 
-      <div class="detail-grid">
-        <div class="detail-item">
-          <span class="label">Tipo</span>
-          <span class="value">{{ getTipoLiga() }}</span>
+    <!-- ── RANKING ── -->
+    <ng-container *ngIf="activeTab === 'ranking'">
+      <div *ngIf="isLoadingRanking" class="loading-state">
+        <div class="spinner"></div>
+        <p>Cargando ranking...</p>
+      </div>
+
+      <div *ngIf="!isLoadingRanking && ranking.length === 0" class="empty-state">
+        <span class="empty-icon">🏆</span>
+        <p>Aún no hay posiciones. Las predicciones se puntuarán cuando terminen los partidos.</p>
+      </div>
+
+      <div class="ranking-table" *ngIf="!isLoadingRanking && ranking.length > 0">
+        <div class="rtable-header">
+          <span class="col-pos">#</span>
+          <span class="col-var">±</span>
+          <span class="col-equipo">Equipo</span>
+          <span class="col-jugador">Jugador</span>
+          <span class="col-pts">Puntos</span>
+          <span class="col-premio" *ngIf="liga?.esDeApuestas">Premio est.</span>
         </div>
 
-        <div class="detail-item">
-          <span class="label">Precio por unirse</span>
-          <span class="value">
-            {{
-              liga.precioPorUnirse !== null && liga.precioPorUnirse !== undefined
-                ? liga.precioPorUnirse
-                : 'No aplica'
-            }}
+        <div class="rtable-row" *ngFor="let f of ranking"
+             [class.row-top1]="f.posicion===1"
+             [class.row-top2]="f.posicion===2"
+             [class.row-top3]="f.posicion===3">
+          <span class="col-pos medal">{{ getMedal(f.posicion) }}</span>
+          <span class="col-var" [ngClass]="variacionClass(f)">{{ variacionLabel(f) }}</span>
+          <span class="col-equipo equipo-name">{{ f.nombreEquipo || '—' }}</span>
+          <span class="col-jugador jugador-name">{{ f.fullName || '—' }}</span>
+          <span class="col-pts pts-val">{{ f.puntos }}</span>
+          <span class="col-premio" *ngIf="liga?.esDeApuestas">
+            <span *ngIf="f.premioAsignado != null" class="premio-val">Q {{ f.premioAsignado | number:'1.2-2' }}</span>
+            <span *ngIf="f.premioAsignado == null" class="premio-nd">—</span>
           </span>
         </div>
+      </div>
+    </ng-container>
 
-        <div class="detail-item">
-          <span class="label">Torneo ID</span>
-          <span class="value">{{ liga.torneoId || 'N/D' }}</span>
+    <!-- ── MIEMBROS ── -->
+    <ng-container *ngIf="activeTab === 'miembros'">
+      <div *ngIf="isLoadingMiembros" class="loading-state">
+        <div class="spinner"></div><p>Cargando miembros...</p>
+      </div>
+      <div *ngIf="!isLoadingMiembros && miembros.length === 0" class="empty-state">
+        <span class="empty-icon">👥</span><p>No hay miembros aprobados aún.</p>
+      </div>
+      <div class="data-table" *ngIf="!isLoadingMiembros && miembros.length > 0">
+        <div class="dt-header">
+          <span class="dtc-name">Nombre</span>
+          <span class="dtc-email">Email</span>
+          <span class="dtc-rol">Rol</span>
         </div>
-
-        <div class="detail-item">
-          <span class="label">ID de liga</span>
-          <span class="value">{{ liga.id }}</span>
+        <div class="dt-row" *ngFor="let m of miembros">
+          <span class="dtc-name">{{ m.fullName || m.nombre || '—' }}</span>
+          <span class="dtc-email">{{ m.email || '—' }}</span>
+          <span class="dtc-rol">
+            <span class="badge" [class.badge-apuesta]="m.esAdmin" [class.badge-diversion]="!m.esAdmin">
+              {{ m.esAdmin ? '⭐ Admin' : 'Miembro' }}
+            </span>
+          </span>
         </div>
       </div>
-    </section>
+    </ng-container>
 
-    <section class="section">
-      <h2>Miembros</h2>
-
-      <div *ngIf="isLoadingMiembros" class="info-box">
-        Cargando miembros...
+    <!-- ── PENDIENTES (admin) ── -->
+    <ng-container *ngIf="activeTab === 'pendientes'">
+      <div *ngIf="isLoadingPendientes" class="loading-state">
+        <div class="spinner"></div><p>Cargando solicitudes...</p>
       </div>
-
-      <div *ngIf="!isLoadingMiembros && miembros.length === 0" class="info-box">
-        No hay miembros disponibles.
+      <div *ngIf="!isLoadingPendientes && pendientes.length === 0" class="empty-state">
+        <span class="empty-icon">✅</span><p>No hay solicitudes pendientes.</p>
       </div>
-
-      <div class="table-wrapper" *ngIf="!isLoadingMiembros && miembros.length > 0">
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nombre</th>
-              <th>Email</th>
-              <th>Estado</th>
-              <th>Rol</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let miembro of miembros">
-              <td>{{ miembro.userId || miembro.id }}</td>
-              <td>{{ miembro.fullName || miembro.nombre || 'N/D' }}</td>
-              <td>{{ miembro.email || 'N/D' }}</td>
-              <td>{{ miembro.estado || 'N/D' }}</td>
-              <td>{{ miembro.esAdmin ? 'Administrador' : 'Miembro' }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <section class="section">
-      <h2>Solicitudes pendientes</h2>
-
-      <div *ngIf="isLoadingPendientes" class="info-box">
-        Cargando pendientes...
-      </div>
-
-      <div *ngIf="!isLoadingPendientes && pendientes.length === 0" class="info-box">
-        No hay solicitudes pendientes.
-      </div>
-
-      <div class="table-wrapper" *ngIf="!isLoadingPendientes && pendientes.length > 0">
-        <table>
-          <thead>
-            <tr>
-              <th>ID Usuario</th>
-              <th>Nombre</th>
-              <th>Email</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let pendiente of pendientes">
-              <td>{{ pendiente.userId || pendiente.id }}</td>
-              <td>{{ pendiente.fullName || pendiente.nombre || 'N/D' }}</td>
-              <td>{{ pendiente.email || 'N/D' }}</td>
-              <td>
-                <div class="action-buttons">
-                  <button
-                    type="button"
-                    class="btn-approve"
-                    (click)="aprobarParticipante(pendiente.userId || pendiente.id)"
-                    [disabled]="actionLoadingUserId === (pendiente.userId || pendiente.id)"
-                  >
-                    Aprobar
-                  </button>
-
-                  <button
-                    type="button"
-                    class="btn-reject"
-                    (click)="rechazarParticipante(pendiente.userId || pendiente.id)"
-                    [disabled]="actionLoadingUserId === (pendiente.userId || pendiente.id)"
-                  >
-                    Rechazar
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <section class="section">
-      <h2>Tabla de posiciones</h2>
-
-      <div *ngIf="isLoadingRanking" class="info-box">
-        Cargando ranking...
-      </div>
-
-      <div *ngIf="!isLoadingRanking && ranking.length === 0" class="info-box">
-        No hay posiciones disponibles todavía.
-      </div>
-
-      <div class="table-wrapper" *ngIf="!isLoadingRanking && ranking.length > 0">
-        <table>
-          <thead>
-            <tr>
-              <th>Posición</th>
-              <th>Nombre</th>
-              <th>Equipo</th>
-              <th>Puntos</th>
-              <th>Variación</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let fila of ranking">
-              <td>{{ fila.posicion }}</td>
-              <td>{{ fila.fullName || 'N/D' }}</td>
-              <td>{{ fila.nombreEquipo || 'N/D' }}</td>
-              <td>{{ fila.puntos }}</td>
-              <td>
-                <span [ngClass]="getVariationClass(fila)">
-                  {{ getVariationLabel(fila) }}
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <section class="section" *ngIf="liga">
-      <h2>Premios estimados</h2>
-
-      <div class="action-buttons">
-        <a [routerLink]="['/ligas', liga.id, 'premios']" class="btn-approve">
-          Ver premios estimados
-        </a>
-      </div>
-    </section>
-
-    <section class="section">
-      <h2>Invitaciones por correo</h2>
-
-      <form [formGroup]="invitationForm" (ngSubmit)="enviarInvitacion()" class="invitation-form" novalidate>
-        <div class="form-group">
-          <label for="emailInvitado">Correo del invitado</label>
-          <input
-            id="emailInvitado"
-            type="email"
-            formControlName="emailInvitado"
-            class="league-input"
-            placeholder="correo@ejemplo.com"
-          />
-
-          <small class="error-text" *ngIf="emailInvitado.touched && emailInvitado.hasError('required')">
-            El correo es obligatorio.
-          </small>
-
-          <small class="error-text" *ngIf="emailInvitado.touched && emailInvitado.hasError('email')">
-            Ingresa un correo válido.
-          </small>
+      <div class="data-table" *ngIf="!isLoadingPendientes && pendientes.length > 0">
+        <div class="dt-header">
+          <span class="dtc-name">Nombre</span>
+          <span class="dtc-email">Email</span>
+          <span class="dtc-actions">Acciones</span>
         </div>
+        <div class="dt-row" *ngFor="let p of pendientes">
+          <span class="dtc-name">{{ p.fullName || p.nombre || '—' }}</span>
+          <span class="dtc-email">{{ p.email || '—' }}</span>
+          <span class="dtc-actions">
+            <button class="btn-approve" type="button"
+                    (click)="aprobarParticipante(p.userId || p.id)"
+                    [disabled]="actionLoadingUserId === (p.userId || p.id)">
+              ✔ Aprobar
+            </button>
+            <button class="btn-reject" type="button"
+                    (click)="rechazarParticipante(p.userId || p.id)"
+                    [disabled]="actionLoadingUserId === (p.userId || p.id)">
+              ✕ Rechazar
+            </button>
+          </span>
+        </div>
+      </div>
+    </ng-container>
 
-        <button type="submit" class="btn-approve" [disabled]="isSendingInvitation">
-          {{ isSendingInvitation ? 'Enviando...' : 'Enviar invitación' }}
-        </button>
-      </form>
-
-      <div *ngIf="isLoadingInvitaciones" class="info-box">
-        Cargando invitaciones...
+    <!-- ── INVITACIONES (admin) ── -->
+    <ng-container *ngIf="activeTab === 'invitaciones'">
+      <!-- Formulario enviar invitación -->
+      <div class="invite-form-card">
+        <h3 class="section-title">Invitar por correo</h3>
+        <form [formGroup]="invitationForm" (ngSubmit)="enviarInvitacion()" class="invite-form" novalidate>
+          <div class="invite-row">
+            <input type="email" formControlName="emailInvitado" class="invite-input"
+                   placeholder="correo@ejemplo.com" />
+            <button type="submit" class="btn-invite" [disabled]="isSendingInvitation">
+              {{ isSendingInvitation ? 'Enviando...' : '✉️ Enviar invitación' }}
+            </button>
+          </div>
+          <small class="error-text" *ngIf="emailInvitado.touched && emailInvitado.hasError('required')">El correo es obligatorio.</small>
+          <small class="error-text" *ngIf="emailInvitado.touched && emailInvitado.hasError('email')">Ingresa un correo válido.</small>
+        </form>
       </div>
 
-      <div *ngIf="!isLoadingInvitaciones && invitaciones.length === 0" class="info-box">
-        No hay invitaciones enviadas.
+      <!-- Lista de invitaciones -->
+      <div *ngIf="isLoadingInvitaciones" class="loading-state">
+        <div class="spinner"></div><p>Cargando invitaciones...</p>
       </div>
+      <div *ngIf="!isLoadingInvitaciones && invitaciones.length === 0" class="empty-state">
+        <span class="empty-icon">✉️</span><p>No hay invitaciones enviadas.</p>
+      </div>
+      <div class="data-table" *ngIf="!isLoadingInvitaciones && invitaciones.length > 0">
+        <div class="dt-header">
+          <span class="dtc-email">Email invitado</span>
+          <span class="dtc-rol">Estado</span>
+          <span class="dtc-actions">Acción</span>
+        </div>
+        <div class="dt-row" *ngFor="let inv of invitaciones">
+          <span class="dtc-email">{{ inv.emailInvitado || inv.email || '—' }}</span>
+          <span class="dtc-rol">
+            <span class="estado-badge estado-{{ (inv.estado || 'pendiente').toLowerCase() }}">
+              {{ inv.estado || 'Pendiente' }}
+            </span>
+          </span>
+          <span class="dtc-actions">
+            <button class="btn-reject" type="button"
+                    (click)="cancelarInvitacion(inv.id)"
+                    [disabled]="cancelLoadingInvitationId === inv.id">
+              Cancelar
+            </button>
+          </span>
+        </div>
+      </div>
+    </ng-container>
 
-      <div class="table-wrapper" *ngIf="!isLoadingInvitaciones && invitaciones.length > 0">
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Email</th>
-              <th>Estado</th>
-              <th>Token</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let invitacion of invitaciones">
-              <td>{{ invitacion.id }}</td>
-              <td>{{ invitacion.emailInvitado || invitacion.email || 'N/D' }}</td>
-              <td>{{ invitacion.estado || 'N/D' }}</td>
-              <td>{{ invitacion.token || 'N/D' }}</td>
-              <td>
-                <button
-                  type="button"
-                  class="btn-reject"
-                  (click)="cancelarInvitacion(invitacion.id)"
-                  [disabled]="cancelLoadingInvitationId === invitacion.id"
-                >
-                  Cancelar
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
   </div>
 </div>

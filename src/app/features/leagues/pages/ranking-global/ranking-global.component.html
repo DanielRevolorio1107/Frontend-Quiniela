@@ -1,0 +1,109 @@
+<div class="page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-main">
+      <div>
+        <h1>🏆 Ranking Global</h1>
+        <p>Clasificación general de participantes y ligas de apuesta</p>
+      </div>
+      <div class="header-actions">
+        <span *ngIf="isLive" class="live-badge">● En vivo</span>
+        <button type="button" class="btn-outline" (click)="loadRanking()">↻ Actualizar</button>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button type="button" class="tab" [class.tab-active]="activeTab === 'usuarios'" (click)="activeTab = 'usuarios'">
+        👤 Jugadores
+      </button>
+      <button type="button" class="tab" [class.tab-active]="activeTab === 'ligas'" (click)="activeTab = 'ligas'">
+        🏅 Ligas
+      </button>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="page-body">
+
+    <div *ngIf="errorMessage" class="error-box">{{ errorMessage }}</div>
+
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando ranking...</p>
+    </div>
+
+    <!-- ── Ranking Usuarios ── -->
+    <ng-container *ngIf="!isLoading && activeTab === 'usuarios'">
+      <div *ngIf="rankingUsuarios.length === 0" class="empty-state">
+        <span class="empty-icon">🏆</span>
+        <p>No hay datos de ranking disponibles</p>
+      </div>
+
+      <div class="ranking-table" *ngIf="rankingUsuarios.length > 0">
+        <div class="table-header rk-usuarios">
+          <span class="col-pos">#</span>
+          <span class="col-var">±</span>
+          <span class="col-nombre">Jugador</span>
+          <span class="col-liga">Liga</span>
+          <span class="col-pts">Puntos</span>
+          <span class="col-premio">Premio</span>
+        </div>
+
+        <div class="table-row rk-usuarios" *ngFor="let u of rankingUsuarios"
+             [class.row-top1]="u.posicion === 1"
+             [class.row-top2]="u.posicion === 2"
+             [class.row-top3]="u.posicion === 3">
+          <span class="col-pos pos-medal">{{ getMedal(u.posicion) }}</span>
+          <span class="col-var" [ngClass]="variacionClass(u)">{{ variacionLabel(u) }}</span>
+          <div class="col-nombre">
+            <span class="player-name">{{ u.fullName }}</span>
+          </div>
+          <span class="col-liga liga-name">{{ u.nombreLiga || '—' }}</span>
+          <span class="col-pts pts-val">{{ u.totalPuntos }}</span>
+          <span class="col-premio">
+            <span *ngIf="u.premioAsignado" class="premio-val">Q {{ u.premioAsignado | number:'1.2-2' }}</span>
+            <span *ngIf="!u.premioAsignado" class="premio-nd" title="Los premios globales se distribuyen al cierre del torneo">Al cierre</span>
+          </span>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- ── Ranking Ligas ── -->
+    <ng-container *ngIf="!isLoading && activeTab === 'ligas'">
+      <div *ngIf="rankingLigas.length === 0" class="empty-state">
+        <span class="empty-icon">🏅</span>
+        <p>No hay ligas de apuesta disponibles</p>
+      </div>
+
+      <div class="ranking-table" *ngIf="rankingLigas.length > 0">
+        <div class="table-header rk-ligas">
+          <span class="col-pos">#</span>
+          <span class="col-var">±</span>
+          <span class="col-nombre">Liga</span>
+          <span class="col-pts">Prom. pts</span>
+          <span class="col-miem">Miembros</span>
+          <span class="col-premio">Premio total</span>
+        </div>
+
+        <div class="table-row rk-ligas" *ngFor="let l of rankingLigas"
+             [class.row-top1]="l.posicion === 1"
+             [class.row-top2]="l.posicion === 2"
+             [class.row-top3]="l.posicion === 3">
+          <span class="col-pos pos-medal">{{ getMedal(l.posicion) }}</span>
+          <span class="col-var" [ngClass]="variacionClass(l)">{{ variacionLabel(l) }}</span>
+          <div class="col-nombre">
+            <a [routerLink]="['/ligas', l.ligaId]" class="liga-link">{{ l.nombreLiga }}</a>
+          </div>
+          <span class="col-pts pts-val">{{ l.promedioPuntos | number:'1.1-1' }}</span>
+          <span class="col-miem">{{ l.totalMiembros }}</span>
+          <span class="col-premio">
+            <span *ngIf="l.premioTotal" class="premio-val">Q {{ l.premioTotal | number:'1.2-2' }}</span>
+            <span *ngIf="!l.premioTotal" class="premio-nd" title="Los premios se distribuyen al cierre del torneo">Al cierre</span>
+          </span>
+        </div>
+      </div>
+    </ng-container>
+
+  </div>
+</div>
