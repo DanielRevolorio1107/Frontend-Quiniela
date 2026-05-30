@@ -1,79 +1,99 @@
-/* Respuesta Invitación — Quiniela 2026 */
 .invite-page {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 24px 20px;
-  background: linear-gradient(135deg, #f0f2f5 0%, var(--p-blue-light) 100%);
+  background: linear-gradient(150deg, #001f6b 0%, #0056b3 50%, #0099dd 100%);
 }
 
 .invite-card {
   width: 100%;
-  max-width: 460px;
+  max-width: 440px;
   background: white;
-  border: 2px solid var(--p-blue, #00b7ff);
-  border-radius: var(--radius-lg, 12px);
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.28);
 }
 
 .invite-header {
-  background: var(--p-blue-tbl, #e8f7ff);
-  padding: 20px 24px;
+  padding: 32px 28px 20px;
   text-align: center;
-  border-bottom: 1px solid var(--p-blue-bdr, #ccefff);
+  border-bottom: 1px solid #f0f2f5;
 }
-.invite-header h1 { margin: 0 0 6px; font-size: 22px; font-weight: 700; color: var(--p-blue-900); }
-.invite-header p  { margin: 0; color: var(--p-text-muted, #888); font-size: 14px; }
 
-.invite-body { padding: 20px 24px; }
+.invite-icon {
+  font-size: 36px;
+  margin-bottom: 12px;
+  line-height: 1;
+}
+.success-icon { color: #2ecc71; }
+.error-icon   { color: #e74c3c; }
+
+.invite-header h1 { margin: 0 0 6px; font-size: 20px; font-weight: 800; color: #0056b3; }
+.invite-header p  { margin: 0; color: #888; font-size: 14px; line-height: 1.4; }
+
+.invite-body { padding: 20px 28px 4px; }
 
 .form-group { margin-bottom: 16px; }
-label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 13px; color: var(--p-text-mid, #555); }
+label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 13px; color: #555; }
 
 .invite-input {
   display: block;
   width: 100%;
   box-sizing: border-box;
-  border: 1px solid var(--p-blue-bdr, #ccefff);
-  border-radius: var(--radius, 8px);
+  border: 1.5px solid #e0e4ea;
+  border-radius: 8px;
   padding: 10px 12px;
   font-size: 14px;
-  background: white;
-  color: var(--p-text, #333);
+  background: #f9fafb;
+  color: #333;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
-.invite-input:focus { outline: none; border-color: var(--p-blue, #00b7ff); box-shadow: 0 0 0 3px rgba(0,183,255,0.15); }
+.invite-input:focus { outline: none; border-color: #00b7ff; background: white; box-shadow: 0 0 0 3px rgba(0,183,255,0.14); }
 
-.error-text { display: block; margin-top: 4px; color: var(--p-red); font-size: 12px; }
+.error-text { display: block; margin-top: 4px; color: #e74c3c; font-size: 12px; }
 
-.message { border-radius: var(--radius, 8px); padding: 12px 14px; margin-bottom: 14px; font-size: 14px; }
-.error-box   { background: var(--p-error-bg); color: var(--p-error-cl); border: 1px solid var(--p-error-bdr); }
-.success-box { background: var(--p-success-bg); color: var(--p-success-cl); border: 1px solid var(--p-success-bdr); }
+.message { border-radius: 8px; padding: 11px 14px; margin: 16px 28px 0; font-size: 13px; }
+.error-box { background: #fdf0ef; color: #c0392b; border: 1px solid #f5c6c6; }
 
-.button-group { display: flex; gap: 10px; flex-wrap: wrap; }
+.invite-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px 28px 28px;
+}
 
-.btn-accept, .btn-reject {
-  flex: 1;
+.btn-accept, .btn-reject, .btn-outline {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+  padding: 12px;
   border: none;
-  border-radius: var(--radius, 8px);
-  padding: 11px 16px;
+  border-radius: 8px;
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.15s;
+  text-decoration: none;
+  transition: background 0.15s, transform 0.1s;
 }
-.btn-accept { background: var(--p-green, #2ecc71); color: white; }
-.btn-accept:hover:not(:disabled) { background: var(--p-green-dark, #27ae60); }
-.btn-reject { background: var(--p-red); color: white; }
-.btn-reject:hover:not(:disabled) { background: var(--p-red-dark, #c0392b); }
-.btn-accept:disabled, .btn-reject:disabled { opacity: 0.7; cursor: not-allowed; }
 
-.invite-footer { margin-top: 18px; text-align: center; font-size: 13px; color: var(--p-text-muted, #888); }
-.invite-footer a { color: var(--p-blue, #00b7ff); font-weight: 600; text-decoration: none; }
-.invite-footer a:hover { text-decoration: underline; }
+.btn-accept { background: #2ecc71; color: white; }
+.btn-accept:hover:not(:disabled) { background: #27ae60; }
+.btn-accept:active:not(:disabled) { transform: scale(0.98); }
 
-@media (max-width: 767px) {
-  .invite-page { padding: 16px 12px; }
+.btn-reject { background: #f5f6fa; color: #e74c3c; border: 1.5px solid #f5c6c6; }
+.btn-reject:hover:not(:disabled) { background: #fdf0ef; }
+
+.btn-outline { background: white; color: #0099dd; border: 2px solid #0099dd; }
+.btn-outline:hover { background: #eaf6ff; }
+
+.btn-accept:disabled, .btn-reject:disabled { opacity: 0.6; cursor: not-allowed; }
+
+@media (max-width: 480px) {
+  .invite-header { padding: 24px 20px 16px; }
+  .invite-actions { padding: 16px 20px 24px; }
+  .invite-body { padding: 16px 20px 4px; }
+  .message { margin: 12px 20px 0; }
 }
