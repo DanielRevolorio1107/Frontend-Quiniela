@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { AuthService } from '../../services/auth.services';
 import { LoginRequest } from '../../interfaces/login-request.interface';
@@ -20,6 +20,7 @@ export class LoginComponent {
   private authService = inject(AuthService);
   private sessionService = inject(SessionService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   isLoading = false;
   errorMessage = '';
@@ -69,7 +70,8 @@ export class LoginComponent {
         );
 
         this.isLoading = false;
-        this.router.navigate(['/dashboard']);
+        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+        this.router.navigateByUrl(returnUrl || '/dashboard');
       },
       error: (error) => {
         this.isLoading = false;

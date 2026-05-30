@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { AuthService } from '../../services/auth.services';
 import { RegisterRequest } from '../../interfaces/register-request.interface';
@@ -18,6 +18,7 @@ export class RegisterComponent {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   isLoading = false;
   errorMessage = '';
@@ -90,8 +91,9 @@ this.registerForm = this.fb.group(
         this.successMessage = response.message || 'Usuario registrado correctamente.';
         this.registerForm.reset();
 
+        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
         setTimeout(() => {
-          this.router.navigate(['/login']);
+          this.router.navigate(['/login'], returnUrl ? { queryParams: { returnUrl } } : {});
         }, 1500);
       },
       error: (error) => {

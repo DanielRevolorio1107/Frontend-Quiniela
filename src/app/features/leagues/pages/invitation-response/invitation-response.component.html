@@ -1,57 +1,86 @@
 <div class="invite-page">
   <div class="invite-card">
-    <div class="invite-header">
-      <h1>Responder invitación</h1>
-      <p>Decide si deseas unirte a la liga</p>
-    </div>
 
-    <div class="message error-box" *ngIf="errorMessage">
-      {{ errorMessage }}
-    </div>
+    <!-- Token inválido -->
+    <ng-container *ngIf="!token">
+      <div class="invite-header">
+        <div class="invite-icon error-icon">✕</div>
+        <h1>Enlace no válido</h1>
+        <p>El enlace de invitación es inválido o está incompleto.</p>
+      </div>
+      <div class="invite-footer">
+        <a routerLink="/login">Ir al inicio de sesión</a>
+      </div>
+    </ng-container>
 
-    <div class="message success-box" *ngIf="successMessage">
-      {{ successMessage }}
-    </div>
+    <!-- Aceptación exitosa -->
+    <ng-container *ngIf="token && done">
+      <div class="invite-header">
+        <div class="invite-icon success-icon">✓</div>
+        <h1>¡Ya eres parte de la liga!</h1>
+        <p>Tu solicitud fue aceptada. Puedes empezar a hacer predicciones.</p>
+      </div>
+      <div class="invite-actions">
+        <a routerLink="/dashboard" class="btn-accept">Ir al dashboard</a>
+      </div>
+    </ng-container>
 
-    <form [formGroup]="responseForm" novalidate>
-      <div class="form-group">
-        <label for="nombreEquipo">Nombre de tu equipo</label>
-        <input
-          id="nombreEquipo"
-          type="text"
-          formControlName="nombreEquipo"
-          class="invite-input"
-          placeholder="Ingresa el nombre de tu equipo"
-        />
+    <!-- No autenticado -->
+    <ng-container *ngIf="token && !done && !isAuthenticated">
+      <div class="invite-header">
+        <div class="invite-icon">✉</div>
+        <h1>Tienes una invitación</h1>
+        <p>Inicia sesión o crea una cuenta para unirte a la liga.</p>
+      </div>
+      <div class="invite-actions">
+        <a [routerLink]="['/login']" [queryParams]="{ returnUrl: '/invitacion/responder?token=' + token }" class="btn-accept">
+          Iniciar sesión
+        </a>
+        <a [routerLink]="['/register']" [queryParams]="{ returnUrl: '/invitacion/responder?token=' + token }" class="btn-outline">
+          Crear cuenta nueva
+        </a>
+      </div>
+    </ng-container>
 
-        <small class="error-text" *ngIf="nombreEquipo.touched && nombreEquipo.hasError('minlength')">
-          El nombre del equipo debe tener al menos 2 caracteres.
-        </small>
+    <!-- Formulario de aceptación -->
+    <ng-container *ngIf="token && !done && isAuthenticated">
+      <div class="invite-header">
+        <div class="invite-icon">✉</div>
+        <h1>Invitación a liga</h1>
+        <p>Elige el nombre de tu equipo para unirte.</p>
       </div>
 
-      <div class="button-group">
-        <button
-          type="button"
-          class="btn-accept"
-          (click)="aceptarInvitacion()"
-          [disabled]="isLoading || !token"
-        >
-          {{ isLoading ? 'Procesando...' : 'Aceptar invitación' }}
-        </button>
+      <div class="message error-box" *ngIf="errorMessage">{{ errorMessage }}</div>
 
-        <button
-          type="button"
-          class="btn-reject"
-          (click)="rechazarInvitacion()"
-          [disabled]="isLoading || !token"
-        >
-          Rechazar invitación
-        </button>
-      </div>
-    </form>
+      <form [formGroup]="responseForm" novalidate class="invite-body">
+        <div class="form-group">
+          <label for="nombreEquipo">Nombre de tu equipo</label>
+          <input
+            id="nombreEquipo"
+            type="text"
+            formControlName="nombreEquipo"
+            class="invite-input"
+            placeholder="Ej: Los Cracks"
+            autocomplete="off"
+          />
+          <small class="error-text" *ngIf="nombreEquipo.touched && nombreEquipo.hasError('required')">
+            El nombre es obligatorio.
+          </small>
+          <small class="error-text" *ngIf="nombreEquipo.touched && nombreEquipo.hasError('minlength')">
+            Mínimo 2 caracteres.
+          </small>
+        </div>
 
-    <div class="invite-footer">
-      <a routerLink="/login">Ir al inicio de sesión</a>
-    </div>
+        <div class="invite-actions">
+          <button type="button" class="btn-accept" (click)="aceptarInvitacion()" [disabled]="isLoading">
+            {{ isLoading ? 'Procesando...' : 'Unirme a la liga' }}
+          </button>
+          <button type="button" class="btn-reject" (click)="rechazarInvitacion()" [disabled]="isLoading">
+            Rechazar
+          </button>
+        </div>
+      </form>
+    </ng-container>
+
   </div>
 </div>

@@ -226,7 +226,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       })
       .catch((err: unknown) => console.warn('SignalR connection failed:', err));
 
-    this.hubConnection.on('ResultadoActualizado', () => { this.loadAll(); });
+    this.hubConnection.on('ResultadoActualizado', () => { this.loadAll(); this.loadRanking(); });
     this.hubConnection.on('ClasificacionActualizada', () => { this.loadAll(); });
     this.hubConnection.on('RankingActualizado', () => { this.loadRanking(); });
   }

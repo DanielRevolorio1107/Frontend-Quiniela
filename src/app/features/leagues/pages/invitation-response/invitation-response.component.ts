@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { LeagueService } from '../../services/league.service';
+import { SessionService } from '../../../../core/services/session.service';
 import { LeagueInvitationResponseRequest } from '../../Interfaces/league-invitation-response-request.interface';
 
 @Component({
@@ -13,28 +14,41 @@ import { LeagueInvitationResponseRequest } from '../../Interfaces/league-invitat
   templateUrl: './invitation-response.component.html',
   styleUrl: './invitation-response.component.css'
 })
-export class InvitationResponseComponent {
+export class InvitationResponseComponent implements OnInit {
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private leagueService = inject(LeagueService);
+  private sessionService = inject(SessionService);
 
   token = '';
   isLoading = false;
   errorMessage = '';
-  successMessage = '';
+  done = false;
+
+  isAuthenticated = false;
+  loginUrl = '';
+  registerUrl = '';
 
   responseForm!: FormGroup;
 
-  constructor() {
+  ngOnInit(): void {
     this.responseForm = this.fb.group({
-      nombreEquipo: ['', [Validators.minLength(2)]]
+      nombreEquipo: ['', [Validators.required, Validators.minLength(2)]]
     });
 
     this.token = this.route.snapshot.queryParamMap.get('token') || '';
 
     if (!this.token) {
       this.errorMessage = 'El enlace no contiene un token válido.';
+      return;
     }
+
+    this.isAuthenticated = this.sessionService.isAuthenticated();
+
+    const returnUrl = encodeURIComponent(`/invitacion/responder?token=${this.token}`);
+    this.loginUrl = `/login?returnUrl=${returnUrl}`;
+    this.registerUrl = `/register?returnUrl=${returnUrl}`;
   }
 
   get nombreEquipo() {
@@ -43,18 +57,9 @@ export class InvitationResponseComponent {
 
   aceptarInvitacion(): void {
     this.errorMessage = '';
-    this.successMessage = '';
 
-    if (!this.token) {
-      this.errorMessage = 'No se encontró el token de invitación.';
-      return;
-    }
-
-    const nombreEquipo = this.nombreEquipo.value?.trim() || '';
-
-    if (nombreEquipo.length < 2) {
-      this.nombreEquipo.markAsTouched();
-      this.errorMessage = 'Debes ingresar un nombre de equipo válido para aceptar la invitación.';
+    if (this.responseForm.invalid) {
+      this.responseForm.markAllAsTouched();
       return;
     }
 
@@ -63,23 +68,16 @@ export class InvitationResponseComponent {
     const payload: LeagueInvitationResponseRequest = {
       token: this.token,
       aceptar: true,
-      nombreEquipo
+      nombreEquipo: this.nombreEquipo.value.trim()
     };
 
     this.leagueService.respondInvitation(payload).subscribe({
       next: () => {
         this.isLoading = false;
-        this.successMessage = 'Invitación aceptada correctamente.';
-        this.responseForm.reset();
+        this.done = true;
       },
       error: (error) => {
         this.isLoading = false;
-
-        if (error.status === 0) {
-          this.errorMessage = 'No se pudo conectar con el servidor.';
-          return;
-        }
-
         this.errorMessage = error?.error?.error || 'No se pudo aceptar la invitación.';
       }
     });
@@ -87,13 +85,6 @@ export class InvitationResponseComponent {
 
   rechazarInvitacion(): void {
     this.errorMessage = '';
-    this.successMessage = '';
-
-    if (!this.token) {
-      this.errorMessage = 'No se encontró el token de invitación.';
-      return;
-    }
-
     this.isLoading = true;
 
     const payload: LeagueInvitationResponseRequest = {
@@ -105,16 +96,10 @@ export class InvitationResponseComponent {
     this.leagueService.respondInvitation(payload).subscribe({
       next: () => {
         this.isLoading = false;
-        this.successMessage = 'Invitación rechazada correctamente.';
+        this.router.navigate(['/login']);
       },
       error: (error) => {
         this.isLoading = false;
-
-        if (error.status === 0) {
-          this.errorMessage = 'No se pudo conectar con el servidor.';
-          return;
-        }
-
         this.errorMessage = error?.error?.error || 'No se pudo rechazar la invitación.';
       }
     });
