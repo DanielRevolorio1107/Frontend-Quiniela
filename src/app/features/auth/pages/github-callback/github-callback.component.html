@@ -1,0 +1,16 @@
+<div class="callback-page">
+  <div class="callback-card">
+
+    <ng-container *ngIf="!errorMessage">
+      <div class="spinner"></div>
+      <p class="callback-msg">Iniciando sesión con GitHub...</p>
+    </ng-container>
+
+    <ng-container *ngIf="errorMessage">
+      <div class="callback-icon error-icon">✕</div>
+      <p class="callback-msg error-text">{{ errorMessage }}</p>
+      <a routerLink="/login" class="btn-back">Volver al inicio de sesión</a>
+    </ng-container>
+
+  </div>
+</div>
