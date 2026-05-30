@@ -41,6 +41,7 @@ import { TorneoListComponent } from './features/admin-tournament/pages/torneo-li
 import { TorneoFormComponent } from './features/admin-tournament/pages/torneo-form/torneo-form.component';
 import { TorneoConfigComponent } from './features/admin-tournament/pages/torneo-config/torneo-config.component';
 import { LigaPremiosComponent } from './features/premio-liga/pages/liga-premios.component';
+import { GithubCallbackComponent } from './features/auth/pages/github-callback/github-callback.component';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -51,6 +52,7 @@ export const routes: Routes = [
     { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
     { path: 'forgot-password', component: ForgotPasswordComponent },
     { path: 'recuperar-password', component: RecoverPasswordComponent },
+    { path: 'auth/github/callback', component: GithubCallbackComponent },
 
     // Dashboard
     { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },

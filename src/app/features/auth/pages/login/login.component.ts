@@ -6,6 +6,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.services';
 import { LoginRequest } from '../../interfaces/login-request.interface';
 import { SessionService } from '../../../../core/services/session.service';
+import { environment } from '../../../../../enviroments/enviroments';
 
 @Component({
   selector: 'app-login',
@@ -24,6 +25,8 @@ export class LoginComponent {
   errorMessage = '';
   successMessage = '';
   loginForm!: FormGroup;
+
+  readonly githubAuthUrl = `${environment.apiUrl}/auth/github`;
 
   constructor() {
     this.loginForm = this.fb.group({
