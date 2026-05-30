@@ -84,6 +84,7 @@ export const routes: Routes = [
     // Admin — Usuarios
     { path: 'admin/usuarios', component: UserListComponent, canActivate: [adminGuard] },
     { path: 'admin/usuarios/crear', component: UserCreateComponent, canActivate: [adminGuard] },
+    { path: 'admin/usuarios/:id/editar', component: UserDetailComponent, canActivate: [adminGuard] },
     { path: 'admin/usuarios/:id', component: UserDetailComponent, canActivate: [adminGuard] },
 
     // Admin — Reportes y Premios
