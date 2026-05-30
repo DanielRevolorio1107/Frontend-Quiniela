@@ -6,6 +6,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.services';
 import { RegisterRequest } from '../../interfaces/register-request.interface';
 import { passwordMatchValidator } from '../../../../shared/validators/password-match.validator';
+import { SessionService } from '../../../../core/services/session.service';
 
 @Component({
   selector: 'app-register',
@@ -19,6 +20,7 @@ export class RegisterComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private sessionService = inject(SessionService);
 
   isLoading = false;
   errorMessage = '';
@@ -27,6 +29,11 @@ export class RegisterComponent {
   registerForm!: FormGroup;
 
   constructor() {
+    if (this.sessionService.isAuthenticated()) {
+      this.router.navigate(['/dashboard']);
+      return;
+    }
+
 this.registerForm = this.fb.group(
   {
     firstName: ['', [Validators.required, Validators.minLength(2)]],
