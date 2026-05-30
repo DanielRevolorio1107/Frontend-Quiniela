@@ -30,6 +30,11 @@ export class LoginComponent {
   readonly githubAuthUrl = `${environment.apiUrl}/auth/github`;
 
   constructor() {
+    if (this.sessionService.isAuthenticated()) {
+      this.router.navigate(['/dashboard']);
+      return;
+    }
+
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]]
